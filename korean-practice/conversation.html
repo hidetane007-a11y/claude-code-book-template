@@ -552,7 +552,19 @@
           });
         }
 
-        if (!resp.ok) throw new Error('サーバーエラー');
+        if (!resp.ok) {
+          if (resp.status === 401) {
+            if (typing.parentNode) typing.remove();
+            isSending = false; sendBtn.disabled = false;
+            addErrorMessage('APIキーが無効または期限切れです。⚙️ から正しいキーを再設定してください。');
+            kpShowApiKeyModal();
+            return;
+          }
+          if (resp.status === 429) throw new Error('レート制限に達しました。しばらく待ってから再試行してください。');
+          let detail = '';
+          try { const b = await resp.json(); detail = b.error?.message || ''; } catch {}
+          throw new Error(`サーバーエラー (${resp.status})${detail ? ': ' + detail : ''}`);
+        }
 
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
@@ -608,7 +620,11 @@
       } catch (err) {
         if (typing.parentNode) typing.remove();
         if (previewBubble) previewBubble.remove();
-        addErrorMessage('通信エラーが発生しました。もう一度お試しください。');
+        let msg = err.message || '通信エラーが発生しました。';
+        if (!msg || msg === '[object Object]' || err.name === 'TypeError') {
+          msg = 'ネットワークエラー：接続を確認し、APIキー（⚙️）が正しいか確認してください。';
+        }
+        addErrorMessage(msg);
         console.error(err);
       } finally {
         isSending = false;
