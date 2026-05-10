@@ -56,11 +56,12 @@
   window.addEventListener('online',  hideOfflineBanner);
   window.addEventListener('offline', showOfflineBanner);
 
-  // Service Worker 登録
+  // Service Worker 登録（相対パスでGitHub Pages対応）
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/korean-android/sw.js', { scope: '/korean-android/' })
-        .catch(() => {});
+      const swUrl   = new URL('sw.js',  location.href).href;
+      const swScope = new URL('./',     location.href).href;
+      navigator.serviceWorker.register(swUrl, { scope: swScope }).catch(() => {});
     });
   }
 

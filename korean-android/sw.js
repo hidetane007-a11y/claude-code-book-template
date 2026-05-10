@@ -1,17 +1,17 @@
-const CACHE = 'korean-android-v2';
+const CACHE = 'korean-android-v3';
 const PRECACHE = [
-  '/korean-android/',
-  '/korean-android/index.html',
-  '/korean-android/conversation.html',
-  '/korean-android/drill.html',
-  '/korean-android/vowels.html',
-  '/korean-android/wordbook.html',
-  '/korean-android/css/app.css',
-  '/korean-android/js/state.js',
-  '/korean-android/js/speech.js',
-  '/korean-android/js/nav.js',
-  '/korean-android/icons/icon.svg',
-  '/korean-android/manifest.json',
+  './',
+  './index.html',
+  './conversation.html',
+  './drill.html',
+  './vowels.html',
+  './wordbook.html',
+  './css/app.css',
+  './js/state.js',
+  './js/speech.js',
+  './js/nav.js',
+  './icons/icon.svg',
+  './manifest.json',
 ];
 
 self.addEventListener('install', e => {
@@ -35,7 +35,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('/api/')) return;
+  // 外部APIとローカルAPIエンドポイントはキャッシュしない
+  if (url.origin !== location.origin) return;
+  if (url.pathname.includes('/api/')) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {
