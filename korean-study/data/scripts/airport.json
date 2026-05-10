@@ -1,0 +1,222 @@
+{
+  "id": "airport",
+  "name": "空港",
+  "beats": [
+    {
+      "id": "start",
+      "reply_kr": "안녕하세요! 탑승권과 여권을 보여 주시겠어요?",
+      "reply_jp": "こんにちは！搭乗券とパスポートをお見せいただけますか？",
+      "romanization": "Annyeonghaseyo! Tapseungkwon-gwa yeogwon-eul boyeo jusigesseoyo?",
+      "vocabulary": [
+        { "kr": "탑승권", "jp": "搭乗券" },
+        { "kr": "여권", "jp": "パスポート" },
+        { "kr": "보여 주다", "jp": "見せる（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["여기","ここ","here","있어요","드릴게요","네","yes","はい"], "next": "check_luggage" },
+        { "keywords": ["수하물","짐","baggage","luggage","荷物"], "next": "ask_luggage" },
+        { "keywords": ["좌석","seat","시트","자리","席"], "next": "ask_seat" },
+        { "default": true, "next": "check_luggage" }
+      ]
+    },
+    {
+      "id": "check_luggage",
+      "reply_kr": "감사합니다. 부치실 짐이 있으세요?",
+      "reply_jp": "ありがとうございます。預け荷物はおありですか？",
+      "romanization": "Gamsahamnida. buchishil jimi isseuseyo?",
+      "vocabulary": [
+        { "kr": "부치다", "jp": "（荷物を）預ける" },
+        { "kr": "짐", "jp": "荷物" },
+        { "kr": "있으세요", "jp": "ありますか（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["있어요","네","yes","はい","あります","一つ","하나","두개","두 개"], "next": "weigh_luggage" },
+        { "keywords": ["없어요","아니","no","いいえ","ありません","없","기내","carry on"], "next": "no_luggage" },
+        { "default": true, "next": "weigh_luggage" }
+      ]
+    },
+    {
+      "id": "ask_luggage",
+      "reply_kr": "짐은 몇 개 부치실 건가요?",
+      "reply_jp": "荷物はいくつお預けになりますか？",
+      "romanization": "Jimun myeot gae buchishil geongayo?",
+      "vocabulary": [
+        { "kr": "몇 개", "jp": "いくつ" },
+        { "kr": "부치다", "jp": "預ける" }
+      ],
+      "transitions": [
+        { "keywords": ["하나","1개","일 개","one","1","ひとつ"], "next": "weigh_luggage" },
+        { "keywords": ["두 개","둘","2개","two","2","ふたつ"], "next": "weigh_luggage_two" },
+        { "default": true, "next": "weigh_luggage" }
+      ]
+    },
+    {
+      "id": "weigh_luggage",
+      "reply_kr": "짐을 저울에 올려 주세요. 무게가 22킬로그램입니다.",
+      "reply_jp": "荷物を計りに乗せてください。22キログラムです。",
+      "romanization": "Jimeul jeoul-e ollyeo juseyo. Mugega isipichil killogeuraem-imnida.",
+      "vocabulary": [
+        { "kr": "저울", "jp": "計り・スケール" },
+        { "kr": "올리다", "jp": "乗せる・上げる" },
+        { "kr": "무게", "jp": "重さ・重量" },
+        { "kr": "킬로그램", "jp": "キログラム" }
+      ],
+      "transitions": [
+        { "keywords": ["좌석","seat","窓","창가","통로","aisle"], "next": "ask_seat" },
+        { "keywords": ["괜찮아요","알겠어요","네","yes","はい"], "next": "ask_seat" },
+        { "default": true, "next": "ask_seat" }
+      ]
+    },
+    {
+      "id": "weigh_luggage_two",
+      "reply_kr": "두 개 모두 저울에 올려 주세요. 합계 30킬로그램이네요.",
+      "reply_jp": "2つとも計りに乗せてください。合計30キログラムですね。",
+      "romanization": "Du gae modu jeoul-e ollyeo juseyo.",
+      "vocabulary": [
+        { "kr": "모두", "jp": "全部・両方" },
+        { "kr": "합계", "jp": "合計" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_seat" }
+      ]
+    },
+    {
+      "id": "no_luggage",
+      "reply_kr": "알겠습니다. 기내 수하물만 있으시군요.",
+      "reply_jp": "かしこまりました。機内持ち込み荷物のみですね。",
+      "romanization": "Algesseumnida. Ginaesuhamulmana issushigunyo.",
+      "vocabulary": [
+        { "kr": "기내", "jp": "機内" },
+        { "kr": "수하물", "jp": "手荷物" },
+        { "kr": "만", "jp": "だけ・のみ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_seat" }
+      ]
+    },
+    {
+      "id": "ask_seat",
+      "reply_kr": "좌석 선호가 있으세요? 창가 자리와 통로 자리가 있어요.",
+      "reply_jp": "座席のご希望はありますか？窓側と通路側があります。",
+      "romanization": "Jwaseok seonhoga isseuseyo? Changga jariwа tongno jariga isseoyo.",
+      "vocabulary": [
+        { "kr": "좌석", "jp": "座席" },
+        { "kr": "선호", "jp": "好み・希望" },
+        { "kr": "창가", "jp": "窓側" },
+        { "kr": "통로", "jp": "通路" }
+      ],
+      "transitions": [
+        { "keywords": ["창가","window","窓","창문"], "next": "window_seat" },
+        { "keywords": ["통로","aisle","廊下","복도"], "next": "aisle_seat" },
+        { "keywords": ["앞","front","前","앞자리"], "next": "front_seat" },
+        { "keywords": ["상관없어","어디든","any","どこでも"], "next": "assign_seat" },
+        { "default": true, "next": "assign_seat" }
+      ]
+    },
+    {
+      "id": "window_seat",
+      "reply_kr": "창가 자리로 배정해 드릴게요. 14A 좌석입니다.",
+      "reply_jp": "窓側の席をご用意します。14A番のお席です。",
+      "romanization": "Changga jariро baejeonghaе deurilgeyo. Sibsa-e jwaseok-imnida.",
+      "vocabulary": [
+        { "kr": "배정하다", "jp": "割り当てる・配席する" },
+        { "kr": "창가", "jp": "窓側" }
+      ],
+      "transitions": [
+        { "default": true, "next": "boarding_time" }
+      ]
+    },
+    {
+      "id": "aisle_seat",
+      "reply_kr": "통로 자리로 배정해 드릴게요. 15C 좌석입니다.",
+      "reply_jp": "通路側の席をご用意します。15C番のお席です。",
+      "romanization": "Tongno jariро baejeonghaе deurilgeyo.",
+      "vocabulary": [
+        { "kr": "통로 자리", "jp": "通路側の席" }
+      ],
+      "transitions": [
+        { "default": true, "next": "boarding_time" }
+      ]
+    },
+    {
+      "id": "front_seat",
+      "reply_kr": "앞자리로 해드릴게요. 7B 좌석입니다.",
+      "reply_jp": "前の席にします。7B番のお席です。",
+      "romanization": "Apjariро haedeurilgeyo.",
+      "vocabulary": [
+        { "kr": "앞자리", "jp": "前の席" }
+      ],
+      "transitions": [
+        { "default": true, "next": "boarding_time" }
+      ]
+    },
+    {
+      "id": "assign_seat",
+      "reply_kr": "중간 자리로 배정해 드릴게요. 12B 좌석입니다.",
+      "reply_jp": "中間の席をご用意します。12B番のお席です。",
+      "romanization": "Junggan jariро baejeonghaе deurilgeyo.",
+      "vocabulary": [
+        { "kr": "중간", "jp": "中間・真ん中" }
+      ],
+      "transitions": [
+        { "default": true, "next": "boarding_time" }
+      ]
+    },
+    {
+      "id": "boarding_time",
+      "reply_kr": "탑승은 오후 2시부터입니다. 탑승구는 B12입니다. 즐거운 여행 되세요!",
+      "reply_jp": "搭乗は午後2時からです。搭乗口はB12です。良いご旅行を！",
+      "romanization": "Tapseung-eun ohu dushibuteоimnida. Tapseungguneun B-ibishimnida.",
+      "vocabulary": [
+        { "kr": "탑승", "jp": "搭乗" },
+        { "kr": "탑승구", "jp": "搭乗口・ゲート" },
+        { "kr": "즐거운 여행", "jp": "楽しいご旅行" }
+      ],
+      "transitions": [
+        { "keywords": ["게이트","gate","ゲート","어디","where","どこ"], "next": "gate_direction" },
+        { "keywords": ["면세점","免税","duty free","쇼핑","shopping"], "next": "duty_free" },
+        { "keywords": ["감사","thank","ありがとう","고마워"], "next": "end" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "gate_direction",
+      "reply_kr": "B 게이트는 이 방향으로 가시면 돼요. 에스컬레이터를 타고 올라가세요.",
+      "reply_jp": "Bゲートはこの方向です。エスカレーターで上がってください。",
+      "romanization": "B geiteuneun i banghyang-uro gasimyeon dwaeyo.",
+      "vocabulary": [
+        { "kr": "방향", "jp": "方向" },
+        { "kr": "에스컬레이터", "jp": "エスカレーター" },
+        { "kr": "타다", "jp": "乗る" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "duty_free",
+      "reply_kr": "면세점은 보안 검색대를 통과한 후 오른쪽에 있어요.",
+      "reply_jp": "免税店は保安検査を通過した後、右側にあります。",
+      "romanization": "Myeonsejeobeun boan geomsaekdaereul tonggwahan hu oreunjjoge isseoyo.",
+      "vocabulary": [
+        { "kr": "면세점", "jp": "免税店" },
+        { "kr": "보안 검색대", "jp": "保安検査場" },
+        { "kr": "통과하다", "jp": "通過する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_kr": "감사합니다! 즐거운 여행 되세요!",
+      "reply_jp": "ありがとうございます！楽しい旅を！",
+      "romanization": "Gamsahamnida! Jeulgeo-un yeohaeng doeseyo!",
+      "vocabulary": [
+        { "kr": "즐겁다", "jp": "楽しい" },
+        { "kr": "여행", "jp": "旅行" }
+      ],
+      "transitions": []
+    }
+  ]
+}

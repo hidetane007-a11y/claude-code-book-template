@@ -1,0 +1,274 @@
+{
+  "id": "directions",
+  "name": "道案内",
+  "beats": [
+    {
+      "id": "start",
+      "reply_kr": "안녕하세요! 뭐 찾으세요? 도움이 필요하세요?",
+      "reply_jp": "こんにちは！何かお探しですか？お手伝いが必要ですか？",
+      "romanization": "Annyeonghaseyo! Mwo chajeuseyo? Doumi piryohaseyo?",
+      "vocabulary": [
+        { "kr": "도움", "jp": "助け・お手伝い" },
+        { "kr": "필요하다", "jp": "必要だ" }
+      ],
+      "transitions": [
+        { "keywords": ["지하철","subway","地下鉄","메트로","metro"], "next": "to_subway" },
+        { "keywords": ["버스","bus","バス","버스 정류장","정류장"], "next": "to_bus" },
+        { "keywords": ["편의점","コンビニ","convenience","cvs","gs25","cu"], "next": "to_convenience" },
+        { "keywords": ["화장실","toilet","トイレ","wc","restroom","bathroom"], "next": "to_toilet" },
+        { "keywords": ["병원","hospital","病院","의원","clinic"], "next": "to_hospital" },
+        { "keywords": ["식당","restaurant","レストラン","밥집","食堂"], "next": "to_restaurant" },
+        { "keywords": ["카페","cafe","カフェ","커피"], "next": "to_cafe" },
+        { "keywords": ["호텔","hotel","ホテル","숙소","inn"], "next": "to_hotel" },
+        { "keywords": ["경복궁","景福宮","palace","궁","명동","홍대","신촌"], "next": "to_landmark" },
+        { "default": true, "next": "ask_destination" }
+      ]
+    },
+    {
+      "id": "ask_destination",
+      "reply_kr": "어디 가려고 하세요?",
+      "reply_jp": "どちらへ行こうとしていますか？",
+      "romanization": "Eodi garyogo haseyo?",
+      "vocabulary": [
+        { "kr": "어디", "jp": "どこ" },
+        { "kr": "가려고 하다", "jp": "行こうとしている" }
+      ],
+      "transitions": [
+        { "keywords": ["지하철","subway","地下鉄"], "next": "to_subway" },
+        { "keywords": ["버스","bus","バス"], "next": "to_bus" },
+        { "keywords": ["편의점","コンビニ","convenience"], "next": "to_convenience" },
+        { "keywords": ["화장실","toilet","トイレ"], "next": "to_toilet" },
+        { "keywords": ["병원","hospital","病院"], "next": "to_hospital" },
+        { "keywords": ["식당","restaurant","レストラン"], "next": "to_restaurant" },
+        { "keywords": ["카페","cafe","カフェ"], "next": "to_cafe" },
+        { "keywords": ["호텔","hotel","ホテル"], "next": "to_hotel" },
+        { "default": true, "next": "to_subway" }
+      ]
+    },
+    {
+      "id": "to_subway",
+      "reply_kr": "지하철역은 이 길을 따라 직진하시면 돼요. 약 5분 걸려요.",
+      "reply_jp": "地下鉄駅はこの道をまっすぐ行けば大丈夫です。約5分かかります。",
+      "romanization": "Jihacheol-yeog-eun i gireul ttara jikjinhashimyeon dwaeyo. Yak o-bun geollyeoyo.",
+      "vocabulary": [
+        { "kr": "지하철역", "jp": "地下鉄駅" },
+        { "kr": "따라", "jp": "沿って・に従って" },
+        { "kr": "직진하다", "jp": "まっすぐ進む" },
+        { "kr": "약", "jp": "約" }
+      ],
+      "transitions": [
+        { "keywords": ["몇 번","何番","line","号線","어느 노선","route"], "next": "subway_line" },
+        { "keywords": ["감사","thank","ありがとう","알겠어요","네","ok"], "next": "more_help" },
+        { "keywords": ["더 멀","もっと遠","far","먼"], "next": "far_away" },
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "subway_line",
+      "reply_kr": "2호선을 타시면 돼요. 홍대입구역이 가장 가까워요.",
+      "reply_jp": "2号線に乗ればいいですよ。弘大入口駅が一番近いです。",
+      "romanization": "Ihoseon-eul tashimyeon dwaeyo. Hongdae-ipgu-yeogi gajang gakkawoyo.",
+      "vocabulary": [
+        { "kr": "2호선", "jp": "2号線" },
+        { "kr": "가장", "jp": "最も・一番" },
+        { "kr": "가깝다", "jp": "近い" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_bus",
+      "reply_kr": "버스 정류장은 저쪽에 있어요. 오른쪽으로 돌아가시면 보여요.",
+      "reply_jp": "バス停はあちらにあります。右に曲がると見えてきます。",
+      "romanization": "Beosu jeongnyujang-eun jeojjog-e isseoyo. Oreunjjog-euro doragashimyeon boyeoyo.",
+      "vocabulary": [
+        { "kr": "버스 정류장", "jp": "バス停" },
+        { "kr": "오른쪽", "jp": "右側" },
+        { "kr": "돌아가다", "jp": "曲がっていく" }
+      ],
+      "transitions": [
+        { "keywords": ["몇 번","何番","number","번","路線"], "next": "bus_number" },
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "bus_number",
+      "reply_kr": "명동 가시려면 402번 버스를 타세요. 10분 정도 걸려요.",
+      "reply_jp": "明洞に行かれるなら402番のバスに乗ってください。10分程かかります。",
+      "romanization": "Myeongdong gashiryeomyeon sameshibi-beon beosuреul taseyo.",
+      "vocabulary": [
+        { "kr": "번", "jp": "番（番号）" },
+        { "kr": "정도", "jp": "程度・くらい" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_convenience",
+      "reply_kr": "편의점은 바로 앞에 있어요. 저기 보이는 건물 1층이에요.",
+      "reply_jp": "コンビニはすぐ目の前にあります。あそこに見える建物の1階です。",
+      "romanization": "Pyeon-uijeom-eun baro ap-e isseoyo. Jeogi boyineun geonmul ilcheung-ieyo.",
+      "vocabulary": [
+        { "kr": "편의점", "jp": "コンビニ" },
+        { "kr": "바로", "jp": "すぐ" },
+        { "kr": "앞", "jp": "前" },
+        { "kr": "1층", "jp": "1階" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_toilet",
+      "reply_kr": "화장실은 저 건물 안에 있어요. 들어가서 왼쪽에 있어요.",
+      "reply_jp": "トイレはあの建物の中にあります。入って左側にあります。",
+      "romanization": "Hwajangshil-eun jeo geonmul ane isseoyo. Deureogaseo wennjjog-e isseoyo.",
+      "vocabulary": [
+        { "kr": "화장실", "jp": "トイレ・洗面所" },
+        { "kr": "들어가다", "jp": "入っていく" },
+        { "kr": "왼쪽", "jp": "左側" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_hospital",
+      "reply_kr": "병원은 여기서 좀 멀어요. 택시를 타는 게 좋을 것 같아요. 아니면 지하철로 두 정거장이에요.",
+      "reply_jp": "病院はここから少し遠いです。タクシーに乗った方がいいと思います。または地下鉄で2駅です。",
+      "romanization": "Byeong-won-eun yeogiseo jom meoreoyo. Taekshireul taneun ge joheul geot gatayo.",
+      "vocabulary": [
+        { "kr": "병원", "jp": "病院" },
+        { "kr": "택시", "jp": "タクシー" },
+        { "kr": "정거장", "jp": "駅・停留所" }
+      ],
+      "transitions": [
+        { "keywords": ["택시","タクシー","taxi"], "next": "taxi_info" },
+        { "keywords": ["지하철","subway","地下鉄"], "next": "to_subway" },
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_restaurant",
+      "reply_kr": "맛집이요? 이 근처에 유명한 한식당이 있어요. 골목 안으로 들어가시면 돼요.",
+      "reply_jp": "おいしいお店ですか？この近くに有名な韓国料理店があります。路地に入っていけばあります。",
+      "romanization": "Matjib-ieyo? I geuncheo-e yumyeonghan hansikdang-i isseoyo.",
+      "vocabulary": [
+        { "kr": "맛집", "jp": "おいしいお店・グルメスポット" },
+        { "kr": "근처", "jp": "近く・近辺" },
+        { "kr": "골목", "jp": "路地・골목길" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_cafe",
+      "reply_kr": "카페요? 이 길에 카페가 많아요. 특히 저기 있는 카페가 유명해요.",
+      "reply_jp": "カフェですか？この通りにはカフェがたくさんあります。特にあそこのカフェが有名ですよ。",
+      "romanization": "Kafeyo? I gire kapega manayo.",
+      "vocabulary": [
+        { "kr": "특히", "jp": "特に" },
+        { "kr": "유명하다", "jp": "有名だ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "to_hotel",
+      "reply_kr": "호텔이요? 어떤 호텔 찾으세요? 근처에 호텔이 몇 개 있어요.",
+      "reply_jp": "ホテルですか？どちらのホテルをお探しですか？近くにいくつかあります。",
+      "romanization": "Hotel-ieyo? Eotteon hotel chajeuseyo?",
+      "vocabulary": [
+        { "kr": "호텔", "jp": "ホテル" },
+        { "kr": "몇 개", "jp": "いくつ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "hotel_direction" }
+      ]
+    },
+    {
+      "id": "to_landmark",
+      "reply_kr": "경복궁이요? 지하철 3호선을 타고 경복궁역에서 내리시면 돼요.",
+      "reply_jp": "景福宮ですか？地下鉄3号線に乗って景福宮駅で降りればいいです。",
+      "romanization": "Gyeongbokgung-ieyo? Jihacheol samhoseon-eul tago Gyeongbokgung-yeog-eseo naelishimyeon dwaeyo.",
+      "vocabulary": [
+        { "kr": "경복궁", "jp": "景福宮（キョンボックン）" },
+        { "kr": "내리다", "jp": "降りる" },
+        { "kr": "3호선", "jp": "3号線" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "hotel_direction",
+      "reply_kr": "이 길을 따라 직진하다가 신호등에서 오른쪽으로 도세요.",
+      "reply_jp": "この道をまっすぐ進んで、信号で右に曲がってください。",
+      "romanization": "I gireul ttara jikjinhada-ga shinhodeng-eseo oreunjjog-euro doseyo.",
+      "vocabulary": [
+        { "kr": "신호등", "jp": "信号（機）" },
+        { "kr": "도다", "jp": "曲がる" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "far_away",
+      "reply_kr": "조금 멀어요. 택시를 타시는 게 편할 것 같아요. 카카오택시 앱을 쓰면 편해요.",
+      "reply_jp": "少し遠いですよ。タクシーに乗った方が楽だと思います。KakaoTaxiのアプリを使うと便利です。",
+      "romanization": "Jogeum meoreoyo. Taekshireul tashineun ge pyeonhal geot gatayo.",
+      "vocabulary": [
+        { "kr": "멀다", "jp": "遠い" },
+        { "kr": "편하다", "jp": "楽だ・便利だ" },
+        { "kr": "앱", "jp": "アプリ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "taxi_info" }
+      ]
+    },
+    {
+      "id": "taxi_info",
+      "reply_kr": "택시는 저쪽에서 잡으시면 돼요. 카카오택시 앱으로 부르면 더 편해요.",
+      "reply_jp": "タクシーはあちらで拾えますよ。KakaoTaxiアプリで呼ぶともっと便利です。",
+      "romanization": "Taekshi-neun jeojjog-eseo jabushimyeon dwaeyo.",
+      "vocabulary": [
+        { "kr": "택시를 잡다", "jp": "タクシーを拾う" },
+        { "kr": "카카오택시", "jp": "KakaoTaxi（韓国の配車アプリ）" }
+      ],
+      "transitions": [
+        { "default": true, "next": "more_help" }
+      ]
+    },
+    {
+      "id": "more_help",
+      "reply_kr": "도움이 됐나요? 더 궁금한 게 있으세요?",
+      "reply_jp": "お役に立てましたか？他に何かご質問はありますか？",
+      "romanization": "Doumi dwaennayo? Deo gunggeumhan ge isseuseyo?",
+      "vocabulary": [
+        { "kr": "도움이 됐나요", "jp": "お役に立てましたか" },
+        { "kr": "궁금하다", "jp": "気になる・疑問に思う" }
+      ],
+      "transitions": [
+        { "keywords": ["있어요","네","yes","もう一つ","있","다른"], "next": "ask_destination" },
+        { "keywords": ["감사","ありがとう","thank","고마워","없어요","없"], "next": "end" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_kr": "도움이 됐으면 좋겠어요! 좋은 여행 되세요!",
+      "reply_jp": "お役に立てれば嬉しいです！良い旅を！",
+      "romanization": "Doumi dwaeissseumyeon jokkesseoyo! Joheun yeohaeng doeseyo!",
+      "vocabulary": [
+        { "kr": "도움이 되다", "jp": "役に立つ" },
+        { "kr": "좋은 여행", "jp": "良い旅" }
+      ],
+      "transitions": []
+    }
+  ]
+}

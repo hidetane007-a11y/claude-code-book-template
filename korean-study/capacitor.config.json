@@ -1,0 +1,25 @@
+{
+  "appId": "com.koreastudy.app",
+  "appName": "韓国語学習",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": []
+  },
+  "android": {
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#F1F5F9",
+    "minWebViewVersion": 60
+  },
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1000,
+      "backgroundColor": "#3B82F6",
+      "showSpinner": false
+    }
+  }
+}
