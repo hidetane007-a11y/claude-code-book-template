@@ -3,45 +3,51 @@
   let listening = false;
   let _unlocked = false;
   const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const _synth = window.speechSynthesis || null;
 
   function _unlock() {
-    if (_unlocked || !('speechSynthesis' in window)) return;
+    if (_unlocked || !_synth) return;
     const u = new SpeechSynthesisUtterance('');
     u.volume = 0;
-    window.speechSynthesis.speak(u);
+    _synth.speak(u);
     _unlocked = true;
   }
 
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.addEventListener('voiceschanged', () => {
-      window.speechSynthesis.getVoices();
-    });
+  if (_synth) {
+    _synth.getVoices();
+    _synth.addEventListener('voiceschanged', () => { _synth.getVoices(); });
     document.addEventListener('touchstart', _unlock, { once: true, passive: true });
     document.addEventListener('click', _unlock, { once: true });
   }
 
-  function speak(text, lang) {
-    lang = lang || 'ko-KR';
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+  function _doSpeak(text, lang) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = 0.85;
     u.pitch = 1;
-    const voices = window.speechSynthesis.getVoices();
+    u.onerror = e => { if (e.error !== 'interrupted') console.warn('speak:', e.error); };
+    const voices = _synth.getVoices();
     const koVoice = voices.find(v => v.lang === lang || v.lang.startsWith('ko'));
     if (koVoice) u.voice = koVoice;
-    window.speechSynthesis.speak(u);
-    // iOS bug: synthesis can get stuck in paused state after cancel()
-    if (_isIOS) {
-      setTimeout(() => {
-        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-      }, 50);
+    _synth.speak(u);
+    // iOS: resume if stuck in paused state
+    if (_isIOS) setTimeout(() => { if (_synth.paused) _synth.resume(); }, 100);
+  }
+
+  function speak(text, lang) {
+    lang = lang || 'ko-KR';
+    if (!_synth) return;
+
+    if (_synth.speaking || _synth.pending) {
+      // Android Chrome: cancel() + 即 speak() でレース条件が起きるため遅延する
+      _synth.cancel();
+      setTimeout(() => _doSpeak(text, lang), 100);
+    } else {
+      _doSpeak(text, lang);
     }
   }
 
-  // iOS では setTimeout 内での speak() がジェスチャー文脈を失うため false を返す
+  // iOS は setTimeout 内の speak() がジェスチャー文脈を失うため false
   function canAutoplay() {
     return !_isIOS;
   }
