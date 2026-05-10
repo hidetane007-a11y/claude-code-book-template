@@ -38,14 +38,27 @@
     });
   }
 
-  // オフラインバナー
-  function updateOnlineStatus() {
+  // オフラインバナー（navigator.onLine は誤検知が多いため fetch で実確認）
+  async function updateOnlineStatus() {
     const banner = document.getElementById('offline-banner');
     if (!banner) return;
+
     if (navigator.onLine) {
+      // onLine=true でも稀に誤りがあるが、その場合はバナーを出さない
       banner.classList.remove('show');
-    } else {
-      banner.classList.add('show');
+      return;
+    }
+
+    // onLine=false のときだけ fetch で再確認（false-negative 対策）
+    try {
+      await fetch(location.href, {
+        method: 'HEAD',
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4000)
+      });
+      banner.classList.remove('show'); // 実際は繋がっている
+    } catch {
+      banner.classList.add('show');    // 本当にオフライン
     }
   }
 
@@ -54,8 +67,14 @@
     updateOnlineStatus();
   });
 
-  window.addEventListener('online',  updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
+  window.addEventListener('online',  () => {
+    const banner = document.getElementById('offline-banner');
+    if (banner) banner.classList.remove('show');
+  });
+  window.addEventListener('offline', () => {
+    const banner = document.getElementById('offline-banner');
+    if (banner) banner.classList.add('show');
+  });
 
   // Service Worker 登録
   if ('serviceWorker' in navigator) {
