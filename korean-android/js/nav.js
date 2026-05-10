@@ -38,43 +38,23 @@
     });
   }
 
-  // オフラインバナー（navigator.onLine は誤検知が多いため fetch で実確認）
-  async function updateOnlineStatus() {
+  // オフラインバナー（online/offline イベントのみで制御）
+  // 初期ロード時は表示しない。navigator.onLine は誤検知が多いため使わない
+  function showOfflineBanner() {
     const banner = document.getElementById('offline-banner');
-    if (!banner) return;
-
-    if (navigator.onLine) {
-      // onLine=true でも稀に誤りがあるが、その場合はバナーを出さない
-      banner.classList.remove('show');
-      return;
-    }
-
-    // onLine=false のときだけ fetch で再確認（false-negative 対策）
-    try {
-      await fetch(location.href, {
-        method: 'HEAD',
-        cache: 'no-store',
-        signal: AbortSignal.timeout(4000)
-      });
-      banner.classList.remove('show'); // 実際は繋がっている
-    } catch {
-      banner.classList.add('show');    // 本当にオフライン
-    }
+    if (banner) banner.classList.add('show');
+  }
+  function hideOfflineBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (banner) banner.classList.remove('show');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     initBottomNav();
-    updateOnlineStatus();
   });
 
-  window.addEventListener('online',  () => {
-    const banner = document.getElementById('offline-banner');
-    if (banner) banner.classList.remove('show');
-  });
-  window.addEventListener('offline', () => {
-    const banner = document.getElementById('offline-banner');
-    if (banner) banner.classList.add('show');
-  });
+  window.addEventListener('online',  hideOfflineBanner);
+  window.addEventListener('offline', showOfflineBanner);
 
   // Service Worker 登録
   if ('serviceWorker' in navigator) {
