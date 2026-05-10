@@ -561,8 +561,20 @@
             return;
           }
           if (resp.status === 429) throw new Error('レート制限に達しました。しばらく待ってから再試行してください。');
-          let detail = '';
-          try { const b = await resp.json(); detail = b.error?.message || ''; } catch {}
+          let errBody = {};
+          try { errBody = await resp.json(); } catch {}
+          const detail = errBody.error?.message || '';
+          if (detail.toLowerCase().includes('credit')) {
+            if (typing.parentNode) typing.remove();
+            isSending = false; sendBtn.disabled = false;
+            addErrorMessage(
+              'Anthropic APIのクレジット残高が不足しています。' +
+              '<a href="https://console.anthropic.com/settings/billing" target="_blank" rel="noopener" ' +
+              'style="color:var(--danger);text-decoration:underline">課金ページ</a>でクレジットを追加してください。',
+              true
+            );
+            return;
+          }
           throw new Error(`サーバーエラー (${resp.status})${detail ? ': ' + detail : ''}`);
         }
 
@@ -678,13 +690,13 @@
       scrollToBottom();
     }
 
-    function addErrorMessage(text) {
+    function addErrorMessage(text, isHtml = false) {
       const area = document.getElementById('chat-area');
       const div = document.createElement('div');
       div.className = 'msg-bubble msg-ai';
       div.style.borderColor = '#FEE2E2';
       div.style.background = '#FFF5F5';
-      div.innerHTML = `<span style="color:var(--danger);">⚠️ ${escHtml(text)}</span>`;
+      div.innerHTML = `<span style="color:var(--danger);">⚠️ ${isHtml ? text : escHtml(text)}</span>`;
       area.appendChild(div);
       scrollToBottom();
     }
