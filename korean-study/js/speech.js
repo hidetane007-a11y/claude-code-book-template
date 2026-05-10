@@ -21,17 +21,28 @@
   }
 
   function _doSpeak(text, lang) {
+    const voices = _synth.getVoices();
+
+    // voices がまだ読み込まれていない場合、voiceschanged を待って再試行
+    if (voices.length === 0) {
+      const retry = () => {
+        _synth.removeEventListener('voiceschanged', retry);
+        _doSpeak(text, lang);
+      };
+      _synth.addEventListener('voiceschanged', retry);
+      return;
+    }
+
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = 0.85;
     u.pitch = 1;
     u.onerror = e => { if (e.error !== 'interrupted') console.warn('speak:', e.error); };
-    const voices = _synth.getVoices();
     const koVoice = voices.find(v => v.lang === lang || v.lang.startsWith('ko'));
     if (koVoice) u.voice = koVoice;
     _synth.speak(u);
     // iOS: resume if stuck in paused state
-    if (_isIOS) setTimeout(() => { if (_synth.paused) _synth.resume(); }, 100);
+    if (_isIOS) setTimeout(() => { if (_synth.paused) _synth.resume(); }, 150);
   }
 
   function speak(text, lang) {
@@ -41,7 +52,7 @@
     if (_synth.speaking || _synth.pending) {
       // Android Chrome: cancel() + 即 speak() でレース条件が起きるため遅延する
       _synth.cancel();
-      setTimeout(() => _doSpeak(text, lang), 100);
+      setTimeout(() => _doSpeak(text, lang), 250);
     } else {
       _doSpeak(text, lang);
     }
