@@ -1,4 +1,4 @@
-const CACHE = 'korean-android-v1';
+const CACHE = 'korean-android-v2';
 const PRECACHE = [
   '/korean-android/',
   '/korean-android/index.html',
