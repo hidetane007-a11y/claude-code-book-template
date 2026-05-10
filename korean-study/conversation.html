@@ -269,7 +269,7 @@
       area.appendChild(el);
       scrollBottom();
 
-      setTimeout(() => KoreanSpeech.speak(parsed.reply_kr), 200);
+      if (KoreanSpeech.canAutoplay()) setTimeout(() => KoreanSpeech.speak(parsed.reply_kr), 200);
     }
 
     function appendError(msg) {

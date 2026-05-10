@@ -240,8 +240,9 @@
       KoreanState.saveState(s);
 
       KoreanNav.showScreen('screen-lesson');
-      // 画面表示後に自動再生
-      setTimeout(() => KoreanSpeech.speak(v.sound), 400);
+      // iOS はジェスチャー文脈がsetTimeout後に失われるため即時再生
+      if (KoreanSpeech.canAutoplay()) setTimeout(() => KoreanSpeech.speak(v.sound), 400);
+      else KoreanSpeech.speak(v.sound);
     }
 
     function playSound() {

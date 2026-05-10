@@ -1,12 +1,24 @@
 (function () {
   let recognition = null;
   let listening = false;
+  let _unlocked = false;
+  const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  function _unlock() {
+    if (_unlocked || !('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    window.speechSynthesis.speak(u);
+    _unlocked = true;
+  }
 
   if ('speechSynthesis' in window) {
     window.speechSynthesis.getVoices();
     window.speechSynthesis.addEventListener('voiceschanged', () => {
       window.speechSynthesis.getVoices();
     });
+    document.addEventListener('touchstart', _unlock, { once: true, passive: true });
+    document.addEventListener('click', _unlock, { once: true });
   }
 
   function speak(text, lang) {
@@ -21,6 +33,17 @@
     const koVoice = voices.find(v => v.lang === lang || v.lang.startsWith('ko'));
     if (koVoice) u.voice = koVoice;
     window.speechSynthesis.speak(u);
+    // iOS bug: synthesis can get stuck in paused state after cancel()
+    if (_isIOS) {
+      setTimeout(() => {
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      }, 50);
+    }
+  }
+
+  // iOS では setTimeout 内での speak() がジェスチャー文脈を失うため false を返す
+  function canAutoplay() {
+    return !_isIOS;
   }
 
   function startListening(lang, onResult, onError) {
@@ -72,5 +95,5 @@
 
   function isListening() { return listening; }
 
-  window.KoreanSpeech = { speak, startListening, stopListening, isListening };
+  window.KoreanSpeech = { speak, startListening, stopListening, isListening, canAutoplay };
 })();
