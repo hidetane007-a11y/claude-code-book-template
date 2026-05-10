@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">韓国語学習</string>
+    <string name="title_activity_main">韓国語学習</string>
+    <string name="package_name">com.koreastudy.app</string>
+    <string name="custom_url_scheme">com.koreastudy.app</string>
+</resources>
