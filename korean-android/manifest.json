@@ -1,0 +1,39 @@
+{
+  "name": "韓国語学習 AI練習",
+  "short_name": "韓国語",
+  "description": "AIと一緒に韓国語を学ぼう。会話・文法・発音を練習できます。",
+  "start_url": "/korean-android/",
+  "scope": "/korean-android/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8FAFC",
+  "theme_color": "#3B82F6",
+  "lang": "ja",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "/korean-android/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/korean-android/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/korean-android/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/korean-android/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

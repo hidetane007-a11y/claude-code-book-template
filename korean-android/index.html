@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#3B82F6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>韓国語学習</title>
+  <link rel="manifest" href="/korean-android/manifest.json">
+  <link rel="apple-touch-icon" href="/korean-android/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="/korean-android/css/app.css">
+  <style>
+    .hero { text-align: center; padding: 20px 0 8px; }
+    .hero-title { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; }
+    .hero-sub   { font-size: 0.8125rem; color: var(--muted); margin-top: 4px; }
+
+    .quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quick-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .quick-card:active { transform: scale(0.97); }
+    .quick-icon { font-size: 1.75rem; margin-bottom: 6px; }
+    .quick-label { font-size: 0.8125rem; font-weight: 600; }
+    .quick-count { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* 統計モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      padding: 20px;
+      align-items: flex-end;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .modal-head h2 { font-size: 1.0625rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div id="offline-banner" class="offline-banner">オフラインです。一部機能が使えません。</div>
+
+  <div class="page-wrap">
+    <div class="page-header">
+      <h1>🇰🇷 韓国語学習</h1>
+    </div>
+
+    <div class="page-content">
+      <!-- ストリーク -->
+      <div class="streak-box">
+        <span class="s-icon">🔥</span>
+        <div>
+          <div class="s-count" id="streak-count">0</div>
+          <div class="s-label">日連続学習中</div>
+        </div>
+      </div>
+
+      <div class="section-title">学習モジュール</div>
+
+      <!-- 会話 -->
+      <a href="/korean-android/conversation.html" class="module-card m-conv">
+        <span class="card-icon">💬</span>
+        <div class="card-title">会話練習</div>
+        <div class="card-sub">카페・공항・식당など5シナリオ</div>
+        <div class="card-desc">AIとリアルな会話練習。文法ミスも添削してくれます。</div>
+        <div class="progress-row">
+          <span id="conv-text">0 / 5 シナリオ完了</span>
+          <span id="conv-sessions">0回</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill conv" id="conv-bar" style="width:0%"></div></div>
+      </a>
+
+      <!-- ドリル -->
+      <a href="/korean-android/drill.html" class="module-card m-drill">
+        <span class="card-icon">📝</span>
+        <div class="card-title">하다動詞ドリル</div>
+        <div class="card-sub">합니다・해요・했어요・할 거예요</div>
+        <div class="card-desc">4ステージで活用をマスター。全問正解で次のステージ解放！</div>
+        <div class="progress-row">
+          <span id="drill-stage">Stage 1 から</span>
+          <span id="drill-done">0 / 4 完了</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill drill" id="drill-bar" style="width:0%"></div></div>
+      </a>
+
+      <!-- 母音 -->
+      <a href="/korean-android/vowels.html" class="module-card m-vowel">
+        <span class="card-icon">🔊</span>
+        <div class="card-title">母音発音練習</div>
+        <div class="card-sub">ㅏ・ㅓ・ㅗ・ㅜ・ㅡ・ㅣ など全21母音</div>
+        <div class="card-desc">聞いて・真似して・聞き分ける発音トレーニング。</div>
+        <div class="progress-row">
+          <span id="vowel-text">0 / 21 習得</span>
+          <span></span>
+        </div>
+        <div class="pbar"><div class="pbar-fill vowel" id="vowel-bar" style="width:0%"></div></div>
+      </a>
+
+      <div class="divider"></div>
+      <div class="section-title">クイックアクセス</div>
+
+      <div class="quick-row">
+        <a href="/korean-android/wordbook.html" class="quick-card">
+          <div class="quick-icon">📖</div>
+          <div class="quick-label">単語帳</div>
+          <div class="quick-count" id="word-count">0語</div>
+        </a>
+        <div class="quick-card" onclick="openStats()">
+          <div class="quick-icon">📊</div>
+          <div class="quick-label">学習記録</div>
+          <div class="quick-count" id="sessions-count">0セッション</div>
+        </div>
+      </div>
+
+      <!-- インストール案内 -->
+      <div class="card mt-16" id="install-hint" style="display:none;">
+        <p style="font-size:0.875rem; color:var(--muted); text-align:center; line-height:1.6;">
+          📲 Chromeメニュー →「ホーム画面に追加」でアプリとしてインストールできます
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="/korean-android/">
+      <span class="nav-icon">🏠</span>ホーム
+    </a>
+    <a href="/korean-android/wordbook.html">
+      <span class="nav-icon">📖</span>単語帳
+    </a>
+    <a href="#" onclick="openStats();return false;">
+      <span class="nav-icon">📊</span>記録
+    </a>
+  </nav>
+
+  <!-- 統計モーダル -->
+  <div class="modal-overlay" id="stats-modal" onclick="if(event.target===this)closeStats()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>学習記録</h2>
+        <button class="btn btn-ghost btn-sm" onclick="closeStats()">✕</button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+  </div>
+
+  <!-- スクリプト読み込み順：state → speech → nav → ページコード -->
+  <script src="/korean-android/js/state.js"></script>
+  <script src="/korean-android/js/speech.js"></script>
+  <script src="/korean-android/js/nav.js"></script>
+  <script>
+    function render() {
+      const s = KoreanState.getState();
+
+      document.getElementById('streak-count').textContent = s.streak.count;
+
+      const convDone = s.conversation.completedScenarios.length;
+      document.getElementById('conv-text').textContent = `${convDone} / 5 シナリオ完了`;
+      document.getElementById('conv-sessions').textContent = `${s.conversation.totalSessions}回`;
+      document.getElementById('conv-bar').style.width = `${(convDone / 5) * 100}%`;
+
+      const drillDone = s.drill.completedStages.length;
+      document.getElementById('drill-stage').textContent = `Stage ${s.drill.currentStage} 現在`;
+      document.getElementById('drill-done').textContent = `${drillDone} / 4 完了`;
+      document.getElementById('drill-bar').style.width = `${(drillDone / 4) * 100}%`;
+
+      const vowelDone = s.vowels.completed.length;
+      document.getElementById('vowel-text').textContent = `${vowelDone} / 21 習得`;
+      document.getElementById('vowel-bar').style.width = `${(vowelDone / 21) * 100}%`;
+
+      document.getElementById('word-count').textContent = `${s.wordbook.length}語`;
+      document.getElementById('sessions-count').textContent = `${s.conversation.totalSessions}セッション`;
+    }
+
+    function openStats() {
+      const s = KoreanState.getState();
+      document.getElementById('stats-content').innerHTML = `
+        <div class="stats-grid">
+          <div class="card stat-box">
+            <div class="stat-num" style="color:#D97706">${s.streak.count}</div>
+            <div class="stat-lbl">連続日数 🔥</div>
+          </div>
+          <div class="card stat-box">
+            <div class="stat-num" style="color:var(--conv)">${s.conversation.totalSessions}</div>
+            <div class="stat-lbl">会話セッション</div>
+          </div>
+          <div class="card stat-box">
+            <div class="stat-num" style="color:var(--drill)">${s.drill.completedStages.length}</div>
+            <div class="stat-lbl">ドリル完了</div>
+          </div>
+          <div class="card stat-box">
+            <div class="stat-num" style="color:var(--vowel)">${s.vowels.completed.length}</div>
+            <div class="stat-lbl">習得母音</div>
+          </div>
+        </div>
+        <div class="card stat-box">
+          <div class="stat-num">${s.wordbook.length}</div>
+          <div class="stat-lbl">単語帳登録数</div>
+        </div>
+      `;
+      document.getElementById('stats-modal').classList.add('open');
+    }
+
+    function closeStats() {
+      document.getElementById('stats-modal').classList.remove('open');
+    }
+
+    // スタンドアロン以外ではインストール案内を表示
+    if (!window.matchMedia('(display-mode: standalone)').matches &&
+        !window.navigator.standalone) {
+      document.getElementById('install-hint').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>
