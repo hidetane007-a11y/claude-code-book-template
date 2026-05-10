@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>単語帳 | 韓国語練習</title>
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    .word-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .word-card + .word-card { margin-top: 8px; }
+    .word-main { flex: 1; min-width: 0; }
+    .word-kr {
+      font-size: 1.125rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .word-jp { font-size: 0.875rem; color: var(--muted); margin-top: 2px; }
+    .word-source { font-size: 0.6875rem; color: var(--muted); margin-top: 3px; }
+    .word-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .word-action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.15s;
+    }
+    .word-action-btn:hover { background: var(--border); }
+    .word-action-btn.delete { color: var(--danger); }
+
+    /* フィルター */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .filter-chip.active {
+      border-color: var(--primary);
+      background: #EFF6FF;
+      color: var(--primary);
+    }
+
+    /* 検索 */
+    .search-bar {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: var(--primary); }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    /* 統計 */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-chip {
+      flex: 1;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .stat-chip-num { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .stat-chip-label { font-size: 0.6875rem; color: var(--muted); }
+
+    /* クイズ */
+    .quiz-card {
+      background: linear-gradient(135deg, #EFF6FF, #F5F3FF);
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid #BFDBFE;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+    .quiz-card-title { font-weight: 700; margin-bottom: 4px; }
+    .quiz-card-sub { font-size: 0.8125rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>📖 単語帳</h1>
+      <div class="header-right">
+        <button class="btn btn-sm btn-outline" onclick="startQuiz()" id="quiz-btn" disabled>クイズ</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- 統計 -->
+      <div class="stats-row">
+        <div class="stat-chip">
+          <div class="stat-chip-num" id="total-count">0</div>
+          <div class="stat-chip-label">登録単語</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-num" id="conv-count">0</div>
+          <div class="stat-chip-label">会話から</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-num" id="other-count">0</div>
+          <div class="stat-chip-label">その他</div>
+        </div>
+      </div>
+
+      <!-- 検索 -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="単語を検索..." oninput="renderWords()">
+      </div>
+
+      <!-- フィルター -->
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">すべて</button>
+        <button class="filter-chip" data-filter="会話練習" onclick="setFilter('会話練習', this)">会話練習</button>
+        <button class="filter-chip" data-filter="other" onclick="setFilter('other', this)">その他</button>
+      </div>
+
+      <!-- 単語一覧 -->
+      <div id="word-list"></div>
+    </div>
+  </div>
+
+  <!-- クイズモーダル -->
+  <div id="quiz-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; padding:20px; align-items:center; justify-content:center;">
+    <div class="card" style="width:100%; max-width:440px; border-radius:20px; padding:24px;">
+      <div id="quiz-content"></div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="./index.html">
+      <span class="nav-icon">🏠</span>
+      ホーム
+    </a>
+    <a href="./wordbook.html" class="active">
+      <span class="nav-icon">📖</span>
+      単語帳
+    </a>
+    <a href="./index.html">
+      <span class="nav-icon">📊</span>
+      記録
+    </a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    let currentFilter = 'all';
+    let quizWords = [];
+    let quizIndex = 0;
+    let quizScore = 0;
+    let quizShowAnswer = false;
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderWords();
+    }
+
+    function renderWords() {
+      const words = KoreanState.getWords();
+      const searchVal = document.getElementById('search-input').value.toLowerCase();
+
+      // 統計
+      document.getElementById('total-count').textContent = words.length;
+      document.getElementById('conv-count').textContent = words.filter(w => w.source === '会話練習').length;
+      document.getElementById('other-count').textContent = words.filter(w => w.source !== '会話練習').length;
+
+      // クイズボタン
+      document.getElementById('quiz-btn').disabled = words.length < 2;
+
+      // フィルター
+      let filtered = words;
+      if (currentFilter === '会話練習') {
+        filtered = words.filter(w => w.source === '会話練習');
+      } else if (currentFilter === 'other') {
+        filtered = words.filter(w => w.source !== '会話練習');
+      }
+
+      // 検索
+      if (searchVal) {
+        filtered = filtered.filter(w =>
+          w.kr.toLowerCase().includes(searchVal) ||
+          (w.jp || '').toLowerCase().includes(searchVal)
+        );
+      }
+
+      const list = document.getElementById('word-list');
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>${words.length === 0 ? 'まだ単語がありません。\n会話練習中に単語を追加してみましょう！' : '検索結果がありません'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = '';
+      // 新しい順（日付降順）
+      [...filtered].reverse().forEach(word => {
+        const div = document.createElement('div');
+        div.className = 'word-card';
+        div.innerHTML = `
+          <div class="word-main">
+            <div class="word-kr">${escHtml(word.kr)}</div>
+            <div class="word-jp">${escHtml(word.jp || '')}</div>
+            ${word.source ? `<div class="word-source">${escHtml(word.source)}</div>` : ''}
+          </div>
+          <div class="word-actions">
+            <button class="word-action-btn" onclick="KoreanSpeech.speak('${escAttr(word.kr)}')" title="読み上げ">🔊</button>
+            <button class="word-action-btn delete" onclick="deleteWord('${escAttr(word.kr)}')" title="削除">🗑</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function deleteWord(kr) {
+      if (confirm(`「${kr}」を削除しますか？`)) {
+        KoreanState.removeWord(kr);
+        renderWords();
+        KoreanNav.showToast('削除しました');
+      }
+    }
+
+    // ===== クイズ機能 =====
+    function startQuiz() {
+      const words = KoreanState.getWords();
+      if (words.length < 2) return;
+
+      // シャッフル
+      quizWords = [...words].sort(() => Math.random() - 0.5).slice(0, Math.min(10, words.length));
+      quizIndex = 0;
+      quizScore = 0;
+      quizShowAnswer = false;
+
+      document.getElementById('quiz-modal').style.display = 'flex';
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      if (quizIndex >= quizWords.length) {
+        // 終了
+        document.getElementById('quiz-content').innerHTML = `
+          <div style="text-align:center;">
+            <div style="font-size:3.5rem; margin-bottom:12px;">🎯</div>
+            <div style="font-size:1.375rem; font-weight:700; margin-bottom:8px;">クイズ完了！</div>
+            <div style="font-size:2.5rem; font-weight:700; color:var(--primary); margin-bottom:4px;">${quizScore} / ${quizWords.length}</div>
+            <div style="color:var(--muted); margin-bottom:24px;">正解</div>
+            <button class="btn btn-primary btn-full mb-12" onclick="startQuiz()">もう一度</button>
+            <button class="btn btn-ghost btn-full" onclick="document.getElementById('quiz-modal').style.display='none'">閉じる</button>
+          </div>
+        `;
+        return;
+      }
+
+      const word = quizWords[quizIndex];
+      quizShowAnswer = false;
+
+      document.getElementById('quiz-content').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <span style="font-size:0.875rem; color:var(--muted);">${quizIndex + 1} / ${quizWords.length}</span>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('quiz-modal').style.display='none'">✕</button>
+        </div>
+        <div style="text-align:center; margin-bottom:24px;">
+          <div style="font-size:0.75rem; color:var(--muted); margin-bottom:8px;">この単語の意味は？</div>
+          <div style="font-size:2.5rem; font-weight:700; margin-bottom:8px;">${escHtml(word.kr)}</div>
+          <button class="btn btn-ghost btn-sm" onclick="KoreanSpeech.speak('${escAttr(word.kr)}')">🔊</button>
+        </div>
+        <div id="quiz-answer-area">
+          <button class="btn btn-primary btn-full btn-lg" onclick="revealAnswer()">答えを確認する</button>
+        </div>
+      `;
+    }
+
+    function revealAnswer() {
+      const word = quizWords[quizIndex];
+      document.getElementById('quiz-answer-area').innerHTML = `
+        <div style="background:#F0FDF4; border-radius:12px; padding:16px; text-align:center; margin-bottom:16px; border:1px solid #86EFAC;">
+          <div style="font-size:1.25rem; font-weight:700; color:#166534;">${escHtml(word.jp || '（意味なし）')}</div>
+        </div>
+        <div style="font-size:0.875rem; color:var(--muted); text-align:center; margin-bottom:12px;">覚えていましたか？</div>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-danger btn-full" onclick="quizAnswer(false)">❌ 覚えてない</button>
+          <button class="btn btn-conversation btn-full" onclick="quizAnswer(true)">✅ 覚えた！</button>
+        </div>
+      `;
+    }
+
+    function quizAnswer(correct) {
+      if (correct) quizScore++;
+      quizIndex++;
+      renderQuiz();
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(str) {
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', renderWords);
+  </script>
+</body>
+</html>

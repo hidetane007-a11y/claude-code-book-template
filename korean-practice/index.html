@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#3B82F6">
+  <title>韓国語練習</title>
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    .hero {
+      text-align: center;
+      padding: 24px 0 8px;
+    }
+    .hero .hero-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .hero .hero-sub {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .module-card.conversation { border-top: 4px solid var(--conversation); }
+    .module-card.hada { border-top: 4px solid var(--hada); }
+    .module-card.vowels { border-top: 4px solid var(--vowels); }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .progress-info span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="page-header">
+      <h1>🇰🇷 韓国語練習</h1>
+    </div>
+
+    <div class="page-content">
+      <!-- ストリーク表示 -->
+      <div class="streak-display" id="streak-display">
+        <span class="streak-icon">🔥</span>
+        <div class="streak-text">
+          <div class="streak-count" id="streak-count">0</div>
+          <div class="streak-label">日連続学習中</div>
+        </div>
+      </div>
+
+      <div class="section-title">学習モジュール</div>
+
+      <!-- 会話練習 -->
+      <a href="./conversation.html" class="module-card conversation">
+        <span class="card-icon">💬</span>
+        <div class="card-title">会話練習</div>
+        <div class="card-subtitle">카페・공항・식당など</div>
+        <div class="card-desc">5つのシナリオでリアルな会話をAIと練習</div>
+        <div class="progress-info">
+          <span id="conv-progress-text">0 / 5 シナリオ完了</span>
+          <span id="conv-sessions">0回</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill conversation" id="conv-progress-bar" style="width: 0%"></div>
+        </div>
+      </a>
+
+      <!-- 하다動詞ドリル -->
+      <a href="./hada.html" class="module-card hada">
+        <span class="card-icon">📝</span>
+        <div class="card-title">하다動詞ドリル</div>
+        <div class="card-subtitle">합니다・해요・했어요・할 거예요</div>
+        <div class="card-desc">4ステージで하다動詞の活用をマスター</div>
+        <div class="progress-info">
+          <span id="hada-progress-text">Stage 1 から</span>
+          <span id="hada-stages">0 / 4 完了</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill hada" id="hada-progress-bar" style="width: 0%"></div>
+        </div>
+      </a>
+
+      <!-- 母音練習 -->
+      <a href="./vowels.html" class="module-card vowels">
+        <span class="card-icon">🔊</span>
+        <div class="card-title">母音発音練習</div>
+        <div class="card-subtitle">ㅏ・ㅓ・ㅗ・ㅜ・ㅡ・ㅣ など全21母音</div>
+        <div class="card-desc">聞いて・真似して・聞き分ける発音トレーニング</div>
+        <div class="progress-info">
+          <span id="vowels-progress-text">0 / 21 習得</span>
+          <span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill vowels" id="vowels-progress-bar" style="width: 0%"></div>
+        </div>
+      </a>
+
+      <!-- クイックリンク -->
+      <div class="divider"></div>
+      <div class="section-title">クイックアクセス</div>
+      <div style="display: flex; gap: 12px;">
+        <a href="./wordbook.html" class="card" style="flex: 1; text-align: center; text-decoration: none; color: inherit; cursor: pointer;">
+          <div style="font-size: 1.5rem; margin-bottom: 4px;">📖</div>
+          <div style="font-size: 0.8125rem; font-weight: 600;">単語帳</div>
+          <div style="font-size: 0.75rem; color: var(--muted);" id="wordbook-count">0語</div>
+        </a>
+        <div class="card" style="flex: 1; text-align: center;" onclick="showStats()">
+          <div style="font-size: 1.5rem; margin-bottom: 4px;">📊</div>
+          <div style="font-size: 0.8125rem; font-weight: 600;">学習記録</div>
+          <div style="font-size: 0.75rem; color: var(--muted);" id="total-sessions">0セッション</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="./index.html" class="active">
+      <span class="nav-icon">🏠</span>
+      ホーム
+    </a>
+    <a href="./wordbook.html">
+      <span class="nav-icon">📖</span>
+      単語帳
+    </a>
+    <a href="#" onclick="showStats(); return false;">
+      <span class="nav-icon">📊</span>
+      記録
+    </a>
+  </nav>
+
+  <!-- 統計モーダル -->
+  <div id="stats-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; padding:20px; align-items:flex-end;">
+    <div class="card" style="width:100%; max-width:480px; margin:0 auto; border-radius:20px; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:1.125rem;">学習記録</h2>
+        <button onclick="hideStats()" class="btn btn-ghost btn-sm">✕</button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    function renderHome() {
+      const state = KoreanState.getState();
+
+      // ストリーク
+      document.getElementById('streak-count').textContent = state.streak.count;
+
+      // 会話
+      const convDone = state.conversation.completedScenarios.length;
+      document.getElementById('conv-progress-text').textContent = `${convDone} / 5 シナリオ完了`;
+      document.getElementById('conv-sessions').textContent = `${state.conversation.totalSessions}回`;
+      document.getElementById('conv-progress-bar').style.width = `${(convDone / 5) * 100}%`;
+
+      // 하다
+      const hadaDone = state.hada.completedStages.length;
+      document.getElementById('hada-progress-text').textContent = `Stage ${state.hada.currentStage} 現在`;
+      document.getElementById('hada-stages').textContent = `${hadaDone} / 4 完了`;
+      document.getElementById('hada-progress-bar').style.width = `${(hadaDone / 4) * 100}%`;
+
+      // 母音
+      const vowelsDone = state.vowels.completed.length;
+      document.getElementById('vowels-progress-text').textContent = `${vowelsDone} / 21 習得`;
+      document.getElementById('vowels-progress-bar').style.width = `${(vowelsDone / 21) * 100}%`;
+
+      // 単語帳
+      document.getElementById('wordbook-count').textContent = `${state.wordbook.length}語`;
+
+      // セッション数
+      document.getElementById('total-sessions').textContent = `${state.conversation.totalSessions}セッション`;
+    }
+
+    function showStats() {
+      const state = KoreanState.getState();
+      const modal = document.getElementById('stats-modal');
+      const content = document.getElementById('stats-content');
+      content.innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div class="card" style="text-align:center; padding:16px;">
+            <div style="font-size:2rem; font-weight:700; color:var(--primary);">${state.streak.count}</div>
+            <div style="font-size:0.75rem; color:var(--muted);">連続日数 🔥</div>
+          </div>
+          <div class="card" style="text-align:center; padding:16px;">
+            <div style="font-size:2rem; font-weight:700; color:var(--conversation);">${state.conversation.totalSessions}</div>
+            <div style="font-size:0.75rem; color:var(--muted);">会話セッション</div>
+          </div>
+          <div class="card" style="text-align:center; padding:16px;">
+            <div style="font-size:2rem; font-weight:700; color:var(--hada);">${state.hada.completedStages.length}</div>
+            <div style="font-size:0.75rem; color:var(--muted);">ドリル完了</div>
+          </div>
+          <div class="card" style="text-align:center; padding:16px;">
+            <div style="font-size:2rem; font-weight:700; color:var(--vowels);">${state.vowels.completed.length}</div>
+            <div style="font-size:0.75rem; color:var(--muted);">習得母音</div>
+          </div>
+        </div>
+        <div class="card" style="text-align:center; padding:16px;">
+          <div style="font-size:2rem; font-weight:700; color:var(--text);">${state.wordbook.length}</div>
+          <div style="font-size:0.75rem; color:var(--muted);">単語帳登録数</div>
+        </div>
+      `;
+      modal.style.display = 'flex';
+    }
+
+    function hideStats() {
+      document.getElementById('stats-modal').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', renderHome);
+  </script>
+</body>
+</html>
