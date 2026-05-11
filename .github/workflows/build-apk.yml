@@ -31,6 +31,10 @@ jobs:
         working-directory: korean-study
         run: npm run sync:android
 
+      - name: Create local.properties
+        working-directory: korean-study/android
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
       - name: Build debug APK
         working-directory: korean-study/android
         run: |
