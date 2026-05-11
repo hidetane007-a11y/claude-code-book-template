@@ -10,8 +10,8 @@
   async function _speakNative(text, lang) {
     const TTS = window.Capacitor.Plugins.TextToSpeech;
     if (!TTS) return;
+    try { await TTS.stop(); } catch (_) {}
     try {
-      await TTS.stop();
       await TTS.speak({
         text: text,
         lang: lang || 'ko-KR',
