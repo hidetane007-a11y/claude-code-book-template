@@ -1,0 +1,176 @@
+{
+  "id": "restaurant",
+  "name": "レストラン",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "欢迎光临！请问几位？",
+      "reply_jp": "いらっしゃいませ！何名様ですか？",
+      "pinyin": "Huānyíng guānglín! Qǐngwèn jǐ wèi?",
+      "vocabulary": [
+        { "zh": "欢迎光临", "jp": "いらっしゃいませ", "pinyin": "huānyíng guānglín" },
+        { "zh": "几位", "jp": "何名様", "pinyin": "jǐ wèi" }
+      ],
+      "transitions": [
+        { "keywords": ["一","1","一位","ひとり","一人","one"], "next": "seat_one" },
+        { "keywords": ["两","二","2","二位","两位","ふたり","two"], "next": "seat_two" },
+        { "keywords": ["三","3","三位","three"], "next": "seat_three" },
+        { "default": true, "next": "seat_two" }
+      ]
+    },
+    {
+      "id": "seat_one",
+      "reply_zh": "一位，请这边坐。这是菜单。",
+      "reply_jp": "お一人様ですね。こちらへどうぞ。メニューです。",
+      "pinyin": "Yī wèi, qǐng zhè biān zuò. Zhè shì càidān.",
+      "vocabulary": [
+        { "zh": "这边", "jp": "こちら", "pinyin": "zhè biān" },
+        { "zh": "菜单", "jp": "メニュー", "pinyin": "càidān" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_order" }]
+    },
+    {
+      "id": "seat_two",
+      "reply_zh": "两位，请这边坐。给您们菜单。",
+      "reply_jp": "2名様ですね。こちらへどうぞ。メニューをどうぞ。",
+      "pinyin": "Liǎng wèi, qǐng zhè biān zuò. Gěi nínmen càidān.",
+      "vocabulary": [
+        { "zh": "两位", "jp": "2名様", "pinyin": "liǎng wèi" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_order" }]
+    },
+    {
+      "id": "seat_three",
+      "reply_zh": "三位，请到那边的桌子。",
+      "reply_jp": "3名様ですね。あちらのテーブルへどうぞ。",
+      "pinyin": "Sān wèi, qǐng dào nà biān de zhuōzi.",
+      "vocabulary": [
+        { "zh": "那边", "jp": "あちら", "pinyin": "nà biān" },
+        { "zh": "桌子", "jp": "テーブル", "pinyin": "zhuōzi" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_order" }]
+    },
+    {
+      "id": "ask_order",
+      "reply_zh": "可以点菜了吗？您想吃什么？",
+      "reply_jp": "ご注文はお決まりですか？何になさいますか？",
+      "pinyin": "Kěyǐ diǎncài le ma? Nín xiǎng chī shénme?",
+      "vocabulary": [
+        { "zh": "点菜", "jp": "注文する", "pinyin": "diǎncài" },
+        { "zh": "想", "jp": "〜したい", "pinyin": "xiǎng" }
+      ],
+      "transitions": [
+        { "keywords": ["炒饭","チャーハン","fried rice"], "next": "order_chaofan" },
+        { "keywords": ["面条","拉面","noodle","ラーメン","面"], "next": "order_noodle" },
+        { "keywords": ["饺子","ギョーザ","dumpling"], "next": "order_jiaozi" },
+        { "keywords": ["麻婆","豆腐","mapo"], "next": "order_mapo" },
+        { "keywords": ["推荐","おすすめ","recommend","什么好吃"], "next": "recommend" },
+        { "default": true, "next": "recommend" }
+      ]
+    },
+    {
+      "id": "recommend",
+      "reply_zh": "今天的招牌菜是麻婆豆腐，非常受欢迎！",
+      "reply_jp": "本日の名物は麻婆豆腐です。とても人気があります！",
+      "pinyin": "Jīntiān de zhāopái cài shì mápó dòufu, fēicháng shòu huānyíng!",
+      "vocabulary": [
+        { "zh": "招牌菜", "jp": "名物料理", "pinyin": "zhāopái cài" },
+        { "zh": "受欢迎", "jp": "人気がある", "pinyin": "shòu huānyíng" }
+      ],
+      "transitions": [
+        { "keywords": ["麻婆","豆腐","それ","はい","好"], "next": "order_mapo" },
+        { "keywords": ["炒饭","チャーハン"], "next": "order_chaofan" },
+        { "keywords": ["面","noodle"], "next": "order_noodle" },
+        { "default": true, "next": "order_mapo" }
+      ]
+    },
+    {
+      "id": "order_mapo",
+      "reply_zh": "好的，一份麻婆豆腐。要加辣吗？",
+      "reply_jp": "かしこまりました、麻婆豆腐1人前です。辛さを増しますか？",
+      "pinyin": "Hǎo de, yī fèn mápó dòufu. Yào jiā là ma?",
+      "vocabulary": [
+        { "zh": "一份", "jp": "1人前", "pinyin": "yī fèn" },
+        { "zh": "加辣", "jp": "辛さを増す", "pinyin": "jiā là" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_drink" }]
+    },
+    {
+      "id": "order_chaofan",
+      "reply_zh": "好的，一份炒饭。要加鸡蛋吗？",
+      "reply_jp": "かしこまりました、チャーハン1人前です。卵を加えますか？",
+      "pinyin": "Hǎo de, yī fèn chǎofàn. Yào jiā jīdàn ma?",
+      "vocabulary": [
+        { "zh": "炒饭", "jp": "チャーハン", "pinyin": "chǎofàn" },
+        { "zh": "鸡蛋", "jp": "卵", "pinyin": "jīdàn" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_drink" }]
+    },
+    {
+      "id": "order_noodle",
+      "reply_zh": "好的，汤面还是干拌面？",
+      "reply_jp": "かしこまりました。スープ麺と混ぜ麺、どちらですか？",
+      "pinyin": "Hǎo de, tāng miàn háishi gān bàn miàn?",
+      "vocabulary": [
+        { "zh": "汤面", "jp": "スープ麺", "pinyin": "tāng miàn" },
+        { "zh": "干拌面", "jp": "混ぜ麺", "pinyin": "gān bàn miàn" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_drink" }]
+    },
+    {
+      "id": "order_jiaozi",
+      "reply_zh": "好的，饺子一份。蒸饺还是水饺？",
+      "reply_jp": "かしこまりました。蒸し餃子と水餃子どちらですか？",
+      "pinyin": "Hǎo de, jiǎozi yī fèn. Zhēng jiǎo háishi shuǐ jiǎo?",
+      "vocabulary": [
+        { "zh": "饺子", "jp": "餃子", "pinyin": "jiǎozi" },
+        { "zh": "蒸饺", "jp": "蒸し餃子", "pinyin": "zhēng jiǎo" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_drink" }]
+    },
+    {
+      "id": "ask_drink",
+      "reply_zh": "要喝什么？有茶、啤酒、可乐和果汁。",
+      "reply_jp": "お飲み物は？お茶・ビール・コーラ・ジュースがあります。",
+      "pinyin": "Yào hē shénme? Yǒu chá, píjiǔ, kělè hé guǒzhī.",
+      "vocabulary": [
+        { "zh": "茶", "jp": "お茶", "pinyin": "chá" },
+        { "zh": "啤酒", "jp": "ビール", "pinyin": "píjiǔ" },
+        { "zh": "可乐", "jp": "コーラ", "pinyin": "kělè" }
+      ],
+      "transitions": [{ "default": true, "next": "confirm_order" }]
+    },
+    {
+      "id": "confirm_order",
+      "reply_zh": "好的，您的菜马上来。请稍等。",
+      "reply_jp": "かしこまりました。すぐにお持ちします。少々お待ちください。",
+      "pinyin": "Hǎo de, nín de cài mǎshàng lái. Qǐng shāo děng.",
+      "vocabulary": [
+        { "zh": "马上", "jp": "すぐに", "pinyin": "mǎshàng" },
+        { "zh": "稍等", "jp": "少々お待ちを", "pinyin": "shāo děng" }
+      ],
+      "transitions": [{ "default": true, "next": "bill" }]
+    },
+    {
+      "id": "bill",
+      "reply_zh": "一共八十八元。可以刷卡吗？",
+      "reply_jp": "合計88元です。カードで支払えますか？",
+      "pinyin": "Yīgòng bāshí bā yuán. Kěyǐ shuā kǎ ma?",
+      "vocabulary": [
+        { "zh": "一共", "jp": "合計", "pinyin": "yīgòng" },
+        { "zh": "刷卡", "jp": "カード払い", "pinyin": "shuā kǎ" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "谢谢！慢走，欢迎再来！",
+      "reply_jp": "ありがとうございます！お気をつけて、またお越しください！",
+      "pinyin": "Xièxie! Màn zǒu, huānyíng zài lái!",
+      "vocabulary": [
+        { "zh": "慢走", "jp": "お気をつけて", "pinyin": "màn zǒu" }
+      ],
+      "transitions": []
+    }
+  ]
+}

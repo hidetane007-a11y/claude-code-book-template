@@ -1,0 +1,102 @@
+{
+  "id": "hotel",
+  "name": "ホテル",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "您好！欢迎来到酒店。请问有预订吗？",
+      "reply_jp": "こんにちは！ホテルへようこそ。ご予約はありますか？",
+      "pinyin": "Nín hǎo! Huānyíng lái dào jiǔdiàn. Qǐngwèn yǒu yùdìng ma?",
+      "vocabulary": [
+        { "zh": "预订", "jp": "予約", "pinyin": "yùdìng" },
+        { "zh": "酒店", "jp": "ホテル", "pinyin": "jiǔdiàn" }
+      ],
+      "transitions": [
+        { "keywords": ["有","はい","yes","预订了","订了"], "next": "check_reservation" },
+        { "keywords": ["没有","いいえ","no","没订"], "next": "no_reservation" },
+        { "default": true, "next": "check_reservation" }
+      ]
+    },
+    {
+      "id": "check_reservation",
+      "reply_zh": "请问您贵姓？",
+      "reply_jp": "お名前をお伺いできますか？",
+      "pinyin": "Qǐngwèn nín guì xìng?",
+      "vocabulary": [
+        { "zh": "贵姓", "jp": "お名前（尊敬語）", "pinyin": "guì xìng" }
+      ],
+      "transitions": [{ "default": true, "next": "found_reservation" }]
+    },
+    {
+      "id": "no_reservation",
+      "reply_zh": "没关系。您需要什么类型的房间？单人间还是双人间？",
+      "reply_jp": "大丈夫です。どのタイプのお部屋がよろしいですか？シングルかダブルか？",
+      "pinyin": "Méiguānxi. Nín xūyào shénme lèixíng de fángjiān? Dānrén jiān háishi shuāngrén jiān?",
+      "vocabulary": [
+        { "zh": "单人间", "jp": "シングルルーム", "pinyin": "dānrén jiān" },
+        { "zh": "双人间", "jp": "ダブルルーム", "pinyin": "shuāngrén jiān" }
+      ],
+      "transitions": [{ "default": true, "next": "found_reservation" }]
+    },
+    {
+      "id": "found_reservation",
+      "reply_zh": "找到了。您的房间是808号，在八楼。这是房卡。",
+      "reply_jp": "見つかりました。お部屋は808号室、8階です。こちらがルームキーです。",
+      "pinyin": "Zhǎodào le. Nín de fángjiān shì bā líng bā hào, zài bā lóu. Zhè shì fáng kǎ.",
+      "vocabulary": [
+        { "zh": "房卡", "jp": "ルームキー・カードキー", "pinyin": "fáng kǎ" },
+        { "zh": "楼", "jp": "階", "pinyin": "lóu" }
+      ],
+      "transitions": [
+        { "keywords": ["早饭","朝食","breakfast","餐厅","食堂"], "next": "ask_breakfast" },
+        { "keywords": ["wifi","网络","インターネット","internet"], "next": "ask_wifi" },
+        { "keywords": ["退房","チェックアウト","checkout"], "next": "checkout" },
+        { "default": true, "next": "ask_breakfast" }
+      ]
+    },
+    {
+      "id": "ask_breakfast",
+      "reply_zh": "早餐在一楼餐厅，早上七点到十点。",
+      "reply_jp": "朝食は1階レストランで、朝7時から10時です。",
+      "pinyin": "Zǎocān zài yī lóu cāntīng, zǎoshang qī diǎn dào shí diǎn.",
+      "vocabulary": [
+        { "zh": "早餐", "jp": "朝食", "pinyin": "zǎocān" },
+        { "zh": "餐厅", "jp": "レストラン", "pinyin": "cāntīng" }
+      ],
+      "transitions": [{ "default": true, "next": "ask_wifi" }]
+    },
+    {
+      "id": "ask_wifi",
+      "reply_zh": "WiFi密码是：China2024。有任何问题请拨打0号。",
+      "reply_jp": "WiFiパスワードはChina2024です。何かあれば0番にお電話ください。",
+      "pinyin": "WiFi mìmǎ shì: China2024. Yǒu rènhé wèntí qǐng bōdǎ líng hào.",
+      "vocabulary": [
+        { "zh": "密码", "jp": "パスワード", "pinyin": "mìmǎ" },
+        { "zh": "拨打", "jp": "電話をかける", "pinyin": "bōdǎ" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "checkout",
+      "reply_zh": "好的。退房时间是中午十二点。需要帮您叫出租车吗？",
+      "reply_jp": "かしこまりました。チェックアウトは正午12時です。タクシーを呼びましょうか？",
+      "pinyin": "Hǎo de. Tuì fáng shíjiān shì zhōngwǔ shí èr diǎn. Xūyào bāng nín jiào chūzū chē ma?",
+      "vocabulary": [
+        { "zh": "退房", "jp": "チェックアウト", "pinyin": "tuì fáng" },
+        { "zh": "出租车", "jp": "タクシー", "pinyin": "chūzū chē" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "祝您住得愉快！如有需要请随时联系我们。",
+      "reply_jp": "快適なご滞在を！何かございましたらいつでもご連絡ください。",
+      "pinyin": "Zhù nín zhù de yúkuài! Rú yǒu xūyào qǐng suíshí liánxì wǒmen.",
+      "vocabulary": [
+        { "zh": "随时", "jp": "いつでも", "pinyin": "suíshí" },
+        { "zh": "联系", "jp": "連絡する", "pinyin": "liánxì" }
+      ],
+      "transitions": []
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#10B981">
+  <title>会話練習 | 中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .scenario-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; gap: 14px; transition: border-color 0.12s;
+    }
+    .scenario-card:active { border-color: var(--conv); }
+    .scenario-card + .scenario-card { margin-top: 10px; }
+    .sc-emoji { font-size: 2.25rem; flex-shrink: 0; }
+    .sc-name  { font-size: 1rem; font-weight: 700; }
+    .sc-name-zh { font-size: 0.8125rem; color: var(--muted); }
+    .sc-desc  { font-size: 0.8125rem; color: var(--muted); margin-top: 2px; }
+    .sc-done  { color: var(--conv); font-size: 1.25rem; }
+    #chat-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 0 12px; height: 56px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .offline-mode-badge {
+      background: #ECFDF5; border: 1px solid #6EE7B7; color: #065F46;
+      border-radius: 99px; padding: 3px 10px; font-size: 0.6875rem; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="screen-scenarios" class="screen active">
+    <div class="page-wrap">
+      <div class="page-header">
+        <a href="./index.html" class="back-btn">←</a>
+        <h1>💬 会話練習</h1>
+      </div>
+      <div class="page-content">
+        <div class="card mb-12" style="background:#ECFDF5;border-color:#6EE7B7;">
+          <p style="font-size:0.875rem;color:#065F46;line-height:1.6;">
+            ✈️ <strong>完全オフライン対応</strong><br>
+            ネットワーク不要で会話練習できます。日本語・中国語どちらで入力しても大丈夫です。
+          </p>
+        </div>
+        <div class="section-title">シナリオを選ぶ</div>
+        <div id="scenario-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-screen" class="screen">
+    <div id="chat-header">
+      <button class="back-btn" onclick="endChat()">←</button>
+      <span id="chat-title" style="font-weight:700;font-size:1rem;flex:1;"></span>
+      <span class="offline-mode-badge">✈️ オフライン</span>
+      <button class="btn btn-sm btn-outline" onclick="endChat()">終わる</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-input-wrap">
+      <div class="chat-hint" id="chat-hint">日本語または中国語でメッセージを送ってください</div>
+      <div class="chat-row">
+        <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="音声入力">🎤</button>
+        <textarea class="chat-textarea" id="chat-input" rows="1"
+          placeholder="メッセージを入力..."
+          onkeydown="handleKeydown(event)"
+          oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-summary" class="screen">
+    <div class="page-wrap">
+      <div class="page-header"><h1>💬 会話練習</h1></div>
+      <div class="page-content">
+        <div class="summary-hero">
+          <span class="s-emoji">🎉</span>
+          <div class="s-title">会話完了！</div>
+          <div class="s-sub" id="summary-scenario"></div>
+        </div>
+        <div class="stats-grid mb-16">
+          <div class="card stat-box">
+            <div class="stat-num" id="summary-turns">0</div>
+            <div class="stat-lbl">会話ターン数</div>
+          </div>
+          <div class="card stat-box">
+            <div class="stat-num" id="summary-words">0</div>
+            <div class="stat-lbl">学んだ単語</div>
+          </div>
+        </div>
+        <button class="btn btn-conv btn-full btn-lg mb-12" onclick="renderScenarios();ChineseNav.showScreen('screen-scenarios');">別のシナリオへ</button>
+        <button class="btn btn-outline btn-full" onclick="location.href='./wordbook.html'">単語帳を見る 📖</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./js/offline-engine.js"></script>
+
+  <script>
+  window.SCENARIOS = [
+    { id: 'restaurant',  name: 'レストラン', nameZh: '餐厅',   emoji: '🍜', desc: '注文・お会計の練習' },
+    { id: 'shopping',    name: 'ショッピング', nameZh: '购物',  emoji: '🛍️', desc: '値段交渉・試着の練習' },
+    { id: 'transport',   name: '交通',       nameZh: '交通',   emoji: '🚕', desc: 'タクシー・道案内の練習' },
+    { id: 'hotel',       name: 'ホテル',      nameZh: '酒店',  emoji: '🏨', desc: 'チェックイン・サービスの練習' },
+    { id: 'cafe',        name: 'カフェ',      nameZh: '咖啡厅', emoji: '☕', desc: '注文・雑談の練習' },
+    { id: 'sightseeing', name: '観光',        nameZh: '观光',  emoji: '🗺️', desc: '道案内・チケット購入の練習' }
+  ];
+  </script>
+
+  <script>
+    let currentScenario = null;
+    let engine = null;
+    let sessionWords = 0;
+    let sessionTurns = 0;
+    let isSending = false;
+    let micListening = false;
+
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function escAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+    function renderScenarios() {
+      const list = document.getElementById('scenario-list');
+      let state;
+      try { state = ChineseState.getState(); } catch { state = { conversation: { completedScenarios: [] } }; }
+      list.innerHTML = '';
+      SCENARIOS.forEach(s => {
+        const done = state.conversation.completedScenarios.includes(s.id);
+        const el = document.createElement('div');
+        el.className = 'scenario-card';
+        el.innerHTML = `
+          <span class="sc-emoji">${s.emoji}</span>
+          <div style="flex:1">
+            <div class="sc-name">${escHtml(s.name)} <span style="font-weight:400;color:var(--muted);font-size:0.875rem;">/ ${escHtml(s.nameZh)}</span></div>
+            <div class="sc-desc">${escHtml(s.desc)}</div>
+          </div>
+          ${done ? '<span class="sc-done">✓</span>' : '<span style="color:var(--muted);font-size:1.25rem;">›</span>'}
+        `;
+        el.onclick = () => startChat(s);
+        list.appendChild(el);
+      });
+    }
+
+    async function startChat(scenario) {
+      currentScenario = scenario;
+      sessionWords = 0; sessionTurns = 0;
+      document.getElementById('chat-title').textContent = `${scenario.emoji} ${scenario.name}`;
+      document.getElementById('chat-messages').innerHTML = '';
+      document.getElementById('chat-input').value = '';
+      ChineseNav.showScreen('chat-screen');
+
+      const area = document.getElementById('chat-messages');
+      const loading = document.createElement('div');
+      loading.className = 'typing-dots';
+      loading.innerHTML = '<span></span><span></span><span></span>';
+      area.appendChild(loading);
+
+      try {
+        engine = await OfflineConversation.createEngine(scenario.id);
+        const opener = engine.getOpener();
+        loading.remove();
+        appendAI(opener);
+      } catch (err) {
+        loading.remove();
+        appendError('シナリオを読み込めませんでした。再試行してください。');
+      }
+    }
+
+    function endChat() {
+      if (engine && sessionTurns > 0) showSummary();
+      else { renderScenarios(); ChineseNav.showScreen('screen-scenarios'); }
+    }
+
+    function showSummary() {
+      if (currentScenario) {
+        ChineseState.completeConversation(currentScenario.id);
+        ChineseState.updateStreak();
+        document.getElementById('summary-scenario').textContent = `${currentScenario.emoji} ${currentScenario.name}`;
+      }
+      document.getElementById('summary-turns').textContent = sessionTurns;
+      document.getElementById('summary-words').textContent = sessionWords;
+      engine = null;
+      ChineseNav.showScreen('screen-summary');
+    }
+
+    function appendUser(text) {
+      const area = document.getElementById('chat-messages');
+      const el = document.createElement('div');
+      el.className = 'bubble bubble-user';
+      el.textContent = text;
+      area.appendChild(el);
+      scrollBottom();
+    }
+
+    function appendAI(parsed) {
+      const area = document.getElementById('chat-messages');
+      const el = document.createElement('div');
+      el.className = 'bubble bubble-ai';
+      const vocab = parsed.vocabulary || [];
+      sessionWords += vocab.length;
+
+      el.innerHTML = `
+        <div class="b-zh" onclick="ChineseSpeech.speak('${escAttr(parsed.reply_zh)}')" style="cursor:pointer">
+          ${escHtml(parsed.reply_zh)} 🔊
+        </div>
+        ${parsed.pinyin ? `<div class="b-pin">[${escHtml(parsed.pinyin)}]</div>` : ''}
+        <div class="b-jp">${escHtml(parsed.reply_jp)}</div>
+        ${parsed.correction ? `<div class="b-correction">✏️ ${escHtml(parsed.correction)}</div>` : ''}
+        ${vocab.length ? `<div class="b-vocab">${vocab.map(v =>
+          `<button class="vocab-chip" onclick="addWord('${escAttr(v.zh)}','${escAttr(v.jp)}','${escAttr(v.pinyin||'')}')">
+            ${escHtml(v.zh)} <span style="opacity:0.7">${escHtml(v.jp)}</span>
+          </button>`).join('')}</div>` : ''}
+      `;
+      area.appendChild(el);
+      scrollBottom();
+      if (ChineseSpeech.canAutoplay()) setTimeout(() => ChineseSpeech.speak(parsed.reply_zh), 200);
+    }
+
+    function appendError(msg) {
+      const area = document.getElementById('chat-messages');
+      const el = document.createElement('div');
+      el.className = 'bubble bubble-ai';
+      el.innerHTML = `<div style="color:var(--danger)">${escHtml(msg)}</div>`;
+      area.appendChild(el);
+      scrollBottom();
+    }
+
+    function scrollBottom() {
+      const area = document.getElementById('chat-messages');
+      requestAnimationFrame(() => { area.scrollTop = area.scrollHeight; });
+    }
+
+    function addWord(zh, jp, pinyin) {
+      const added = ChineseState.addWord({ zh, jp, pinyin, source: currentScenario?.name || '会話' });
+      ChineseNav.showToast(added ? `📖「${zh}」を単語帳に追加` : `「${zh}」は登録済みです`);
+    }
+
+    async function sendMessage() {
+      if (isSending || !engine) return;
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      autoResize(input);
+      isSending = true;
+      document.getElementById('send-btn').disabled = true;
+
+      appendUser(text);
+      sessionTurns++;
+
+      const area = document.getElementById('chat-messages');
+      const typing = document.createElement('div');
+      typing.className = 'typing-dots';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      area.appendChild(typing);
+      scrollBottom();
+
+      await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
+      const response = engine.processInput(text);
+      typing.remove();
+      appendAI(response);
+
+      isSending = false;
+      document.getElementById('send-btn').disabled = false;
+
+      if (engine.isComplete()) {
+        setTimeout(() => showSummary(), 1200);
+      }
+    }
+
+    function handleKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+    }
+
+    function toggleMic() {
+      if (micListening) {
+        ChineseSpeech.stopListening();
+        micListening = false;
+        document.getElementById('mic-btn').classList.remove('listening');
+        return;
+      }
+      micListening = true;
+      document.getElementById('mic-btn').classList.add('listening');
+      ChineseSpeech.startListening('zh-CN',
+        (text, isFinal) => {
+          document.getElementById('chat-input').value = text;
+          autoResize(document.getElementById('chat-input'));
+          if (isFinal) { micListening = false; document.getElementById('mic-btn').classList.remove('listening'); }
+        },
+        (err) => {
+          micListening = false;
+          document.getElementById('mic-btn').classList.remove('listening');
+          if (err !== 'not_supported') ChineseNav.showToast('音声認識エラー: ' + err);
+        }
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', renderScenarios);
+  </script>
+</body>
+</html>

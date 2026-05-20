@@ -1,0 +1,137 @@
+{
+  "id": "transport",
+  "name": "交通",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "您好！去哪里？",
+      "reply_jp": "こんにちは！どちらへ？",
+      "pinyin": "Nín hǎo! Qù nǎlǐ?",
+      "vocabulary": [
+        { "zh": "去", "jp": "行く", "pinyin": "qù" },
+        { "zh": "哪里", "jp": "どこ", "pinyin": "nǎlǐ" }
+      ],
+      "transitions": [
+        { "keywords": ["机场","空港","airport"], "next": "to_airport" },
+        { "keywords": ["火车站","駅","station","train"], "next": "to_station" },
+        { "keywords": ["酒店","宾馆","ホテル","hotel"], "next": "to_hotel" },
+        { "keywords": ["市中心","downtown","中心部"], "next": "to_downtown" },
+        { "default": true, "next": "ask_destination" }
+      ]
+    },
+    {
+      "id": "ask_destination",
+      "reply_zh": "请问您要去哪里？能说得具体一点吗？",
+      "reply_jp": "どこへ行かれますか？具体的に教えてもらえますか？",
+      "pinyin": "Qǐngwèn nín yào qù nǎlǐ? Néng shuō de jùtǐ yīdiǎn ma?",
+      "vocabulary": [
+        { "zh": "具体", "jp": "具体的", "pinyin": "jùtǐ" }
+      ],
+      "transitions": [
+        { "keywords": ["机场","空港","airport"], "next": "to_airport" },
+        { "keywords": ["火车站","駅","station"], "next": "to_station" },
+        { "keywords": ["酒店","宾馆","ホテル","hotel"], "next": "to_hotel" },
+        { "default": true, "next": "to_downtown" }
+      ]
+    },
+    {
+      "id": "to_airport",
+      "reply_zh": "去机场大概要四十分钟，费用约一百元。上车吧！",
+      "reply_jp": "空港まで約40分、料金は約100元です。乗ってください！",
+      "pinyin": "Qù jīchǎng dàgài yào sìshí fēnzhōng, fèiyòng yuē yī bǎi yuán. Shàng chē ba!",
+      "vocabulary": [
+        { "zh": "大概", "jp": "だいたい", "pinyin": "dàgài" },
+        { "zh": "费用", "jp": "料金・費用", "pinyin": "fèiyòng" }
+      ],
+      "transitions": [{ "default": true, "next": "during_ride" }]
+    },
+    {
+      "id": "to_station",
+      "reply_zh": "去火车站大概二十分钟，约五十元。",
+      "reply_jp": "駅まで約20分、約50元です。",
+      "pinyin": "Qù huǒchēzhàn dàgài èrshí fēnzhōng, yuē wǔshí yuán.",
+      "vocabulary": [
+        { "zh": "火车站", "jp": "鉄道駅", "pinyin": "huǒchēzhàn" }
+      ],
+      "transitions": [{ "default": true, "next": "during_ride" }]
+    },
+    {
+      "id": "to_hotel",
+      "reply_zh": "您住哪家酒店？",
+      "reply_jp": "どのホテルに泊まっていますか？",
+      "pinyin": "Nín zhù nǎ jiā jiǔdiàn?",
+      "vocabulary": [
+        { "zh": "住", "jp": "泊まる・住む", "pinyin": "zhù" },
+        { "zh": "酒店", "jp": "ホテル", "pinyin": "jiǔdiàn" }
+      ],
+      "transitions": [{ "default": true, "next": "during_ride" }]
+    },
+    {
+      "id": "to_downtown",
+      "reply_zh": "去市中心大概十五分钟，约三十元。",
+      "reply_jp": "市街地まで約15分、約30元です。",
+      "pinyin": "Qù shì zhōngxīn dàgài shíwǔ fēnzhōng, yuē sānshí yuán.",
+      "vocabulary": [
+        { "zh": "市中心", "jp": "市街地・中心部", "pinyin": "shì zhōngxīn" }
+      ],
+      "transitions": [{ "default": true, "next": "during_ride" }]
+    },
+    {
+      "id": "during_ride",
+      "reply_zh": "您是第一次来中国吗？",
+      "reply_jp": "中国は初めてですか？",
+      "pinyin": "Nín shì dì yī cì lái Zhōngguó ma?",
+      "vocabulary": [
+        { "zh": "第一次", "jp": "初めて", "pinyin": "dì yī cì" }
+      ],
+      "transitions": [
+        { "keywords": ["是","yes","はい","对","初めて","first"], "next": "first_time" },
+        { "keywords": ["不","no","いいえ","不是","再次","again"], "next": "not_first" },
+        { "default": true, "next": "first_time" }
+      ]
+    },
+    {
+      "id": "first_time",
+      "reply_zh": "欢迎！中国很好玩。需要推荐景点吗？",
+      "reply_jp": "ようこそ！中国は楽しいですよ。観光スポットを教えましょうか？",
+      "pinyin": "Huānyíng! Zhōngguó hěn hǎo wán. Xūyào tuījiàn jǐngdiǎn ma?",
+      "vocabulary": [
+        { "zh": "好玩", "jp": "楽しい・面白い", "pinyin": "hǎo wán" },
+        { "zh": "景点", "jp": "観光スポット", "pinyin": "jǐngdiǎn" }
+      ],
+      "transitions": [{ "default": true, "next": "arrive" }]
+    },
+    {
+      "id": "not_first",
+      "reply_zh": "那您肯定很喜欢中国！上次来的时候去哪里了？",
+      "reply_jp": "それは中国がお好きなんですね！前回はどこへ行きましたか？",
+      "pinyin": "Nà nín kěndìng hěn xǐhuān Zhōngguó! Shàng cì lái de shíhòu qù nǎlǐ le?",
+      "vocabulary": [
+        { "zh": "肯定", "jp": "きっと・必ず", "pinyin": "kěndìng" },
+        { "zh": "上次", "jp": "前回", "pinyin": "shàng cì" }
+      ],
+      "transitions": [{ "default": true, "next": "arrive" }]
+    },
+    {
+      "id": "arrive",
+      "reply_zh": "到了！一共五十元。需要发票吗？",
+      "reply_jp": "着きました！合計50元です。領収書が必要ですか？",
+      "pinyin": "Dào le! Yīgòng wǔshí yuán. Xūyào fāpiào ma?",
+      "vocabulary": [
+        { "zh": "到了", "jp": "着いた", "pinyin": "dào le" },
+        { "zh": "发票", "jp": "領収書", "pinyin": "fāpiào" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "谢谢！祝您旅途愉快！",
+      "reply_jp": "ありがとうございます！よいご旅行を！",
+      "pinyin": "Xièxie! Zhù nín lǚtú yúkuài!",
+      "vocabulary": [
+        { "zh": "旅途愉快", "jp": "よいご旅行を", "pinyin": "lǚtú yúkuài" }
+      ],
+      "transitions": []
+    }
+  ]
+}

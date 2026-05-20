@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#EF4444">
+  <title>単語帳 | 中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .source-tag {
+      display: inline-block; padding: 1px 7px;
+      background: #FEF2F2; color: var(--primary);
+      border-radius: 99px; font-size: 0.6875rem; font-weight: 500;
+    }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .word-count-badge {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 99px; padding: 3px 10px;
+      font-size: 0.8125rem; color: var(--muted); font-weight: 500;
+    }
+    .sort-row { display: flex; gap: 6px; margin-bottom: 12px; }
+    .sort-btn {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 99px; padding: 5px 12px;
+      font-family: inherit; font-size: 0.8125rem; color: var(--muted); cursor: pointer;
+    }
+    .sort-btn.active { border-color: var(--primary); color: var(--primary); background: #FEF2F2; }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>📖 単語帳</h1>
+      <div class="header-right">
+        <span class="word-count-badge" id="word-count-badge">0語</span>
+        <button class="btn btn-ghost btn-sm" id="clear-btn" onclick="clearAll()" style="display:none;">全削除</button>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="sort-row">
+        <button class="sort-btn active" id="sort-new" onclick="setSort('new')">新しい順</button>
+        <button class="sort-btn" id="sort-old" onclick="setSort('old')">古い順</button>
+        <button class="sort-btn" id="sort-abc" onclick="setSort('abc')">拼音順</button>
+      </div>
+      <div id="word-list"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./wordbook.html" class="active"><span class="nav-icon">📖</span>単語帳</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+
+  <script>
+    let sortMode = 'new';
+
+    function setSort(mode) {
+      sortMode = mode;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('sort-' + mode).classList.add('active');
+      renderWords();
+    }
+
+    function renderWords() {
+      let words = ChineseState.getWords();
+      if (sortMode === 'new') words = [...words].reverse();
+      else if (sortMode === 'old') words = [...words];
+      else if (sortMode === 'abc') words = [...words].sort((a, b) => (a.pinyin || '').localeCompare(b.pinyin || ''));
+
+      const list = document.getElementById('word-list');
+      document.getElementById('word-count-badge').textContent = words.length + '語';
+      document.getElementById('clear-btn').style.display = words.length > 0 ? '' : 'none';
+
+      if (words.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">📖</span>
+            <p>まだ単語がありません。<br>会話練習中に語彙チップをタップして追加しましょう。</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      words.forEach(w => {
+        const el = document.createElement('div');
+        el.className = 'word-item';
+        el.innerHTML = `
+          <div style="flex:1;min-width:0;">
+            <div class="word-kr">${escHtml(w.zh)}</div>
+            ${w.pinyin ? `<div class="word-pin">${escHtml(w.pinyin)}</div>` : ''}
+            <div class="word-jp">${escHtml(w.jp)}</div>
+            ${w.source ? `<span class="source-tag">${escHtml(w.source)}</span>` : ''}
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="speak('${escAttr(w.zh)}')" title="発音">🔊</button>
+          <button class="del-btn" onclick="deleteWord('${escAttr(w.zh)}')" title="削除">🗑</button>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function speak(zh) { ChineseSpeech.speak(zh, 'zh-CN'); }
+
+    function deleteWord(zh) {
+      ChineseState.removeWord(zh);
+      renderWords();
+    }
+
+    function clearAll() {
+      if (!confirm('単語帳を全て削除しますか？')) return;
+      const words = ChineseState.getWords();
+      words.forEach(w => ChineseState.removeWord(w.zh));
+      renderWords();
+    }
+
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escAttr(s) { return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+    document.addEventListener('DOMContentLoaded', renderWords);
+  </script>
+</body>
+</html>

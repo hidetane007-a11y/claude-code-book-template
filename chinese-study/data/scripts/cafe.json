@@ -1,0 +1,122 @@
+{
+  "id": "cafe",
+  "name": "カフェ",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "您好！欢迎光临。请问要点什么？",
+      "reply_jp": "こんにちは！いらっしゃいませ。ご注文は？",
+      "pinyin": "Nín hǎo! Huānyíng guānglín. Qǐngwèn yào diǎn shénme?",
+      "vocabulary": [
+        { "zh": "点", "jp": "注文する", "pinyin": "diǎn" }
+      ],
+      "transitions": [
+        { "keywords": ["咖啡","コーヒー","coffee"], "next": "order_coffee" },
+        { "keywords": ["茶","お茶","tea","绿茶","红茶"], "next": "order_tea" },
+        { "keywords": ["奶茶","タピオカ","bubble tea","珍珠"], "next": "order_bubbletea" },
+        { "keywords": ["看看","menu","菜单","メニュー"], "next": "show_menu" },
+        { "default": true, "next": "show_menu" }
+      ]
+    },
+    {
+      "id": "show_menu",
+      "reply_zh": "我们有咖啡、茶、奶茶和果汁。今天的特饮是抹茶拿铁。",
+      "reply_jp": "コーヒー・お茶・タピオカ・ジュースがあります。本日のおすすめは抹茶ラテです。",
+      "pinyin": "Wǒmen yǒu kāfēi, chá, nǎichá hé guǒzhī. Jīntiān de tè yǐn shì mǒchá nátiě.",
+      "vocabulary": [
+        { "zh": "特饮", "jp": "特別ドリンク・本日のおすすめ", "pinyin": "tè yǐn" },
+        { "zh": "抹茶拿铁", "jp": "抹茶ラテ", "pinyin": "mǒchá nátiě" }
+      ],
+      "transitions": [
+        { "keywords": ["咖啡","coffee","コーヒー"], "next": "order_coffee" },
+        { "keywords": ["茶","tea","抹茶","绿茶"], "next": "order_tea" },
+        { "keywords": ["奶茶","bubble","タピオカ","珍珠"], "next": "order_bubbletea" },
+        { "default": true, "next": "order_coffee" }
+      ]
+    },
+    {
+      "id": "order_coffee",
+      "reply_zh": "好的。要拿铁还是美式？热的还是冰的？",
+      "reply_jp": "かしこまりました。ラテかアメリカーノ？ホットかアイス？",
+      "pinyin": "Hǎo de. Yào nátiě háishi měishì? Rè de háishi bīng de?",
+      "vocabulary": [
+        { "zh": "拿铁", "jp": "ラテ", "pinyin": "nátiě" },
+        { "zh": "美式", "jp": "アメリカーノ", "pinyin": "měishì" },
+        { "zh": "冰的", "jp": "アイス", "pinyin": "bīng de" }
+      ],
+      "transitions": [
+        { "keywords": ["拿铁","ラテ","latte"], "next": "size_choice" },
+        { "keywords": ["美式","アメリカーノ","americano"], "next": "size_choice" },
+        { "default": true, "next": "size_choice" }
+      ]
+    },
+    {
+      "id": "order_tea",
+      "reply_zh": "好的。绿茶还是红茶？要加奶吗？",
+      "reply_jp": "かしこまりました。緑茶か紅茶？ミルクを入れますか？",
+      "pinyin": "Hǎo de. Lǜchá háishi hóngchá? Yào jiā nǎi ma?",
+      "vocabulary": [
+        { "zh": "绿茶", "jp": "緑茶", "pinyin": "lǜchá" },
+        { "zh": "红茶", "jp": "紅茶", "pinyin": "hóngchá" },
+        { "zh": "加奶", "jp": "ミルクを入れる", "pinyin": "jiā nǎi" }
+      ],
+      "transitions": [{ "default": true, "next": "size_choice" }]
+    },
+    {
+      "id": "order_bubbletea",
+      "reply_zh": "好的。甜度和冰量怎么选？全糖全冰，还是少糖少冰？",
+      "reply_jp": "かしこまりました。甘さと氷の量は？フル甘さフル氷、それとも少なめ？",
+      "pinyin": "Hǎo de. Tiándù hé bīng liàng zěnme xuǎn? Quán táng quán bīng, háishi shǎo táng shǎo bīng?",
+      "vocabulary": [
+        { "zh": "甜度", "jp": "甘さの度合い", "pinyin": "tiándù" },
+        { "zh": "少糖", "jp": "砂糖少なめ", "pinyin": "shǎo táng" }
+      ],
+      "transitions": [{ "default": true, "next": "size_choice" }]
+    },
+    {
+      "id": "size_choice",
+      "reply_zh": "要大杯还是中杯？大杯三十二元，中杯二十五元。",
+      "reply_jp": "Lサイズかーサイズか？Lは32元、Mは25元です。",
+      "pinyin": "Yào dà bēi háishi zhōng bēi? Dà bēi sānshí èr yuán, zhōng bēi èrshíwǔ yuán.",
+      "vocabulary": [
+        { "zh": "大杯", "jp": "Lサイズ", "pinyin": "dà bēi" },
+        { "zh": "中杯", "jp": "Mサイズ", "pinyin": "zhōng bēi" }
+      ],
+      "transitions": [{ "default": true, "next": "confirm_order" }]
+    },
+    {
+      "id": "confirm_order",
+      "reply_zh": "好的，请到前面取餐。需要几分钟。",
+      "reply_jp": "かしこまりました。前の受け取り口でお待ちください。数分かかります。",
+      "pinyin": "Hǎo de, qǐng dào qiánmiàn qǔ cān. Xūyào jǐ fēnzhōng.",
+      "vocabulary": [
+        { "zh": "取餐", "jp": "商品を受け取る", "pinyin": "qǔ cān" }
+      ],
+      "transitions": [
+        { "keywords": ["坐","座る","sit","位置","where"], "next": "seating" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "seating",
+      "reply_zh": "里面有位子，请随便坐。需要WiFi密码吗？是Cafe2024。",
+      "reply_jp": "奥に席があります。ご自由にどうぞ。WiFiパスワードはCafe2024です。",
+      "pinyin": "Lǐmiàn yǒu wèizi, qǐng suíbiàn zuò. Xūyào WiFi mìmǎ ma? Shì Cafe2024.",
+      "vocabulary": [
+        { "zh": "位子", "jp": "席", "pinyin": "wèizi" },
+        { "zh": "里面", "jp": "中・奥", "pinyin": "lǐmiàn" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "请慢用！欢迎下次再来。",
+      "reply_jp": "ごゆっくりどうぞ！またのお越しをお待ちしています。",
+      "pinyin": "Qǐng màn yòng! Huānyíng xià cì zài lái.",
+      "vocabulary": [
+        { "zh": "慢用", "jp": "ゆっくり召し上がれ", "pinyin": "màn yòng" }
+      ],
+      "transitions": []
+    }
+  ]
+}

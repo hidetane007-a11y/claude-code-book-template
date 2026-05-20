@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#8B5CF6">
+  <title>ピンイン練習 | 中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .pinyin-detail {
+      background: var(--card); border-radius: 14px; padding: 20px;
+      border: 1px solid var(--border); margin-bottom: 16px; text-align: center;
+    }
+    .pinyin-big { font-size: 4rem; font-weight: 700; color: var(--vowel); line-height: 1; margin-bottom: 8px; }
+    .pinyin-example { font-size: 1.0625rem; font-weight: 600; margin-bottom: 4px; }
+    .pinyin-hint { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+    .pinyin-category { font-size: 0.75rem; color: var(--vowel); font-weight: 600; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>🔤 ピンイン練習</h1>
+      <span style="font-size:0.8125rem;color:var(--muted);" id="progress-label">0/43</span>
+    </div>
+    <div class="page-content">
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-initials" onclick="switchTab('initials')">声母 (23音)</button>
+        <button class="tab-btn" id="tab-finals" onclick="switchTab('finals')">韻母 (20音)</button>
+      </div>
+
+      <div id="grid-initials" class="vowel-grid"></div>
+      <div id="grid-finals" class="vowel-grid" style="display:none;"></div>
+
+      <!-- 詳細パネル -->
+      <div id="detail-panel" style="display:none;">
+        <div class="pinyin-detail">
+          <div class="pinyin-category" id="detail-category"></div>
+          <div class="pinyin-big" id="detail-char"></div>
+          <div class="pinyin-example" id="detail-example"></div>
+          <div class="pinyin-hint" id="detail-hint"></div>
+        </div>
+        <button class="btn btn-vowel btn-full mb-12" onclick="speakCurrent()">🔊 発音を聴く</button>
+        <button class="btn btn-outline btn-full" id="master-btn" onclick="markMastered()">✅ 習得した</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/pinyin-data.js"></script>
+
+  <script>
+    let currentTab = 'initials';
+    let currentItem = null;
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('grid-initials').style.display = tab === 'initials' ? 'grid' : 'none';
+      document.getElementById('grid-finals').style.display   = tab === 'finals'   ? 'grid' : 'none';
+      document.getElementById('tab-initials').classList.toggle('active', tab === 'initials');
+      document.getElementById('tab-finals').classList.toggle('active',   tab === 'finals');
+      closeDetail();
+    }
+
+    function renderGrids() {
+      const s = ChineseState.getState();
+      const completed = s.pinyin.completed;
+
+      renderGrid('grid-initials', PINYIN_DATA.initials, completed);
+      renderGrid('grid-finals',   PINYIN_DATA.finals,   completed);
+      updateProgress(completed.length);
+    }
+
+    function renderGrid(gridId, items, completed) {
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = '';
+      items.forEach(item => {
+        const done = completed.includes(item.char);
+        const tile = document.createElement('div');
+        tile.className = 'vowel-tile' + (done ? ' done' : '');
+        tile.innerHTML = `
+          <div class="vowel-char">${item.char}</div>
+          ${done ? '<span class="vowel-check">✓</span>' : ''}
+        `;
+        tile.onclick = () => selectItem(item, tile);
+        grid.appendChild(tile);
+      });
+    }
+
+    function selectItem(item, tile) {
+      document.querySelectorAll('.vowel-tile').forEach(t => t.classList.remove('active'));
+      tile.classList.add('active');
+      currentItem = item;
+
+      document.getElementById('detail-category').textContent = item.category;
+      document.getElementById('detail-char').textContent = item.char;
+      document.getElementById('detail-example').textContent = item.example;
+      document.getElementById('detail-hint').textContent = item.hint;
+
+      const s = ChineseState.getState();
+      const done = s.pinyin.completed.includes(item.char);
+      document.getElementById('master-btn').textContent = done ? '✅ 習得済み' : '✅ 習得した';
+      document.getElementById('master-btn').disabled = done;
+
+      document.getElementById('detail-panel').style.display = 'block';
+      ChineseSpeech.speak(item.char, 'zh-CN');
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-panel').style.display = 'none';
+      document.querySelectorAll('.vowel-tile').forEach(t => t.classList.remove('active'));
+      currentItem = null;
+    }
+
+    function speakCurrent() {
+      if (currentItem) ChineseSpeech.speak(currentItem.char, 'zh-CN');
+    }
+
+    function markMastered() {
+      if (!currentItem) return;
+      ChineseState.markPinyinDone(currentItem.char);
+      ChineseState.updateStreak();
+      ChineseNav.showToast(`「${currentItem.char}」を習得！`);
+      renderGrids();
+      closeDetail();
+    }
+
+    function updateProgress(done) {
+      document.getElementById('progress-label').textContent = done + '/43';
+    }
+
+    document.addEventListener('DOMContentLoaded', renderGrids);
+  </script>
+</body>
+</html>

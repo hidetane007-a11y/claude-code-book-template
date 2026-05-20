@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#EF4444">
+  <title>声調ドリル | 中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .tone-display {
+      font-size: 5rem; font-weight: 700; text-align: center;
+      margin: 12px 0 4px; line-height: 1; color: var(--text);
+    }
+    .tone-play-btn {
+      display: block; margin: 0 auto 20px;
+      background: var(--drill); color: white;
+      border: none; border-radius: 50%;
+      width: 64px; height: 64px; font-size: 1.75rem;
+      cursor: pointer; transition: transform 0.1s;
+    }
+    .tone-play-btn:active { transform: scale(0.93); }
+    .step-badge {
+      display: inline-block; padding: 3px 10px;
+      background: #FEF2F2; border: 1px solid #FCA5A5;
+      color: var(--drill); border-radius: 99px;
+      font-size: 0.75rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .tone-label {
+      font-size: 0.8125rem; color: var(--muted);
+      text-align: center; margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ステージ選択 -->
+  <div id="screen-stages" class="screen active">
+    <div class="page-wrap">
+      <div class="page-header">
+        <a href="./index.html" class="back-btn">←</a>
+        <h1>🎵 声調ドリル</h1>
+      </div>
+      <div class="page-content">
+        <div class="tip-box">
+          中国語は<strong>声調（トーン）</strong>が意味を変えます。<br>
+          第一声（ˉ）・第二声（ˊ）・第三声（ˇ）・第四声（ˋ）の4種類を練習しましょう。
+        </div>
+        <div class="section-title">ステージを選ぶ</div>
+        <div id="stage-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: 聞き分け -->
+  <div id="screen-listen" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="ChineseNav.showScreen('screen-stages');renderStages();">←</button>
+        <h1 id="listen-title">Stage 1</h1>
+      </div>
+      <div class="page-content">
+        <div style="text-align:center;margin-bottom:4px;">
+          <span class="step-badge">Step 1 — 聞き分け</span>
+        </div>
+        <div style="font-size:0.875rem;color:var(--muted);text-align:center;margin-bottom:12px;" id="listen-num">1 / 6</div>
+        <div class="pbar mb-16"><div class="pbar-fill drill" id="listen-pbar" style="width:0%"></div></div>
+
+        <div class="question-box">
+          <div class="tone-label">この発音は何声？</div>
+          <button class="tone-play-btn" onclick="playCurrentTone()" id="play-btn">🔊</button>
+          <div style="font-size:0.8125rem;color:var(--muted);">タップして発音を聴く</div>
+        </div>
+
+        <div id="listen-choices"></div>
+        <div id="listen-feedback"></div>
+        <div id="listen-next" style="margin-top:14px;display:none;">
+          <button class="btn btn-drill btn-full" onclick="nextListenQuestion()">次へ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: 視覚確認 -->
+  <div id="screen-visual" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="ChineseNav.showScreen('screen-listen');startListenStep();">←</button>
+        <h1 id="visual-title">Stage 1</h1>
+      </div>
+      <div class="page-content">
+        <div style="text-align:center;margin-bottom:4px;">
+          <span class="step-badge">Step 2 — 視覚確認</span>
+        </div>
+        <div style="font-size:0.875rem;color:var(--muted);text-align:center;margin-bottom:12px;" id="visual-num">1 / 6</div>
+        <div class="pbar mb-16"><div class="pbar-fill drill" id="visual-pbar" style="width:0%"></div></div>
+
+        <div class="question-box">
+          <div class="tone-display" id="visual-char">妈</div>
+          <div style="font-size:1.125rem;color:var(--muted);" id="visual-pinyin-notone">ma</div>
+          <div style="font-size:0.8125rem;color:var(--muted);margin-top:6px;">何声ですか？</div>
+        </div>
+
+        <div id="visual-choices"></div>
+        <div id="visual-feedback"></div>
+        <div id="visual-next" style="margin-top:14px;display:none;">
+          <button class="btn btn-drill btn-full" onclick="nextVisualQuestion()">次へ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="screen-result" class="screen">
+    <div class="page-wrap">
+      <div class="page-header"><h1>🎵 結果</h1></div>
+      <div class="page-content">
+        <div class="result-circle">
+          <div class="result-score" id="result-score">0</div>
+          <div class="result-total" id="result-total">/ 0 問</div>
+        </div>
+        <p style="text-align:center;color:var(--muted);margin-bottom:20px;" id="result-msg"></p>
+        <div id="unlock-msg" style="display:none;" class="card mb-12">
+          <p style="text-align:center;color:var(--drill);font-weight:600;">🎉 次のステージが解放されました！</p>
+        </div>
+        <button class="btn btn-drill btn-full btn-lg mb-12" onclick="retryStage()">もう一度</button>
+        <button class="btn btn-outline btn-full" onclick="ChineseNav.showScreen('screen-stages');renderStages();">ステージ一覧へ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/tones-data.js"></script>
+
+  <script>
+    const TONE_LABELS = ['軽声(0)', '第一声(1)', '第二声(2)', '第三声(3)', '第四声(4)'];
+    const TONE_MARKS = ['', 'ˉ', 'ˊ', 'ˇ', 'ˋ'];
+
+    let currentStageId = 1;
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let listenScore = 0;
+    let visualScore = 0;
+    let totalCorrect = 0;
+
+    function renderStages() {
+      const s = ChineseState.getState();
+      const list = document.getElementById('stage-list');
+      list.innerHTML = '';
+      TONES_DATA.stages.forEach(stage => {
+        const done = s.tones.completedStages.includes(stage.id);
+        const locked = stage.id > s.tones.currentStage;
+        const el = document.createElement('div');
+        el.className = 'stage-card' + (done ? ' done' : '') + (locked ? ' locked' : '');
+        el.innerHTML = `
+          <div class="stage-num">${stage.id}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:0.9375rem;">${stage.name}</div>
+            <div style="font-size:0.8125rem;color:var(--muted);">${stage.questions.length}問</div>
+          </div>
+          <span>${done ? '✅' : locked ? '🔒' : '▶'}</span>
+        `;
+        if (!locked) el.onclick = () => startStage(stage.id);
+        list.appendChild(el);
+      });
+    }
+
+    function startStage(stageId) {
+      currentStageId = stageId;
+      const stage = TONES_DATA.stages.find(s => s.id === stageId);
+      currentQuestions = [...stage.questions].sort(() => Math.random() - 0.5);
+      currentQIndex = 0;
+      listenScore = 0;
+      visualScore = 0;
+      startListenStep();
+    }
+
+    function startListenStep() {
+      const stage = TONES_DATA.stages.find(s => s.id === currentStageId);
+      document.getElementById('listen-title').textContent = 'Stage ' + currentStageId;
+      currentQIndex = 0;
+      renderListenQuestion();
+      ChineseNav.showScreen('screen-listen');
+    }
+
+    function renderListenQuestion() {
+      const q = currentQuestions[currentQIndex];
+      const total = currentQuestions.length;
+      document.getElementById('listen-num').textContent = (currentQIndex + 1) + ' / ' + total;
+      document.getElementById('listen-pbar').style.width = ((currentQIndex) / total * 100) + '%';
+      document.getElementById('listen-feedback').innerHTML = '';
+      document.getElementById('listen-next').style.display = 'none';
+
+      // 4択（stage 4は軽声含む5択）
+      const isStage4 = currentStageId === 4;
+      const tones = isStage4 ? [0,1,2,3,4] : [1,2,3,4];
+      const choices = document.getElementById('listen-choices');
+      choices.innerHTML = '';
+      tones.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = TONE_LABELS[t];
+        btn.onclick = () => checkListenAnswer(t, btn);
+        choices.appendChild(btn);
+      });
+    }
+
+    function playCurrentTone() {
+      const q = currentQuestions[currentQIndex];
+      ChineseSpeech.speak(q.zh, 'zh-CN');
+    }
+
+    function checkListenAnswer(selected, btn) {
+      const q = currentQuestions[currentQIndex];
+      const choices = document.getElementById('listen-choices');
+      choices.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+      const correct = selected === q.tone;
+      if (correct) { btn.classList.add('correct'); listenScore++; }
+      else {
+        btn.classList.add('wrong');
+        choices.querySelectorAll('.choice-btn').forEach(b => {
+          const t = parseInt(b.textContent.match(/\d/)?.[0] ?? '-1');
+          if (t === q.tone) b.classList.add('correct');
+        });
+      }
+
+      const fb = document.getElementById('listen-feedback');
+      fb.className = 'feedback-box ' + (correct ? 'correct' : 'wrong');
+      fb.innerHTML = `${correct ? '✅' : '❌'} <strong>${q.zh}</strong> は ${TONE_LABELS[q.tone]}（${q.pinyin}）—「${q.meaning}」`;
+      document.getElementById('listen-next').style.display = 'block';
+    }
+
+    function nextListenQuestion() {
+      currentQIndex++;
+      if (currentQIndex >= currentQuestions.length) {
+        currentQIndex = 0;
+        startVisualStep();
+      } else {
+        renderListenQuestion();
+      }
+    }
+
+    function startVisualStep() {
+      const stage = TONES_DATA.stages.find(s => s.id === currentStageId);
+      document.getElementById('visual-title').textContent = 'Stage ' + currentStageId;
+      currentQIndex = 0;
+      renderVisualQuestion();
+      ChineseNav.showScreen('screen-visual');
+    }
+
+    function renderVisualQuestion() {
+      const q = currentQuestions[currentQIndex];
+      const total = currentQuestions.length;
+      document.getElementById('visual-num').textContent = (currentQIndex + 1) + ' / ' + total;
+      document.getElementById('visual-pbar').style.width = ((currentQIndex) / total * 100) + '%';
+      document.getElementById('visual-char').textContent = q.zh;
+      document.getElementById('visual-pinyin-notone').textContent = q.pinyin_no_tone;
+      document.getElementById('visual-feedback').innerHTML = '';
+      document.getElementById('visual-next').style.display = 'none';
+
+      const isStage4 = currentStageId === 4;
+      const tones = isStage4 ? [0,1,2,3,4] : [1,2,3,4];
+      const choices = document.getElementById('visual-choices');
+      choices.innerHTML = '';
+      tones.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = TONE_LABELS[t];
+        btn.onclick = () => checkVisualAnswer(t, btn);
+        choices.appendChild(btn);
+      });
+    }
+
+    function checkVisualAnswer(selected, btn) {
+      const q = currentQuestions[currentQIndex];
+      const choices = document.getElementById('visual-choices');
+      choices.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+      const correct = selected === q.tone;
+      if (correct) { btn.classList.add('correct'); visualScore++; }
+      else {
+        btn.classList.add('wrong');
+        choices.querySelectorAll('.choice-btn').forEach(b => {
+          const t = parseInt(b.textContent.match(/\d/)?.[0] ?? '-1');
+          if (t === q.tone) b.classList.add('correct');
+        });
+      }
+
+      ChineseSpeech.speak(q.zh, 'zh-CN');
+
+      const fb = document.getElementById('visual-feedback');
+      fb.className = 'feedback-box ' + (correct ? 'correct' : 'wrong');
+      fb.innerHTML = `${correct ? '✅' : '❌'} <strong>${q.zh}</strong> → ${q.pinyin}（${q.meaning}）`;
+      document.getElementById('visual-next').style.display = 'block';
+    }
+
+    function nextVisualQuestion() {
+      currentQIndex++;
+      if (currentQIndex >= currentQuestions.length) {
+        showResult();
+      } else {
+        renderVisualQuestion();
+      }
+    }
+
+    function showResult() {
+      const total = currentQuestions.length * 2;
+      totalCorrect = listenScore + visualScore;
+      document.getElementById('result-score').textContent = totalCorrect;
+      document.getElementById('result-total').textContent = '/ ' + total + ' 問';
+
+      const pct = Math.round(totalCorrect / total * 100);
+      const msg = pct === 100 ? '完璧です！🎉' : pct >= 80 ? 'よくできました！' : pct >= 60 ? 'もう少し練習しましょう！' : 'もう一度頑張りましょう！';
+      document.getElementById('result-msg').textContent = msg;
+
+      const unlocked = document.getElementById('unlock-msg');
+      if (totalCorrect === total) {
+        ChineseState.completeToneStage(currentStageId, totalCorrect);
+        ChineseState.updateStreak();
+        const nextExists = TONES_DATA.stages.find(s => s.id === currentStageId + 1);
+        if (nextExists) { unlocked.style.display = 'block'; } else { unlocked.style.display = 'none'; }
+      } else {
+        unlocked.style.display = 'none';
+      }
+      ChineseNav.showScreen('screen-result');
+    }
+
+    function retryStage() { startStage(currentStageId); }
+
+    document.addEventListener('DOMContentLoaded', renderStages);
+  </script>
+</body>
+</html>
