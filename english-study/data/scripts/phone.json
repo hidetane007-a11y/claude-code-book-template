@@ -1,0 +1,127 @@
+{
+  "id": "phone",
+  "name": "Phone Call",
+  "beats": [
+    {
+      "id": "start",
+      "reply_en": "Good afternoon, ABC Corporation, Sales Department. This is Sarah speaking. How may I help you?",
+      "reply_jp": "こんにちは、ABCコーポレーション営業部でございます。サラと申します。どのようなご用件でしょうか？",
+      "vocabulary": [
+        { "en": "How may I help you?", "jp": "どのようなご用件でしょうか？" },
+        { "en": "This is ~ speaking", "jp": "〜と申します" },
+        { "en": "Sales Department", "jp": "営業部" }
+      ],
+      "transitions": [
+        { "keywords": ["speak","talk","connect","transfer","put through","mr","ms","manager"], "next": "ask_hold" },
+        { "keywords": ["message","leave","call back","return","not available"], "next": "take_message" },
+        { "keywords": ["information","inquiry","question","about","product","service","price"], "next": "handle_inquiry" },
+        { "default": true, "next": "ask_hold" }
+      ]
+    },
+    {
+      "id": "ask_hold",
+      "reply_en": "Of course. May I ask who's calling? And could you hold for a moment while I transfer your call?",
+      "reply_jp": "かしこまりました。お名前を伺えますか？お電話をお繋ぎしますので、少々お待ちいただけますか？",
+      "vocabulary": [
+        { "en": "May I ask who's calling?", "jp": "お名前を伺えますか？" },
+        { "en": "hold", "jp": "（電話を）保留にする" },
+        { "en": "transfer", "jp": "転送する" }
+      ],
+      "transitions": [
+        { "keywords": ["hold","wait","sure","ok","yes","please","fine"], "next": "transfer_call" },
+        { "keywords": ["no","busy","later","message","leave"], "next": "take_message" },
+        { "default": true, "next": "transfer_call" }
+      ]
+    },
+    {
+      "id": "transfer_call",
+      "reply_en": "Thank you for holding. I'm afraid Mr. Johnson is in a meeting right now. Would you like to leave a message or call back later?",
+      "reply_jp": "お待たせいたしました。あいにくジョンソンはただいま会議中でございます。伝言をお残しになりますか？それとも後ほどお掛け直しいただきますか？",
+      "vocabulary": [
+        { "en": "I'm afraid", "jp": "あいにく・残念ながら" },
+        { "en": "in a meeting", "jp": "会議中" },
+        { "en": "call back", "jp": "かけ直す" }
+      ],
+      "transitions": [
+        { "keywords": ["message","leave","tell","let him","let her"], "next": "take_message" },
+        { "keywords": ["call back","later","again","try","when"], "next": "schedule_callback" },
+        { "default": true, "next": "take_message" }
+      ]
+    },
+    {
+      "id": "take_message",
+      "reply_en": "Certainly. Please go ahead with your message. I'll make sure he gets it as soon as possible.",
+      "reply_jp": "かしこまりました。伝言をどうぞ。できる限り早くお伝えいたします。",
+      "vocabulary": [
+        { "en": "go ahead", "jp": "どうぞ・続けてください" },
+        { "en": "as soon as possible", "jp": "できる限り早く" },
+        { "en": "make sure", "jp": "確実に〜する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "confirm_message" }
+      ]
+    },
+    {
+      "id": "confirm_message",
+      "reply_en": "I've noted that down. Could I have your contact number as well, in case he needs to reach you?",
+      "reply_jp": "メモいたしました。ご連絡先のお電話番号もお聞かせいただけますか？ご連絡が必要な場合のために。",
+      "vocabulary": [
+        { "en": "noted that down", "jp": "メモした" },
+        { "en": "contact number", "jp": "連絡先番号" },
+        { "en": "reach you", "jp": "連絡する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "close_call" }
+      ]
+    },
+    {
+      "id": "handle_inquiry",
+      "reply_en": "I'd be happy to help with that. Could you give me more details about what you're looking for? I want to make sure I point you in the right direction.",
+      "reply_jp": "喜んでご対応いたします。お探しのものについて詳しくお聞かせいただけますか？適切にご案内したいと思います。",
+      "vocabulary": [
+        { "en": "I'd be happy to", "jp": "喜んで〜します" },
+        { "en": "looking for", "jp": "探している" },
+        { "en": "point you in the right direction", "jp": "適切に案内する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "close_call" }
+      ]
+    },
+    {
+      "id": "schedule_callback",
+      "reply_en": "Certainly. When would be a good time for him to call you back? He's available after 3 PM today.",
+      "reply_jp": "かしこまりました。折り返しのお電話はいつがよろしいでしょうか？本日は午後3時以降であれば対応可能です。",
+      "vocabulary": [
+        { "en": "When would be a good time?", "jp": "いつがよろしいでしょうか？" },
+        { "en": "available", "jp": "対応可能な" },
+        { "en": "call back", "jp": "折り返し電話する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "close_call" }
+      ]
+    },
+    {
+      "id": "close_call",
+      "reply_en": "Perfect. Is there anything else I can help you with today?",
+      "reply_jp": "承知いたしました。他にご用件はございますか？",
+      "vocabulary": [
+        { "en": "Is there anything else?", "jp": "他にご用件はございますか？" },
+        { "en": "I can help you with", "jp": "〜のお手伝いができる" }
+      ],
+      "transitions": [
+        { "keywords": ["no","nothing","that's all","fine","ok","thank"], "next": "end" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_en": "Thank you for calling ABC Corporation. Have a wonderful day. Goodbye!",
+      "reply_jp": "ABCコーポレーションにお電話いただきありがとうございます。良い一日をお過ごしください。失礼いたします！",
+      "vocabulary": [
+        { "en": "Thank you for calling", "jp": "お電話いただきありがとうございます" },
+        { "en": "Have a wonderful day", "jp": "良い一日をお過ごしください" }
+      ],
+      "transitions": []
+    }
+  ]
+}

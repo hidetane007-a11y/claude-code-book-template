@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0EA5E9">
+  <title>フレーズ帳 | 英語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .source-tag {
+      display: inline-block; padding: 1px 7px;
+      background: #F0F9FF; color: var(--phrase);
+      border-radius: 99px; font-size: 0.6875rem; font-weight: 500;
+    }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .phrase-count-badge {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 99px; padding: 3px 10px;
+      font-size: 0.8125rem; color: var(--muted); font-weight: 500;
+    }
+    .sort-row { display: flex; gap: 6px; margin-bottom: 12px; }
+    .sort-btn {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 99px; padding: 5px 12px;
+      font-family: inherit; font-size: 0.8125rem; color: var(--muted); cursor: pointer;
+    }
+    .sort-btn.active { border-color: var(--phrase); color: var(--phrase); background: #F0F9FF; }
+    .phrase-date { font-size: 0.6875rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>📖 フレーズ帳</h1>
+      <div class="header-right">
+        <span class="phrase-count-badge" id="phrase-count-badge">0件</span>
+        <button class="btn btn-ghost btn-sm" id="clear-btn" onclick="clearAll()" style="display:none;">全削除</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="sort-row">
+        <button class="sort-btn active" id="sort-new" onclick="setSort('new')">新しい順</button>
+        <button class="sort-btn" id="sort-old" onclick="setSort('old')">古い順</button>
+        <button class="sort-btn" id="sort-abc" onclick="setSort('abc')">A-Z順</button>
+      </div>
+      <div id="phrase-list"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./conversation.html"><span class="nav-icon">💬</span>会話</a>
+    <a href="./drill.html"><span class="nav-icon">📝</span>ドリル</a>
+    <a href="./phrasebook.html" class="active"><span class="nav-icon">📖</span>フレーズ</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    let sortMode = 'new';
+
+    function setSort(mode) {
+      sortMode = mode;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('sort-' + mode).classList.add('active');
+      render();
+    }
+
+    function render() {
+      let phrases = EnglishState.getPhrases();
+
+      if (!phrases.length) {
+        document.getElementById('phrase-list').innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>まだフレーズが登録されていません。<br>会話練習で表示された語彙チップを<br>タップして追加しましょう。</p>
+          </div>
+        `;
+        document.getElementById('phrase-count-badge').textContent = '0件';
+        document.getElementById('clear-btn').style.display = 'none';
+        return;
+      }
+
+      if (sortMode === 'new') {
+        phrases = [...phrases].reverse();
+      } else if (sortMode === 'abc') {
+        phrases = [...phrases].sort((a, b) => a.en.localeCompare(b.en, 'en'));
+      }
+
+      document.getElementById('phrase-count-badge').textContent = `${phrases.length}件`;
+      document.getElementById('clear-btn').style.display = 'block';
+
+      const list = document.getElementById('phrase-list');
+      list.innerHTML = '';
+
+      phrases.forEach(p => {
+        const el = document.createElement('div');
+        el.className = 'phrase-item';
+        const date = p.savedAt
+          ? new Date(p.savedAt).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
+          : '';
+        el.innerHTML = `
+          <div style="flex:1;">
+            <div class="phrase-en">${escHtml(p.en)}</div>
+            <div class="phrase-jp">${escHtml(p.jp)}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+              ${p.source ? `<span class="source-tag">${escHtml(p.source)}</span>` : ''}
+              ${date ? `<span class="phrase-date">${date}</span>` : ''}
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="EnglishSpeech.speak('${escAttr(p.en)}')" title="発音を聞く">🔊</button>
+          <button class="del-btn" onclick="deletePhrase('${escAttr(p.en)}')" title="削除">🗑</button>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function deletePhrase(en) {
+      EnglishState.removePhrase(en);
+      EnglishNav.showToast('削除しました');
+      render();
+    }
+
+    function clearAll() {
+      if (!confirm('フレーズ帳をすべて削除しますか？')) return;
+      const s = EnglishState.getState();
+      s.phrasebook = [];
+      EnglishState.saveState(s);
+      render();
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+      return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>

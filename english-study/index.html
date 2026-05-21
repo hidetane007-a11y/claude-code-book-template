@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1D4ED8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>英語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .hero { text-align: center; padding: 20px 0 8px; }
+    .hero-title { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; }
+    .hero-sub   { font-size: 0.8125rem; color: var(--muted); margin-top: 4px; }
+
+    .offline-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF;
+      border-radius: 99px; padding: 4px 12px; font-size: 0.75rem;
+      font-weight: 600; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="offline-banner" class="offline-banner">オフラインです。</div>
+
+  <div class="page-wrap">
+    <div class="page-header">
+      <h1>🇬🇧 英語学習</h1>
+    </div>
+
+    <div class="page-content">
+      <div class="offline-badge">✈️ 完全オフライン対応</div>
+
+      <div class="streak-box">
+        <span class="s-icon">🔥</span>
+        <div>
+          <div class="s-count" id="streak-count">0</div>
+          <div class="s-label">日連続学習中</div>
+        </div>
+      </div>
+
+      <div class="section-title">学習モジュール</div>
+
+      <a href="./conversation.html" class="module-card m-conv">
+        <span class="card-icon">💬</span>
+        <div class="card-title">会話練習</div>
+        <div class="card-sub">Meeting・Phone・Presentation など5シナリオ</div>
+        <div class="progress-row">
+          <span id="conv-text">0 / 5 シナリオ完了</span>
+          <span id="conv-sessions">0回</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill conv" id="conv-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./drill.html" class="module-card m-drill">
+        <span class="card-icon">📝</span>
+        <div class="card-title">文法ドリル</div>
+        <div class="card-sub">動詞変化・ビジネス文型 各4ステージ</div>
+        <div class="progress-row">
+          <span id="drill-text">Verb Stage 1 / Pattern Stage 1</span>
+          <span id="drill-done">0 / 8 完了</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill drill" id="drill-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./pronunciation.html" class="module-card m-vowel">
+        <span class="card-icon">🔊</span>
+        <div class="card-title">発音練習</div>
+        <div class="card-sub">L/R・TH・V/B・語強勢 35問</div>
+        <div class="progress-row">
+          <span id="pron-text">0 / 35 習得</span>
+          <span></span>
+        </div>
+        <div class="pbar"><div class="pbar-fill vowel" id="pron-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./phrasebook.html" class="module-card m-phrase">
+        <span class="card-icon">📖</span>
+        <div class="card-title">フレーズ帳</div>
+        <div class="card-sub">会話から保存したビジネスフレーズ</div>
+        <div class="progress-row">
+          <span id="phrase-count">0 フレーズ</span>
+          <span></span>
+        </div>
+        <div class="pbar"><div class="pbar-fill phrase" id="phrase-bar" style="width:0%"></div></div>
+      </a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./conversation.html"><span class="nav-icon">💬</span>会話</a>
+    <a href="./drill.html"><span class="nav-icon">📝</span>ドリル</a>
+    <a href="./phrasebook.html"><span class="nav-icon">📖</span>フレーズ</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    function render() {
+      const s = EnglishState.getState();
+
+      document.getElementById('streak-count').textContent = s.streak.count;
+
+      const convDone = s.conversation.completedScenarios.length;
+      document.getElementById('conv-text').textContent = `${convDone} / 5 シナリオ完了`;
+      document.getElementById('conv-sessions').textContent = `${s.conversation.totalSessions}回`;
+      document.getElementById('conv-bar').style.width = `${(convDone / 5) * 100}%`;
+
+      const vDone = s.drill.verbTrack.completedStages.length;
+      const pDone = s.drill.patternTrack.completedStages.length;
+      const totalDone = vDone + pDone;
+      document.getElementById('drill-text').textContent = `Verb Stage ${s.drill.verbTrack.currentStage} / Pattern Stage ${s.drill.patternTrack.currentStage}`;
+      document.getElementById('drill-done').textContent = `${totalDone} / 8 完了`;
+      document.getElementById('drill-bar').style.width = `${(totalDone / 8) * 100}%`;
+
+      const pronDone = s.pronunciation.completed.length;
+      document.getElementById('pron-text').textContent = `${pronDone} / 35 習得`;
+      document.getElementById('pron-bar').style.width = `${(pronDone / 35) * 100}%`;
+
+      const phraseCount = s.phrasebook.length;
+      document.getElementById('phrase-count').textContent = `${phraseCount} フレーズ`;
+      const phraseMax = 20;
+      document.getElementById('phrase-bar').style.width = `${Math.min((phraseCount / phraseMax) * 100, 100)}%`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      EnglishState.updateStreak();
+      render();
+    });
+  </script>
+</body>
+</html>
