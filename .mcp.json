@@ -1,0 +1,35 @@
+{"mcpServers": {
+    "google-calendar": {
+        "command": "npx",
+        "args": ["-y", "@cocal/google-calendar-mcp"],
+        "env": {
+            "GOOGLE_OAUTH_CREDENTIALS": "/workspaces/claude-code-book-template/ai-secretary/config/google-credentials.json"
+        }
+    },
+    "playwright": {
+        "command": "npx",
+        "args": [
+             "@playwright/mcp@latest",
+             "--browser",
+             "chromium",
+             "--isolated",
+             "--no-sandbox"
+             ]
+         },
+    "notion": {
+        "command": "npx",
+        "args": ["-y", "@notionhq/notion-mcp-server"],
+        "env": {
+            "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ntn_l90479739886p6z7IiwOo3hjrrj3zHX0j713gpwz7NJ2hk\", \"Notion-Version\": \"2022-06-28\"}"
+        }
+    },
+    "obsidian": {
+        "command": "npx",
+        "args": ["-y", "mcp-obsidian"],
+        "env": {
+            "OBSIDIAN_API_KEY": "YOUR_API_KEY_HERE",
+            "OBSIDIAN_HOST": "http://localhost:27123"
+        }
+    }
+  }
+}
