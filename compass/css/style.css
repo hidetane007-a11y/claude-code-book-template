@@ -222,3 +222,39 @@ p.section-subtitle {
   color: var(--text-secondary);
   line-height: 1.8;
 }
+
+/* ===== NUMBERS ===== */
+#numbers {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+  border-top: 1px solid rgba(79, 70, 229, 0.2);
+  border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+  padding: 72px 0;
+}
+
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+
+.number-value {
+  font-size: clamp(48px, 8vw, 80px);
+  font-weight: 900;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.number-plus {
+  font-size: 0.6em;
+}
+
+.number-label {
+  color: var(--text-secondary);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+}
