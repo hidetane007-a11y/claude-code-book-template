@@ -144,3 +144,37 @@ p.section-subtitle {
   justify-content: center;
   flex-wrap: wrap;
 }
+
+/* ===== PAIN ===== */
+#pain {
+  background: linear-gradient(180deg, var(--bg) 0%, #0d0d1a 100%);
+}
+
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.pain-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+.pain-card:hover {
+  border-color: rgba(79, 70, 229, 0.4);
+}
+
+.pain-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.pain-card p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
