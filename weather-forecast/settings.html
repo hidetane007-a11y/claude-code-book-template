@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>係数設定</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+    .container { max-width: 390px; margin: 0 auto; }
+
+    header {
+      background: #2c5f2e;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+    }
+    .back-btn {
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .page-title { font-weight: bold; font-size: 16px; }
+
+    main { padding: 16px; }
+
+    .notice {
+      background: #fff8e1;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #6d4c00;
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .settings-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .setting-row {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .setting-row:last-child { border-bottom: none; }
+
+    .weather-label {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .inputs {
+      display: flex;
+      gap: 10px;
+    }
+    .input-group { flex: 1; }
+    .input-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #333;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #2c5f2e;
+    }
+    .input-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: #2c5f2e;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .save-btn:active { background: #1a3d1c; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-btn">←</a>
+      <span class="page-title">天気別 係数設定</span>
+    </header>
+    <main>
+      <div class="notice">
+        💡 天気ごとの <strong>平均客数</strong> と <strong>客単価</strong> を入力すると予測が計算されます
+      </div>
+
+      <div class="section-label">天気別 平均客数・客単価</div>
+      <div class="settings-card">
+        <div class="setting-row">
+          <div class="weather-label">☀️ 晴れ</div>
+          <div class="inputs">
+            <div class="input-group">
+              <input type="number" id="sunny-customers" min="0" placeholder="0">
+              <div class="input-hint">客数（人）</div>
+            </div>
+            <div class="input-group">
+              <input type="number" id="sunny-price" min="0" placeholder="0">
+              <div class="input-hint">客単価（円）</div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="weather-label">☁️ 曇り</div>
+          <div class="inputs">
+            <div class="input-group">
+              <input type="number" id="cloudy-customers" min="0" placeholder="0">
+              <div class="input-hint">客数（人）</div>
+            </div>
+            <div class="input-group">
+              <input type="number" id="cloudy-price" min="0" placeholder="0">
+              <div class="input-hint">客単価（円）</div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="weather-label">🌧️ 雨</div>
+          <div class="inputs">
+            <div class="input-group">
+              <input type="number" id="rainy-customers" min="0" placeholder="0">
+              <div class="input-hint">客数（人）</div>
+            </div>
+            <div class="input-group">
+              <input type="number" id="rainy-price" min="0" placeholder="0">
+              <div class="input-hint">客単価（円）</div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="weather-label">⛈️ 大雨・嵐</div>
+          <div class="inputs">
+            <div class="input-group">
+              <input type="number" id="stormy-customers" min="0" placeholder="0">
+              <div class="input-hint">客数（人）</div>
+            </div>
+            <div class="input-group">
+              <input type="number" id="stormy-price" min="0" placeholder="0">
+              <div class="input-hint">客単価（円）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="handleSave()">保存する</button>
+    </main>
+  </div>
+
+  <div id="toast" class="toast">保存しました ✓</div>
+
+  <script src="app.js"></script>
+  <script>
+    const FIELDS = [
+      ['sunny',  'sunny-customers',  'sunny-price'],
+      ['cloudy', 'cloudy-customers', 'cloudy-price'],
+      ['rainy',  'rainy-customers',  'rainy-price'],
+      ['stormy', 'stormy-customers', 'stormy-price'],
+    ];
+
+    const current = loadCoefficients();
+    FIELDS.forEach(([key, custId, priceId]) => {
+      document.getElementById(custId).value  = current[key].customers;
+      document.getElementById(priceId).value = current[key].unit_price;
+    });
+
+    function handleSave() {
+      const data = {};
+      FIELDS.forEach(([key, custId, priceId]) => {
+        data[key] = {
+          customers:  Math.max(0, parseInt(document.getElementById(custId).value)  || 0),
+          unit_price: Math.max(0, parseInt(document.getElementById(priceId).value) || 0)
+        };
+      });
+      saveCoefficients(data);
+
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => { window.location.href = 'index.html'; }, 900);
+    }
+  </script>
+</body>
+</html>
