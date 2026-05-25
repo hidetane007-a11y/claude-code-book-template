@@ -63,10 +63,19 @@ async function fetchWeather() {
     + '&timezone=Asia%2FTokyo'
     + '&forecast_days=2';
 
-  const resp = await fetch(url);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let resp;
+  try {
+    resp = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
   if (!resp.ok) throw new Error('API fetch failed: ' + resp.status);
   const data = await resp.json();
 
+  if (!data.hourly || !data.hourly.time) throw new Error('Invalid API response');
   const times = data.hourly.time;
   const codes = data.hourly.weathercode || data.hourly.weather_code;
   const precip = data.hourly.precipitation_probability;

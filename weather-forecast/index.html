@@ -171,10 +171,8 @@
       const content = document.getElementById('content');
 
       try {
-        const [weather, coefficients] = await Promise.all([
-          fetchWeather(),
-          Promise.resolve(loadCoefficients())
-        ]);
+        const weather = await fetchWeather();
+        const coefficients = loadCoefficients();
 
         const todayForecast = calcForecast(weather.today.weatherType, coefficients);
 
