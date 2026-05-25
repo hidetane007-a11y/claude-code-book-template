@@ -39,7 +39,7 @@ weather-forecast/
 
 - **エンドポイント:** `https://api.open-meteo.com/v1/forecast`
 - **座標:** 緯度 31.5969 / 経度 130.5571（鹿児島市）
-- **取得データ:** `hourly.weathercode`（WMO天気コード、時間単位）
+- **取得データ:** `hourly.weathercode`（WMO天気コード）、`hourly.precipitation_probability`（降水確率%）、`hourly.temperature_2m`（気温℃）
 - **対象時間:** 11:00〜14:00（インデックス 11〜13）
 - **天気分類ロジック:** 対象時間帯の最悪コードを使用
 
