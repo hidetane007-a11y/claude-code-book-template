@@ -27,6 +27,7 @@ function worstWeather(codes) {
 
 function calcForecast(weatherType, coefficients) {
   const c = coefficients[weatherType];
+  if (!c) throw new Error(`Unknown weatherType: ${weatherType}`);
   return { customers: c.customers, sales: c.customers * c.unit_price };
 }
 
