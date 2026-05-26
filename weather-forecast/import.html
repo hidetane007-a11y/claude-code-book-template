@@ -75,7 +75,7 @@
       border-color: #2c5f2e;
       background: #f0faf0;
     }
-    .upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-icon { margin-bottom: 8px; color: #aaa; }
     .upload-text { font-size: 14px; color: #666; }
     .upload-sub  { font-size: 12px; color: #aaa; margin-top: 4px; }
     #file-input  { display: none; }
@@ -207,7 +207,7 @@
       text-align: center;
       padding: 24px 16px;
     }
-    .done-icon { font-size: 48px; margin-bottom: 12px; }
+    .done-icon { margin-bottom: 12px; color: #2c5f2e; }
     .done-text { font-size: 16px; font-weight: bold; color: #2c5f2e; margin-bottom: 6px; }
     .done-sub  { font-size: 13px; color: #888; margin-bottom: 20px; }
     .go-home-btn {
@@ -239,7 +239,7 @@
           <div class="format-hint">1行目はヘッダー行（<code>date,customers,sales</code>）、2行目以降がデータです。天気は日付から自動取得します。</div>
           <div class="csv-example">date,customers,sales<br>2026-01-06,28,19600<br>2026-01-07,12,8400<br>2026-01-08,5,3500</div>
           <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
-            <div class="upload-icon">📥</div>
+            <div class="upload-icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
             <div class="upload-text">タップしてCSVを選択</div>
             <div class="upload-sub">またはここにドロップ</div>
             <input type="file" id="file-input" accept=".csv,text/csv">
@@ -279,7 +279,7 @@
           </div>
           <div id="error-list-wrap"></div>
           <div id="overwrite-notice" class="overwrite-notice hidden">
-            ⚠️ <span id="overwrite-count"></span>件は既存データを上書きします
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.1em;margin-right:4px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span id="overwrite-count"></span>件は既存データを上書きします
           </div>
         </div>
         <div class="action-row">
@@ -292,7 +292,7 @@
       <div id="step-done" class="hidden">
         <div class="card">
           <div class="done-card">
-            <div class="done-icon">✅</div>
+            <div class="done-icon"><svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <div class="done-text" id="done-text"></div>
             <div class="done-sub">実績データが蓄積されました</div>
             <a href="index.html" class="go-home-btn">ホームに戻る</a>

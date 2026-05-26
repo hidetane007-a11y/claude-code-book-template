@@ -26,10 +26,13 @@
     }
     .app-title { font-weight: bold; font-size: 16px; }
     .settings-btn {
-      font-size: 22px;
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      line-height: 1;
+      color: white;
+      opacity: 0.85;
     }
+    .settings-btn:hover { opacity: 1; }
 
     main { padding: 16px; }
 
@@ -121,12 +124,20 @@
 <body>
   <div class="container">
     <header>
-      <span class="app-title">🍱 定食屋 売上予測</span>
-      <div style="display:flex;gap:10px;align-items:center">
-        <a href="sales-entry.html" class="settings-btn" title="実績入力">✏️</a>
-        <a href="import.html"      class="settings-btn" title="CSVインポート">📥</a>
-        <a href="history.html"     class="settings-btn" title="精度サマリー">📊</a>
-        <a href="settings.html"    class="settings-btn" title="係数設定">⚙️</a>
+      <span class="app-title">定食屋 売上予測</span>
+      <div style="display:flex;gap:14px;align-items:center">
+        <a href="sales-entry.html" class="settings-btn" title="実績入力">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </a>
+        <a href="import.html" class="settings-btn" title="CSVインポート">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </a>
+        <a href="history.html" class="settings-btn" title="精度サマリー">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        </a>
+        <a href="settings.html" class="settings-btn" title="係数設定">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        </a>
       </div>
     </header>
     <main>
@@ -134,7 +145,7 @@
       <div id="error"   class="error hidden"></div>
       <div id="content" class="hidden">
         <div id="first-run" class="first-run-notice hidden">
-          💡 初期値のままです <a href="settings.html">係数を設定する →</a>
+          初期値のままです <a href="settings.html">係数を設定する →</a>
         </div>
         <div class="date-section">
           <div id="date-text"   class="date-text"></div>
@@ -148,11 +159,11 @@
         <div class="forecast-card">
           <div class="forecast-label">本日の予測</div>
           <div class="forecast-row">
-            <span class="forecast-title">👥 予測客数</span>
+            <span class="forecast-title">予測客数</span>
             <span id="today-customers" class="forecast-value"></span>
           </div>
           <div class="forecast-row">
-            <span class="forecast-title">💴 予測売上</span>
+            <span class="forecast-title">予測売上</span>
             <span id="today-sales" class="forecast-value"></span>
           </div>
         </div>
@@ -183,7 +194,7 @@
 
         document.getElementById('date-text').textContent =
           formatDisplayDate(getJSTDateStr(0));
-        document.getElementById('weather-icon').textContent =
+        document.getElementById('weather-icon').innerHTML =
           WEATHER_ICONS[weather.today.weatherType];
         document.getElementById('weather-name').textContent =
           WEATHER_NAMES[weather.today.weatherType];
@@ -196,7 +207,7 @@
 
         if (weather.tomorrow) {
           const tmForecast = calcForecast(weather.tomorrow.weatherType, coefficients);
-          document.getElementById('tomorrow-weather').textContent =
+          document.getElementById('tomorrow-weather').innerHTML =
             `${WEATHER_ICONS[weather.tomorrow.weatherType]} ${WEATHER_NAMES[weather.tomorrow.weatherType]}`;
           document.getElementById('tomorrow-value').textContent =
             `${tmForecast.customers}人 / ¥${tmForecast.sales.toLocaleString()}`;

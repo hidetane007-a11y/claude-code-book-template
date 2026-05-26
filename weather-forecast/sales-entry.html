@@ -106,7 +106,7 @@
       color: #666;
       transition: border-color 0.15s, background 0.15s;
     }
-    .weather-btn .w-icon { font-size: 26px; line-height: 1; }
+    .weather-btn .w-icon { display: flex; align-items: center; justify-content: center; height: 30px; }
     .weather-btn.selected {
       border-color: #2c5f2e;
       background: #e8f5e9;
@@ -210,16 +210,16 @@
         </div>
         <div class="weather-btns">
           <button class="weather-btn" data-type="sunny"  onclick="selectWeather('sunny')">
-            <span class="w-icon">☀️</span>晴れ
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>晴れ
           </button>
           <button class="weather-btn" data-type="cloudy" onclick="selectWeather('cloudy')">
-            <span class="w-icon">☁️</span>曇り
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>曇り
           </button>
           <button class="weather-btn" data-type="rainy"  onclick="selectWeather('rainy')">
-            <span class="w-icon">🌧️</span>雨
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg></span>雨
           </button>
           <button class="weather-btn" data-type="stormy" onclick="selectWeather('stormy')">
-            <span class="w-icon">⛈️</span>嵐
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973" stroke="#6b7280"/><path d="m13 12-3 5h4l-3 5" stroke="#f59e0b"/></svg></span>嵐
           </button>
         </div>
       </div>
@@ -228,11 +228,11 @@
         <div class="pred-label">本日の予測（参考）</div>
         <div class="pred-rows">
           <div class="pred-item">
-            <div class="pred-item-label">👥 予測客数</div>
+            <div class="pred-item-label">予測客数</div>
             <div class="pred-item-value" id="pred-customers">—</div>
           </div>
           <div class="pred-item">
-            <div class="pred-item-label">💴 予測売上</div>
+            <div class="pred-item-label">予測売上</div>
             <div class="pred-item-value" id="pred-sales">—</div>
           </div>
         </div>
@@ -241,14 +241,14 @@
       <div class="section-label">実績</div>
       <div class="card">
         <div class="input-row">
-          <div class="input-label">👥 実際の客数</div>
+          <div class="input-label">実際の客数</div>
           <div class="input-with-unit">
             <input type="number" id="actual-customers" min="0" placeholder="0" inputmode="numeric">
             <span class="input-unit">人</span>
           </div>
         </div>
         <div class="input-row">
-          <div class="input-label">💴 実際の売上</div>
+          <div class="input-label">実際の売上</div>
           <div class="input-with-unit">
             <input type="number" id="actual-sales" min="0" placeholder="0" inputmode="numeric">
             <span class="input-unit">円</span>
