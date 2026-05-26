@@ -18,6 +18,14 @@ function classifyWeather(code) {
   return 'stormy';
 }
 
+// wttr.in weather codes (WorldWeatherOnline format)
+function classifyWttrWeather(code) {
+  if (code === 113) return 'sunny';
+  if ([200, 386, 389, 392, 395].includes(code)) return 'stormy';
+  if ([116, 119, 122, 143, 248, 260].includes(code)) return 'cloudy';
+  return 'rainy';
+}
+
 function worstWeather(codes) {
   return codes.map(classifyWeather).reduce(
     (worst, type) => WEATHER_SEVERITY[type] > WEATHER_SEVERITY[worst] ? type : worst,
@@ -57,11 +65,7 @@ function formatDisplayDate(jstDateStr) {
 }
 
 async function fetchWeather() {
-  const url = 'https://api.open-meteo.com/v1/forecast'
-    + '?latitude=31.5969&longitude=130.5571'
-    + '&hourly=weathercode,precipitation_probability,temperature_2m'
-    + '&timezone=Asia%2FTokyo'
-    + '&forecast_days=2';
+  const url = 'https://wttr.in/31.5969,130.5571?format=j1';
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -75,27 +79,21 @@ async function fetchWeather() {
   if (!resp.ok) throw new Error('API fetch failed: ' + resp.status);
   const data = await resp.json();
 
-  if (!data.hourly || !data.hourly.time) throw new Error('Invalid API response');
-  const times = data.hourly.time;
-  const codes = data.hourly.weathercode || data.hourly.weather_code;
-  const precip = data.hourly.precipitation_probability;
-  const temps  = data.hourly.temperature_2m;
+  if (!data.weather || data.weather.length < 2) throw new Error('Invalid API response');
 
-  function getLunchData(dateStr) {
-    const indices = ['11:00', '12:00', '13:00']
-      .map(h => times.findIndex(t => t === `${dateStr}T${h}`))
-      .filter(i => i !== -1);
-    if (indices.length === 0) return null;
+  function getLunchData(dayData) {
+    const lunch = dayData.hourly.find(h => h.time === '1200');
+    if (!lunch) return null;
     return {
-      weatherType:   worstWeather(indices.map(i => codes[i])),
-      precipitation: Math.max(...indices.map(i => precip[i])),
-      temp: Math.round(indices.map(i => temps[i]).reduce((a, b) => a + b, 0) / indices.length)
+      weatherType:   classifyWttrWeather(parseInt(lunch.weatherCode)),
+      precipitation: parseInt(lunch.chanceofrain),
+      temp:          parseInt(lunch.tempC)
     };
   }
 
   return {
-    today:    getLunchData(getJSTDateStr(0)),
-    tomorrow: getLunchData(getJSTDateStr(1))
+    today:    getLunchData(data.weather[0]),
+    tomorrow: getLunchData(data.weather[1])
   };
 }
 
