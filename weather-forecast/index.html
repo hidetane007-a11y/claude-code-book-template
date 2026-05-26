@@ -122,7 +122,12 @@
   <div class="container">
     <header>
       <span class="app-title">🍱 定食屋 売上予測</span>
-      <a href="settings.html" class="settings-btn">⚙️</a>
+      <div style="display:flex;gap:10px;align-items:center">
+        <a href="sales-entry.html" class="settings-btn" title="実績入力">✏️</a>
+        <a href="import.html"      class="settings-btn" title="CSVインポート">📥</a>
+        <a href="history.html"     class="settings-btn" title="精度サマリー">📊</a>
+        <a href="settings.html"    class="settings-btn" title="係数設定">⚙️</a>
+      </div>
     </header>
     <main>
       <div id="loading" class="loading">天気情報を取得中...</div>

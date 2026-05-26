@@ -99,7 +99,108 @@ async function fetchWeather() {
   };
 }
 
+const HISTORY_KEY = 'teishoku_history';
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(records) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
+}
+
+function upsertRecord(record) {
+  const history = loadHistory();
+  const idx = history.findIndex(r => r.date === record.date);
+  if (idx >= 0) {
+    history[idx] = record;
+  } else {
+    history.push(record);
+  }
+  history.sort((a, b) => a.date.localeCompare(b.date));
+  saveHistory(history);
+}
+
+async function fetchWeatherForDate(dateStr) {
+  const today    = getJSTDateStr(0);
+  const tomorrow = getJSTDateStr(1);
+
+  if (dateStr === today || dateStr === tomorrow) {
+    const weather = await fetchWeather();
+    return dateStr === today ? weather.today : weather.tomorrow;
+  }
+
+  const url = 'https://archive-api.open-meteo.com/v1/archive'
+    + `?latitude=31.5969&longitude=130.5571`
+    + `&start_date=${dateStr}&end_date=${dateStr}`
+    + `&hourly=weathercode`
+    + `&timezone=Asia%2FTokyo`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  let resp;
+  try {
+    resp = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  if (!resp.ok) throw new Error('Archive API fetch failed: ' + resp.status);
+  const data = await resp.json();
+
+  const times = data.hourly.time;
+  const codes = data.hourly.weathercode || data.hourly.weather_code;
+  const lunchIndices = ['11:00', '12:00', '13:00']
+    .map(h => times.findIndex(t => t === `${dateStr}T${h}`))
+    .filter(i => i !== -1);
+
+  if (lunchIndices.length === 0) return null;
+  return { weatherType: worstWeather(lunchIndices.map(i => codes[i])) };
+}
+
+// 複数日の天気を一括取得（start〜end の範囲を1リクエストで）
+async function fetchWeatherRange(startDate, endDate) {
+  const url = 'https://archive-api.open-meteo.com/v1/archive'
+    + `?latitude=31.5969&longitude=130.5571`
+    + `&start_date=${startDate}&end_date=${endDate}`
+    + `&hourly=weathercode`
+    + `&timezone=Asia%2FTokyo`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  let resp;
+  try {
+    resp = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+  if (!resp.ok) throw new Error('Archive API fetch failed: ' + resp.status);
+  const data = await resp.json();
+
+  const times = data.hourly.time;
+  const codes = data.hourly.weathercode || data.hourly.weather_code;
+
+  // 日付 → 天気タイプ のマップを返す
+  const result = {};
+  const dateSet = new Set();
+  times.forEach(t => dateSet.add(t.slice(0, 10)));
+  dateSet.forEach(dateStr => {
+    const lunchIndices = ['11:00', '12:00', '13:00']
+      .map(h => times.findIndex(t => t === `${dateStr}T${h}`))
+      .filter(i => i !== -1);
+    if (lunchIndices.length > 0) {
+      result[dateStr] = worstWeather(lunchIndices.map(i => codes[i]));
+    }
+  });
+  return result;
+}
+
 // Node.js test support (browser ignores this)
 if (typeof module !== 'undefined') {
-  module.exports = { classifyWeather, worstWeather, calcForecast, DEFAULT_COEFFICIENTS };
+  module.exports = { classifyWeather, worstWeather, calcForecast, DEFAULT_COEFFICIENTS,
+    loadHistory, saveHistory, upsertRecord };
 }

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>過去データ インポート</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+    .container { max-width: 390px; margin: 0 auto; }
+
+    header {
+      background: #2c5f2e;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; line-height: 1; }
+    .page-title { font-weight: bold; font-size: 16px; }
+
+    main { padding: 16px; }
+
+    .section-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    /* CSV format hint */
+    .format-hint {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .csv-example {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    /* File upload area */
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-area:hover, .upload-area.dragover {
+      border-color: #2c5f2e;
+      background: #f0faf0;
+    }
+    .upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-text { font-size: 14px; color: #666; }
+    .upload-sub  { font-size: 12px; color: #aaa; margin-top: 4px; }
+    #file-input  { display: none; }
+
+    /* State: fetching */
+    .fetching-state {
+      text-align: center;
+      padding: 20px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid #ddd;
+      border-top-color: #2c5f2e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fetching-text { font-size: 14px; color: #555; }
+    .fetching-sub  { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+    /* Preview table */
+    .preview-summary {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .preview-summary strong { color: #2c5f2e; }
+
+    .preview-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #f5f5f5;
+      padding: 8px 8px;
+      text-align: left;
+      font-size: 11px;
+      color: #888;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 8px 8px;
+      border-bottom: 1px solid #f5f5f5;
+      color: #333;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    .td-weather { white-space: nowrap; }
+    .td-num { text-align: right; }
+    .row-dup { background: #fff8e1; }
+    .dup-badge {
+      font-size: 10px;
+      background: #ffd54f;
+      color: #5d4037;
+      border-radius: 4px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+    .row-error { background: #ffeaea; }
+    .error-badge {
+      font-size: 10px;
+      background: #ef9a9a;
+      color: #b71c1c;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+    .weather-unknown { color: #bbb; font-size: 12px; }
+
+    /* Error list */
+    .error-list {
+      background: #ffeaea;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .error-list-title { font-size: 13px; font-weight: bold; color: #c62828; margin-bottom: 6px; }
+    .error-list ul { padding-left: 16px; }
+    .error-list li { font-size: 12px; color: #c62828; margin-bottom: 2px; }
+
+    /* Overwrite notice */
+    .overwrite-notice {
+      background: #fff8e1;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #6d4c00;
+      margin-bottom: 12px;
+    }
+
+    /* Action buttons */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .cancel-btn {
+      flex: 1;
+      padding: 13px;
+      background: white;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .import-btn {
+      flex: 2;
+      padding: 13px;
+      background: #2c5f2e;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .import-btn:active { background: #1a3d1c; }
+    .import-btn:disabled { background: #aaa; cursor: default; }
+
+    /* Done state */
+    .done-card {
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .done-icon { font-size: 48px; margin-bottom: 12px; }
+    .done-text { font-size: 16px; font-weight: bold; color: #2c5f2e; margin-bottom: 6px; }
+    .done-sub  { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .go-home-btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: #2c5f2e;
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-btn">←</a>
+      <span class="page-title">過去データ インポート</span>
+    </header>
+    <main>
+
+      <!-- Step 1: ファイル選択 -->
+      <div id="step-upload">
+        <div class="section-label">CSVフォーマット</div>
+        <div class="card">
+          <div class="format-hint">1行目はヘッダー行（<code>date,customers,sales</code>）、2行目以降がデータです。天気は日付から自動取得します。</div>
+          <div class="csv-example">date,customers,sales<br>2026-01-06,28,19600<br>2026-01-07,12,8400<br>2026-01-08,5,3500</div>
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">📥</div>
+            <div class="upload-text">タップしてCSVを選択</div>
+            <div class="upload-sub">またはここにドロップ</div>
+            <input type="file" id="file-input" accept=".csv,text/csv">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: 天気取得中 -->
+      <div id="step-fetching" class="hidden">
+        <div class="card">
+          <div class="fetching-state">
+            <div class="spinner"></div>
+            <div class="fetching-text">天気データを取得中...</div>
+            <div class="fetching-sub" id="fetching-progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: プレビュー -->
+      <div id="step-preview" class="hidden">
+        <div class="section-label">取り込みプレビュー</div>
+        <div class="card">
+          <div class="preview-summary" id="preview-summary"></div>
+          <div class="preview-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>日付</th>
+                  <th>天気</th>
+                  <th class="td-num">客数</th>
+                  <th class="td-num">売上</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="preview-tbody"></tbody>
+            </table>
+          </div>
+          <div id="error-list-wrap"></div>
+          <div id="overwrite-notice" class="overwrite-notice hidden">
+            ⚠️ <span id="overwrite-count"></span>件は既存データを上書きします
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="cancel-btn" onclick="resetToUpload()">やり直す</button>
+          <button class="import-btn" id="import-btn" onclick="doImport()">この内容でインポート</button>
+        </div>
+      </div>
+
+      <!-- Step 4: 完了 -->
+      <div id="step-done" class="hidden">
+        <div class="card">
+          <div class="done-card">
+            <div class="done-icon">✅</div>
+            <div class="done-text" id="done-text"></div>
+            <div class="done-sub">実績データが蓄積されました</div>
+            <a href="index.html" class="go-home-btn">ホームに戻る</a>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // ---- State ----
+    let parsedRows   = [];  // { date, customers, sales }
+    let validRows    = [];  // parsedRows のうち valid なもの
+    let errorRows    = [];  // { lineNum, reason }
+    let weatherMap   = {};  // date -> weatherType | null
+    let dupDates     = new Set(); // 既存と重複する日付
+
+    // ---- Steps ----
+    function showStep(id) {
+      ['step-upload','step-fetching','step-preview','step-done'].forEach(s => {
+        document.getElementById(s).classList.toggle('hidden', s !== id);
+      });
+    }
+
+    function resetToUpload() {
+      parsedRows = []; validRows = []; errorRows = []; weatherMap = {}; dupDates = new Set();
+      document.getElementById('file-input').value = '';
+      showStep('step-upload');
+    }
+
+    // ---- CSV Parse ----
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const rows = []; const errors = [];
+      // ヘッダー行をスキップ（date で始まる行）
+      const startIdx = lines[0].toLowerCase().startsWith('date') ? 1 : 0;
+
+      lines.slice(startIdx).forEach((line, i) => {
+        const lineNum = startIdx + i + 1;
+        if (!line.trim()) return;
+        const cols = line.split(',').map(c => c.trim());
+        if (cols.length < 3) {
+          errors.push({ lineNum, reason: `列数不足 (${cols.length}列)` });
+          return;
+        }
+        const [dateStr, custStr, salesStr] = cols;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          errors.push({ lineNum, reason: `日付形式エラー: "${dateStr}"` });
+          return;
+        }
+        const today = getJSTDateStr(0);
+        if (dateStr > today) {
+          errors.push({ lineNum, reason: `未来日付はスキップ: ${dateStr}` });
+          return;
+        }
+        const customers = parseInt(custStr);
+        const sales     = parseInt(salesStr);
+        if (isNaN(customers) || customers < 0) {
+          errors.push({ lineNum, reason: `客数が無効: "${custStr}"` });
+          return;
+        }
+        if (isNaN(sales) || sales < 0) {
+          errors.push({ lineNum, reason: `売上が無効: "${salesStr}"` });
+          return;
+        }
+        rows.push({ date: dateStr, actualCustomers: customers, actualSales: sales });
+      });
+
+      // 同CSV内での重複日付は後の行を優先
+      const seen = new Map();
+      rows.forEach(r => seen.set(r.date, r));
+      return { rows: Array.from(seen.values()), errors };
+    }
+
+    // ---- File handling ----
+    async function handleFile(file) {
+      if (!file) return;
+      const text = await file.text();
+      const { rows, errors } = parseCSV(text);
+
+      if (rows.length === 0) {
+        alert('有効なデータ行が見つかりませんでした。CSVの形式を確認してください。');
+        return;
+      }
+
+      parsedRows = rows;
+      errorRows  = errors;
+
+      // 日付範囲を求めて一括フェッチ
+      const dates = rows.map(r => r.date).sort();
+      const startDate = dates[0];
+      const endDate   = dates[dates.length - 1];
+
+      showStep('step-fetching');
+      document.getElementById('fetching-progress').textContent =
+        `${startDate} 〜 ${endDate}（${rows.length}日分）`;
+
+      try {
+        weatherMap = await fetchWeatherRange(startDate, endDate);
+      } catch {
+        // 取得失敗は天気不明として続行
+        weatherMap = {};
+      }
+
+      // 既存データと重複チェック
+      const existing = new Set(loadHistory().map(r => r.date));
+      dupDates = new Set(rows.map(r => r.date).filter(d => existing.has(d)));
+
+      renderPreview();
+      showStep('step-preview');
+    }
+
+    // ---- Preview ----
+    function renderPreview() {
+      const tbody = document.getElementById('preview-tbody');
+      tbody.innerHTML = '';
+
+      parsedRows.forEach(row => {
+        const wType = weatherMap[row.date] || null;
+        const isDup = dupDates.has(row.date);
+        const tr = document.createElement('tr');
+        if (isDup) tr.classList.add('row-dup');
+
+        tr.innerHTML = `
+          <td>${row.date}</td>
+          <td class="td-weather">${wType
+            ? WEATHER_ICONS[wType] + ' ' + WEATHER_NAMES[wType]
+            : '<span class="weather-unknown">不明</span>'
+          }</td>
+          <td class="td-num">${row.actualCustomers}人</td>
+          <td class="td-num">¥${row.actualSales.toLocaleString()}</td>
+          <td>${isDup ? '<span class="dup-badge">上書き</span>' : ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // サマリー
+      document.getElementById('preview-summary').innerHTML =
+        `<strong>${parsedRows.length}件</strong> を取り込みます` +
+        (errorRows.length > 0 ? `（<span style="color:#c62828">${errorRows.length}行スキップ</span>）` : '');
+
+      // エラーリスト
+      const errWrap = document.getElementById('error-list-wrap');
+      if (errorRows.length > 0) {
+        errWrap.innerHTML = `
+          <div class="error-list">
+            <div class="error-list-title">スキップされた行</div>
+            <ul>${errorRows.map(e => `<li>${e.lineNum}行目: ${e.reason}</li>`).join('')}</ul>
+          </div>`;
+      } else {
+        errWrap.innerHTML = '';
+      }
+
+      // 上書き警告
+      const notice = document.getElementById('overwrite-notice');
+      if (dupDates.size > 0) {
+        document.getElementById('overwrite-count').textContent = dupDates.size;
+        notice.classList.remove('hidden');
+      } else {
+        notice.classList.add('hidden');
+      }
+
+      document.getElementById('import-btn').textContent =
+        `この内容でインポート（${parsedRows.length}件）`;
+    }
+
+    // ---- Import ----
+    function doImport() {
+      parsedRows.forEach(row => {
+        const record = {
+          date:            row.date,
+          weatherType:     weatherMap[row.date] || null,
+          actualCustomers: row.actualCustomers,
+          actualSales:     row.actualSales,
+        };
+        upsertRecord(record);
+      });
+
+      document.getElementById('done-text').textContent =
+        `${parsedRows.length}件のデータをインポートしました`;
+      showStep('step-done');
+    }
+
+    // ---- Drag & drop ----
+    const area = document.getElementById('upload-area');
+    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+    area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      area.classList.remove('dragover');
+      handleFile(e.dataTransfer.files[0]);
+    });
+
+    document.getElementById('file-input').addEventListener('change', e => {
+      handleFile(e.target.files[0]);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>実績・精度サマリー</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+    .container { max-width: 390px; margin: 0 auto; }
+
+    header {
+      background: #2c5f2e;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; line-height: 1; }
+    .page-title { font-weight: bold; font-size: 16px; }
+
+    main { padding: 16px; }
+
+    .section-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: #888;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .empty-state a { color: #2c5f2e; font-weight: bold; }
+
+    /* Overview chips */
+    .overview-row {
+      display: flex;
+      gap: 10px;
+    }
+    .overview-chip {
+      flex: 1;
+      text-align: center;
+      background: #f5f5f5;
+      border-radius: 10px;
+      padding: 10px 6px;
+    }
+    .chip-value { font-size: 22px; font-weight: bold; color: #2c5f2e; }
+    .chip-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+    /* Weather stat rows */
+    .weather-stat {
+      margin-bottom: 14px;
+    }
+    .weather-stat:last-child { margin-bottom: 0; }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .stat-label { font-size: 15px; }
+    .stat-count { font-size: 12px; color: #aaa; }
+
+    .bar-group { display: flex; flex-direction: column; gap: 4px; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bar-name { font-size: 11px; color: #999; width: 36px; text-align: right; flex-shrink: 0; }
+    .bar-wrap { flex: 1; height: 18px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: white;
+      min-width: 28px;
+      transition: width 0.4s ease;
+      white-space: nowrap;
+    }
+    .bar-coef { background: #90a4ae; }
+    .bar-actual-plus  { background: #2c5f2e; }
+    .bar-actual-minus { background: #e53935; }
+
+    .stat-diff {
+      font-size: 12px;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .diff-plus  { color: #2c5f2e; }
+    .diff-minus { color: #e53935; }
+    .diff-zero  { color: #aaa; }
+    .diff-na    { color: #bbb; }
+
+    /* Suggested coef */
+    .suggest-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .suggest-row:last-of-type { border-bottom: none; }
+    .suggest-left { display: flex; align-items: center; gap: 6px; }
+    .suggest-label { font-size: 14px; }
+    .suggest-current { font-size: 12px; color: #aaa; }
+    .suggest-right { text-align: right; }
+    .suggest-new { font-size: 18px; font-weight: bold; color: #2c5f2e; }
+    .suggest-samples { font-size: 11px; color: #aaa; }
+    .suggest-insufficient { font-size: 13px; color: #bbb; }
+
+    .apply-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      background: #2c5f2e;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .apply-btn:active { background: #1a3d1c; }
+    .apply-btn:disabled { background: #bbb; cursor: default; }
+
+    /* Recent list */
+    .recent-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .recent-row:last-child { border-bottom: none; }
+    .recent-left { display: flex; flex-direction: column; gap: 2px; }
+    .recent-date { font-size: 13px; color: #555; }
+    .recent-weather { font-size: 12px; color: #aaa; }
+    .recent-right { text-align: right; }
+    .recent-customers { font-size: 15px; font-weight: bold; color: #333; }
+    .recent-sales { font-size: 12px; color: #888; }
+
+    /* Export */
+    .export-btn {
+      width: 100%;
+      padding: 13px;
+      background: white;
+      color: #2c5f2e;
+      border: 1.5px solid #2c5f2e;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .export-btn:active { background: #e8f5e9; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-btn">←</a>
+      <span class="page-title">実績・精度サマリー</span>
+    </header>
+    <main id="main-content">
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+  <script>
+    const MIN_SAMPLES = 5;  // 推奨係数を出す最低件数
+
+    function calcStats() {
+      const history = loadHistory();
+      const coefs   = loadCoefficients();
+      const byType  = { sunny: [], cloudy: [], rainy: [], stormy: [] };
+
+      history.forEach(r => {
+        if (r.weatherType && byType[r.weatherType]) byType[r.weatherType].push(r);
+      });
+
+      const stats = {};
+      Object.keys(byType).forEach(type => {
+        const recs  = byType[type];
+        const count = recs.length;
+        const coef  = coefs[type].customers;
+        if (count === 0) {
+          stats[type] = { count, avgCustomers: null, coef, errorRate: null };
+          return;
+        }
+        const avg = Math.round(recs.reduce((s, r) => s + r.actualCustomers, 0) / count);
+        const errorRate = coef > 0 ? Math.round((avg - coef) / coef * 100) : null;
+        stats[type] = { count, avgCustomers: avg, coef, errorRate };
+      });
+      return stats;
+    }
+
+    function calcSuggestedCoefficients() {
+      const history = loadHistory();
+      const coefs   = loadCoefficients();
+      const byType  = { sunny: [], cloudy: [], rainy: [], stormy: [] };
+
+      history.forEach(r => {
+        if (r.weatherType && byType[r.weatherType]) byType[r.weatherType].push(r);
+      });
+
+      const suggested = {};
+      Object.keys(byType).forEach(type => {
+        const recs = byType[type].sort((a, b) => a.date.localeCompare(b.date));
+        if (recs.length < MIN_SAMPLES) { suggested[type] = null; return; }
+
+        // 加重平均：直近30日=3、31〜90日=2、91日以降=1
+        const today = getJSTDateStr(0);
+        let weightedSum = 0, weightSum = 0;
+        recs.forEach(r => {
+          const diffDays = Math.round((new Date(today) - new Date(r.date)) / 86400000);
+          const w = diffDays <= 30 ? 3 : diffDays <= 90 ? 2 : 1;
+          weightedSum += r.actualCustomers * w;
+          weightSum   += w;
+        });
+        suggested[type] = {
+          customers:  Math.round(weightedSum / weightSum),
+          unit_price: coefs[type].unit_price,
+          count:      recs.length,
+        };
+      });
+      return suggested;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function exportCSV() {
+      const history = loadHistory();
+      const header  = 'date,weatherType,actualCustomers,actualSales,predictedCustomers,predictedSales';
+      const rows    = history.map(r =>
+        [r.date, r.weatherType || '',
+         r.actualCustomers, r.actualSales,
+         r.predictedCustomers != null ? r.predictedCustomers : '',
+         r.predictedSales     != null ? r.predictedSales     : ''
+        ].join(',')
+      );
+      const csv  = [header, ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a    = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = `teishoku_${getJSTDateStr(0)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function applyCoefficients(suggested) {
+      const coefs = loadCoefficients();
+      Object.keys(suggested).forEach(type => {
+        if (suggested[type]) {
+          coefs[type].customers  = suggested[type].customers;
+          coefs[type].unit_price = suggested[type].unit_price;
+        }
+      });
+      saveCoefficients(coefs);
+      showToast('推奨係数を適用しました ✓');
+      render();
+    }
+
+    function barWidth(value, maxVal) {
+      if (!maxVal || maxVal === 0) return 0;
+      return Math.max(4, Math.round((value / maxVal) * 100));
+    }
+
+    function render() {
+      const history    = loadHistory();
+      const main       = document.getElementById('main-content');
+      const stats      = calcStats();
+      const suggested  = calcSuggestedCoefficients();
+      const TYPES      = ['sunny', 'cloudy', 'rainy', 'stormy'];
+
+      if (history.length === 0) {
+        main.innerHTML = `
+          <div class="card">
+            <div class="empty-state">
+              まだ実績データがありません。<br>
+              <a href="sales-entry.html">✏️ 実績入力</a> または
+              <a href="import.html">📥 CSVインポート</a><br>
+              からデータを追加してください。
+            </div>
+          </div>`;
+        return;
+      }
+
+      const totalCount = history.length;
+      const dates      = history.map(r => r.date).sort();
+      const dateRange  = dates[0] + ' 〜 ' + dates[dates.length - 1];
+
+      // ---- バー幅の最大値算出 ----
+      const allVals = TYPES.flatMap(t => {
+        const s = stats[t];
+        return s.avgCustomers != null ? [s.avgCustomers, s.coef] : [s.coef];
+      });
+      const maxVal = Math.max(...allVals, 1);
+
+      // ---- 天気別比較セクション ----
+      const weatherRows = TYPES.map(type => {
+        const s    = stats[type];
+        const icon = WEATHER_ICONS[type];
+        const name = WEATHER_NAMES[type];
+        const coefW   = barWidth(s.coef, maxVal);
+        const actualW = s.avgCustomers != null ? barWidth(s.avgCustomers, maxVal) : 0;
+        const isPlus  = s.avgCustomers != null && s.avgCustomers >= s.coef;
+
+        let diffHtml = '';
+        if (s.count === 0) {
+          diffHtml = `<div class="stat-diff diff-na">データなし</div>`;
+        } else if (s.errorRate === null) {
+          diffHtml = `<div class="stat-diff diff-na">—</div>`;
+        } else if (s.errorRate === 0) {
+          diffHtml = `<div class="stat-diff diff-zero">誤差 ±0%</div>`;
+        } else {
+          const sign = s.errorRate > 0 ? '+' : '';
+          const cls  = s.errorRate > 0 ? 'diff-plus' : 'diff-minus';
+          diffHtml   = `<div class="stat-diff ${cls}">実績が係数より ${sign}${s.errorRate}%</div>`;
+        }
+
+        return `
+          <div class="weather-stat">
+            <div class="stat-header">
+              <span class="stat-label">${icon} ${name}</span>
+              <span class="stat-count">${s.count}件</span>
+            </div>
+            <div class="bar-group">
+              <div class="bar-row">
+                <div class="bar-name">係数</div>
+                <div class="bar-wrap">
+                  <div class="bar-fill bar-coef" style="width:${coefW}%">${s.coef}人</div>
+                </div>
+              </div>
+              ${s.avgCustomers != null ? `
+              <div class="bar-row">
+                <div class="bar-name">実績</div>
+                <div class="bar-wrap">
+                  <div class="bar-fill ${isPlus ? 'bar-actual-plus' : 'bar-actual-minus'}"
+                       style="width:${actualW}%">${s.avgCustomers}人</div>
+                </div>
+              </div>` : ''}
+            </div>
+            ${diffHtml}
+          </div>`;
+      }).join('');
+
+      // ---- 推奨係数セクション ----
+      const hasAnySuggested = TYPES.some(t => suggested[t] !== null);
+      const suggestRows = TYPES.map(type => {
+        const s    = suggested[type];
+        const icon = WEATHER_ICONS[type];
+        const name = WEATHER_NAMES[type];
+        const coef = loadCoefficients()[type].customers;
+
+        if (s === null) {
+          const needed = MIN_SAMPLES - (stats[type].count);
+          return `
+            <div class="suggest-row">
+              <div class="suggest-left">
+                <span>${icon}</span>
+                <span class="suggest-label">${name}</span>
+              </div>
+              <div class="suggest-insufficient">あと${needed}件で算出可能</div>
+            </div>`;
+        }
+        return `
+          <div class="suggest-row">
+            <div class="suggest-left">
+              <span>${icon}</span>
+              <span class="suggest-label">${name}</span>
+              <span class="suggest-current">${coef}人 →</span>
+            </div>
+            <div class="suggest-right">
+              <div class="suggest-new">${s.customers}人</div>
+              <div class="suggest-samples">${s.count}件の実績より</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const applyBtnHtml = hasAnySuggested
+        ? `<button class="apply-btn" onclick="applyCoefficients(calcSuggestedCoefficients())">推奨係数を適用する</button>`
+        : `<button class="apply-btn" disabled>データが${MIN_SAMPLES}件以上で算出できます</button>`;
+
+      // ---- 直近10件リスト ----
+      const recent = [...history].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10);
+      const recentRows = recent.map(r => {
+        const wLabel = r.weatherType
+          ? WEATHER_ICONS[r.weatherType] + ' ' + WEATHER_NAMES[r.weatherType]
+          : '天気不明';
+        return `
+          <div class="recent-row">
+            <div class="recent-left">
+              <span class="recent-date">${r.date}</span>
+              <span class="recent-weather">${wLabel}</span>
+            </div>
+            <div class="recent-right">
+              <div class="recent-customers">${r.actualCustomers}人</div>
+              <div class="recent-sales">¥${r.actualSales.toLocaleString()}</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      main.innerHTML = `
+        <div class="section-label">データ概要</div>
+        <div class="card">
+          <div class="overview-row">
+            <div class="overview-chip">
+              <div class="chip-value">${totalCount}</div>
+              <div class="chip-label">総件数</div>
+            </div>
+            <div class="overview-chip">
+              <div class="chip-value">${dates[0].slice(5)}</div>
+              <div class="chip-label">最古データ</div>
+            </div>
+            <div class="overview-chip">
+              <div class="chip-value">${dates[dates.length-1].slice(5)}</div>
+              <div class="chip-label">最新データ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">天気別 係数 vs 実績平均</div>
+        <div class="card">${weatherRows}</div>
+
+        <div class="section-label">推奨係数（加重平均）</div>
+        <div class="card">
+          ${suggestRows}
+          ${applyBtnHtml}
+        </div>
+
+        <div class="section-label">最近の実績（直近10件）</div>
+        <div class="card">${recentRows}</div>
+
+        <button class="export-btn" onclick="exportCSV()">📥 CSVエクスポート</button>
+      `;
+    }
+
+    render();
+  </script>
+</body>
+</html>
