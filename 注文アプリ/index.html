@@ -41,11 +41,6 @@
   <div class="modal">
     <h2>注文内容の確認</h2>
 
-    <div class="type-toggle">
-      <button class="type-btn active" data-type="delivery">🛵 デリバリー</button>
-      <button class="type-btn" data-type="takeout">🏃 テイクアウト</button>
-    </div>
-
     <div class="modal-order-summary">
       <p id="summary-items"></p>
       <p class="summary-total">合計: <span id="summary-total"></span></p>
@@ -63,16 +58,10 @@
       <span class="form-error" id="phone-error">正しい電話番号を入力してください</span>
     </div>
 
-    <div class="form-group" id="address-group">
-      <label>配達先住所 *</label>
-      <input type="text" id="customer-address" placeholder="東京都渋谷区1-1-1">
-      <span class="form-error" id="address-error">配達先住所を入力してください</span>
-    </div>
-
     <div class="form-group">
       <label>注文タイプ</label>
       <div class="order-timing-toggle">
-        <button class="timing-btn active" data-timing="now">🍽️ 今すぐ</button>
+        <button class="timing-btn active" data-timing="now">🍽️ 店内</button>
         <button class="timing-btn" data-timing="reserve">📅 予約注文</button>
       </div>
     </div>
@@ -102,7 +91,7 @@
   <h2>ご注文ありがとうございます！</h2>
   <p>注文番号</p>
   <p class="order-id" id="complete-order-id"></p>
-  <p>ご準備が整いましたらご連絡いたします。</p>
+  <p id="complete-message">ご準備が整いましたらご連絡いたします。</p>
   <button class="back-btn" id="back-to-menu">メニューに戻る</button>
 </div>
 

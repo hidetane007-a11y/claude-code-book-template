@@ -56,9 +56,11 @@ function renderTable() {
     const nextClick = s.next
       ? `onclick="advanceStatus('${order.id}', '${s.next}')"`
       : '';
-    const typeTag = order.type === 'delivery'
-      ? '<span class="type-tag delivery">配達</span>'
-      : '<span class="type-tag takeout">持帰</span>';
+    const typeTag = order.type === 'instore'
+      ? '<span class="type-tag instore">店内</span>'
+      : order.type === 'takeout'
+        ? '<span class="type-tag takeout">受取</span>'
+        : '<span class="type-tag delivery">配達</span>';
     const reserveTag = order.isReservation ? ' <span class="type-tag reservation">📅予約</span>' : '';
 
     let scheduledStr = '';
@@ -103,13 +105,12 @@ function addDemoOrders() {
     const items = [MENU[i % MENU.length], MENU[(i + 2) % MENU.length]];
     const orderItems = items.map(m => ({ id: m.id, name: m.name, price: m.price, qty: 1 + (i % 2) }));
     const total = orderItems.reduce((s, c) => s + c.price * c.qty, 0);
-    const type = i < 3 ? 'delivery' : 'takeout';
     const order = addOrder({
-      type,
-      customer: { name, phone: phones[i], address: type === 'delivery' ? addresses[i] : '' },
+      type: 'instore',
+      customer: { name, phone: phones[i] },
       isReservation: false,
       scheduledDate: '',
-      scheduledTime: times[i],
+      scheduledTime: '',
       items: orderItems,
       total,
     });
@@ -127,8 +128,8 @@ function addDemoOrders() {
   const dayAfterStr = dayAfter.toISOString().slice(0, 10);
 
   addOrder({
-    type: 'delivery',
-    customer: { name: '予約 佐々木', phone: '080-0001-0001', address: '東京都新宿区2-2-2' },
+    type: 'takeout',
+    customer: { name: '予約 佐々木', phone: '080-0001-0001' },
     isReservation: true,
     scheduledDate: tomorrowStr,
     scheduledTime: '18:00',
@@ -150,16 +151,32 @@ function addDemoOrders() {
   renderTable();
 }
 
+function refreshIfChanged() {
+  const current = localStorage.getItem('orders') || '[]';
+  if (current !== refreshIfChanged._last) {
+    refreshIfChanged._last = current;
+    renderStats(getOrders());
+    renderTable();
+  }
+}
+refreshIfChanged._last = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   renderStats(getOrders());
   renderFilters();
   renderTable();
+  refreshIfChanged._last = localStorage.getItem('orders') || '[]';
+
   document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
   document.getElementById('clear-btn').addEventListener('click', () => {
     if (confirm('全注文データを削除しますか？')) {
       localStorage.removeItem('orders');
+      refreshIfChanged._last = '[]';
       renderStats(getOrders());
       renderTable();
     }
   });
+
+  // 他タブ（注文アプリ）での変更を3秒ごとに反映
+  setInterval(refreshIfChanged, 3000);
 });

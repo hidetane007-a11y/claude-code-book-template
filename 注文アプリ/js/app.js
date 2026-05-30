@@ -1,6 +1,5 @@
 let cart = [];
 let currentCategory = CATEGORIES[0];
-let orderType = 'delivery';
 let isReservation = false;
 
 function renderMenu() {
@@ -113,24 +112,12 @@ function openOrderModal() {
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
   document.getElementById('summary-items').textContent = items;
   document.getElementById('summary-total').textContent = `¥${total.toLocaleString()}`;
-  setOrderType(orderType);
   document.getElementById('modal-overlay').classList.add('open');
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   clearFormErrors();
-}
-
-function setOrderType(type) {
-  orderType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
-  const addrGroup = document.getElementById('address-group');
-  if (type === 'delivery') {
-    addrGroup.classList.add('show');
-  } else {
-    addrGroup.classList.remove('show');
-  }
 }
 
 function setTiming(type) {
@@ -159,12 +146,10 @@ function validateForm() {
   let valid = true;
   const name = document.getElementById('customer-name').value.trim();
   const phone = document.getElementById('customer-phone').value.trim();
-  const address = document.getElementById('customer-address').value.trim();
   clearFormErrors();
 
   if (!name) { markError('customer-name', 'name-error'); valid = false; }
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) { markError('customer-phone', 'phone-error'); valid = false; }
-  if (orderType === 'delivery' && !address) { markError('customer-address', 'address-error'); valid = false; }
   if (isReservation) {
     const date = document.getElementById('scheduled-date').value;
     const time = document.getElementById('scheduled-time').value;
@@ -184,11 +169,10 @@ function markError(inputId, errorId) {
 function confirmOrder() {
   if (!validateForm()) return;
   const order = {
-    type: orderType,
+    type: isReservation ? 'takeout' : 'instore',
     customer: {
       name: document.getElementById('customer-name').value.trim(),
       phone: document.getElementById('customer-phone').value.trim(),
-      address: orderType === 'delivery' ? document.getElementById('customer-address').value.trim() : '',
     },
     isReservation,
     scheduledDate: isReservation ? document.getElementById('scheduled-date').value : '',
@@ -206,6 +190,9 @@ function confirmOrder() {
 
 function showComplete(orderId) {
   document.getElementById('complete-order-id').textContent = orderId;
+  document.getElementById('complete-message').textContent = isReservation
+    ? 'ご予約を承りました。当日お待ちしております。'
+    : 'ご準備が整いましたらお呼びします。';
   document.getElementById('complete-screen').classList.add('open');
 }
 
@@ -213,7 +200,6 @@ function resetApp() {
   document.getElementById('complete-screen').classList.remove('open');
   document.getElementById('customer-name').value = '';
   document.getElementById('customer-phone').value = '';
-  document.getElementById('customer-address').value = '';
   document.getElementById('scheduled-date').value = '';
   document.getElementById('scheduled-time').value = '';
   isReservation = false;
@@ -233,10 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-cancel').addEventListener('click', closeModal);
   document.getElementById('modal-confirm').addEventListener('click', confirmOrder);
   document.getElementById('back-to-menu').addEventListener('click', resetApp);
-
-  document.querySelectorAll('.type-btn').forEach(btn => {
-    btn.addEventListener('click', () => setOrderType(btn.dataset.type));
-  });
 
   document.querySelectorAll('.timing-btn').forEach(btn => {
     btn.addEventListener('click', () => setTiming(btn.dataset.timing));
