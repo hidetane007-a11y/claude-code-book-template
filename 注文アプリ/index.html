@@ -70,8 +70,23 @@
     </div>
 
     <div class="form-group">
-      <label>希望時間（任意）</label>
-      <input type="time" id="scheduled-time">
+      <label>注文タイプ</label>
+      <div class="order-timing-toggle">
+        <button class="timing-btn active" data-timing="now">🍽️ 今すぐ</button>
+        <button class="timing-btn" data-timing="reserve">📅 予約注文</button>
+      </div>
+    </div>
+    <div id="reservation-fields">
+      <div class="form-group">
+        <label>希望日 *</label>
+        <input type="date" id="scheduled-date">
+        <span class="form-error" id="date-error">翌日以降の日付を選択してください</span>
+      </div>
+      <div class="form-group">
+        <label>希望時間 *</label>
+        <input type="time" id="scheduled-time">
+        <span class="form-error" id="time-error">時間を入力してください</span>
+      </div>
     </div>
 
     <div class="modal-actions">

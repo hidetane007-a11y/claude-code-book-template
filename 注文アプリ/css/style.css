@@ -460,6 +460,17 @@ header h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
 }
 .ai-import-btn:hover { background: var(--primary-dark); }
 
+/* ── Reservation ── */
+.order-timing-toggle { display: flex; border-radius: var(--radius); border: 1.5px solid var(--border); overflow: hidden; }
+.timing-btn { flex: 1; padding: .65rem; border: none; background: var(--surface); cursor: pointer; font-size: .88rem; font-weight: 500; transition: background .15s, color .15s; }
+.timing-btn.active { background: var(--primary); color: #fff; }
+#reservation-fields { display: none; flex-direction: column; gap: 1rem; }
+#reservation-fields.show { display: flex; }
+.type-tag.reservation { background: #fef3c7; color: #92400e; }
+.reservation-datetime { color: #92400e; font-weight: 600; }
+.reservation-row td { background: #fffbeb; }
+.reservation-row:hover td { background: #fef3c7 !important; }
+
 @media (max-width: 600px) {
   .menu-grid { grid-template-columns: 1fr 1fr; padding: .8rem 1rem 6rem; gap: .7rem; }
   .order-table th:nth-child(3), .order-table td:nth-child(3) { display: none; }

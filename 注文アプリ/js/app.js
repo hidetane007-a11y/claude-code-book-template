@@ -1,6 +1,7 @@
 let cart = [];
 let currentCategory = CATEGORIES[0];
 let orderType = 'delivery';
+let isReservation = false;
 
 function renderMenu() {
   const grid = document.getElementById('menu-grid');
@@ -132,6 +133,23 @@ function setOrderType(type) {
   }
 }
 
+function setTiming(type) {
+  isReservation = type === 'reserve';
+  document.querySelectorAll('.timing-btn').forEach(b => b.classList.toggle('active', b.dataset.timing === type));
+  const fields = document.getElementById('reservation-fields');
+  if (isReservation) {
+    fields.classList.add('show');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().slice(0, 10);
+    const dateInput = document.getElementById('scheduled-date');
+    dateInput.min = minDate;
+    if (!dateInput.value) dateInput.value = minDate;
+  } else {
+    fields.classList.remove('show');
+  }
+}
+
 function clearFormErrors() {
   document.querySelectorAll('.form-group input').forEach(i => i.classList.remove('error'));
   document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
@@ -147,6 +165,14 @@ function validateForm() {
   if (!name) { markError('customer-name', 'name-error'); valid = false; }
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) { markError('customer-phone', 'phone-error'); valid = false; }
   if (orderType === 'delivery' && !address) { markError('customer-address', 'address-error'); valid = false; }
+  if (isReservation) {
+    const date = document.getElementById('scheduled-date').value;
+    const time = document.getElementById('scheduled-time').value;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (!date || date < tomorrow.toISOString().slice(0, 10)) { markError('scheduled-date', 'date-error'); valid = false; }
+    if (!time) { markError('scheduled-time', 'time-error'); valid = false; }
+  }
   return valid;
 }
 
@@ -164,7 +190,9 @@ function confirmOrder() {
       phone: document.getElementById('customer-phone').value.trim(),
       address: orderType === 'delivery' ? document.getElementById('customer-address').value.trim() : '',
     },
-    scheduledTime: document.getElementById('scheduled-time').value,
+    isReservation,
+    scheduledDate: isReservation ? document.getElementById('scheduled-date').value : '',
+    scheduledTime: isReservation ? document.getElementById('scheduled-time').value : '',
     items: cart.map(c => ({ ...c })),
     total: cart.reduce((s, c) => s + c.price * c.qty, 0),
   };
@@ -186,7 +214,11 @@ function resetApp() {
   document.getElementById('customer-name').value = '';
   document.getElementById('customer-phone').value = '';
   document.getElementById('customer-address').value = '';
+  document.getElementById('scheduled-date').value = '';
   document.getElementById('scheduled-time').value = '';
+  isReservation = false;
+  document.querySelectorAll('.timing-btn').forEach(b => b.classList.toggle('active', b.dataset.timing === 'now'));
+  document.getElementById('reservation-fields').classList.remove('show');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -204,5 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.type-btn').forEach(btn => {
     btn.addEventListener('click', () => setOrderType(btn.dataset.type));
+  });
+
+  document.querySelectorAll('.timing-btn').forEach(btn => {
+    btn.addEventListener('click', () => setTiming(btn.dataset.timing));
   });
 });

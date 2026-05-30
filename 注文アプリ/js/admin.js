@@ -2,13 +2,14 @@ let currentFilter = 'all';
 
 function renderStats(orders) {
   const counts = { pending: 0, preparing: 0, ready: 0, delivered: 0 };
-  let totalRevenue = 0;
+  let reservationCount = 0;
   orders.forEach(o => {
     counts[o.status] = (counts[o.status] || 0) + 1;
-    if (o.status !== 'delivered') totalRevenue += o.total;
+    if (o.isReservation) reservationCount++;
   });
   document.getElementById('stats-bar').innerHTML = `
     <div class="stat-card"><strong>${orders.length}</strong>総注文数</div>
+    <div class="stat-card"><strong>${reservationCount}</strong>予約</div>
     <div class="stat-card"><strong>${counts.pending}</strong>受付済</div>
     <div class="stat-card"><strong>${counts.preparing}</strong>調理中</div>
     <div class="stat-card"><strong>${counts.ready}</strong>準備完了</div>
@@ -18,6 +19,7 @@ function renderStats(orders) {
 function renderFilters() {
   const defs = [
     { key: 'all', label: '全件' },
+    { key: 'reservation', label: '📅 予約' },
     { key: 'pending', label: '受付済' },
     { key: 'preparing', label: '調理中' },
     { key: 'ready', label: '準備完了' },
@@ -36,7 +38,9 @@ function setFilter(key) {
 
 function renderTable() {
   const all = getOrders();
-  const orders = currentFilter === 'all' ? all : all.filter(o => o.status === currentFilter);
+  const orders = currentFilter === 'all' ? all
+    : currentFilter === 'reservation' ? all.filter(o => o.isReservation)
+    : all.filter(o => o.status === currentFilter);
   const tbody = document.getElementById('order-tbody');
 
   if (orders.length === 0) {
@@ -55,11 +59,21 @@ function renderTable() {
     const typeTag = order.type === 'delivery'
       ? '<span class="type-tag delivery">配達</span>'
       : '<span class="type-tag takeout">持帰</span>';
+    const reserveTag = order.isReservation ? ' <span class="type-tag reservation">📅予約</span>' : '';
+
+    let scheduledStr = '';
+    if (order.isReservation && order.scheduledDate) {
+      const rd = new Date(order.scheduledDate + 'T00:00:00');
+      scheduledStr = `<br><small class="reservation-datetime">${rd.getMonth()+1}/${rd.getDate()} ${order.scheduledTime}</small>`;
+    } else if (order.scheduledTime) {
+      scheduledStr = `<br><small>${order.scheduledTime}</small>`;
+    }
+
     return `
-      <tr>
+      <tr${order.isReservation ? ' class="reservation-row"' : ''}>
         <td>${order.id}<br><small style="color:var(--text-muted)">${dateStr}</small></td>
         <td>${order.customer.name}<br><small style="color:var(--text-muted)">${order.customer.phone}</small></td>
-        <td>${typeTag}${order.scheduledTime ? `<br><small>${order.scheduledTime}</small>` : ''}</td>
+        <td>${typeTag}${reserveTag}${scheduledStr}</td>
         <td><div>${itemsSummary}</div></td>
         <td style="text-align:right;font-weight:700">¥${order.total.toLocaleString()}</td>
         <td>
@@ -93,6 +107,8 @@ function addDemoOrders() {
     const order = addOrder({
       type,
       customer: { name, phone: phones[i], address: type === 'delivery' ? addresses[i] : '' },
+      isReservation: false,
+      scheduledDate: '',
       scheduledTime: times[i],
       items: orderItems,
       total,
@@ -101,6 +117,35 @@ function addDemoOrders() {
       updateOrderStatus(order.id, statuses[i]);
     }
   });
+
+  // 予約デモデータ
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const dayAfter = new Date();
+  dayAfter.setDate(dayAfter.getDate() + 2);
+  const dayAfterStr = dayAfter.toISOString().slice(0, 10);
+
+  addOrder({
+    type: 'delivery',
+    customer: { name: '予約 佐々木', phone: '080-0001-0001', address: '東京都新宿区2-2-2' },
+    isReservation: true,
+    scheduledDate: tomorrowStr,
+    scheduledTime: '18:00',
+    items: [{ id: MENU[0].id, name: MENU[0].name, price: MENU[0].price, qty: 2 },
+            { id: MENU[5].id, name: MENU[5].name, price: MENU[5].price, qty: 1 }],
+    total: MENU[0].price * 2 + MENU[5].price,
+  });
+  addOrder({
+    type: 'takeout',
+    customer: { name: '予約 中村', phone: '090-0002-0002', address: '' },
+    isReservation: true,
+    scheduledDate: dayAfterStr,
+    scheduledTime: '12:30',
+    items: [{ id: MENU[10].id, name: MENU[10].name, price: MENU[10].price, qty: 3 }],
+    total: MENU[10].price * 3,
+  });
+
   renderStats(getOrders());
   renderTable();
 }
