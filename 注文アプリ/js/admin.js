@@ -1,5 +1,27 @@
 let currentFilter = 'all';
+let lastOrderCount = -1;
 
+// ── 通知音 ───────────────────────────────────────────
+function playOrderSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[0, 880], [0.18, 1108], [0.36, 1318]].forEach(([delay, freq]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + delay + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.55);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.55);
+    });
+  } catch (e) {}
+}
+
+// ── 描画 ─────────────────────────────────────────────
 function renderStats(orders) {
   const counts = { pending: 0, preparing: 0, ready: 0, delivered: 0 };
   let reservationCount = 0;
@@ -18,12 +40,12 @@ function renderStats(orders) {
 
 function renderFilters() {
   const defs = [
-    { key: 'all', label: '全件' },
+    { key: 'all',         label: '全件' },
     { key: 'reservation', label: '📅 予約' },
-    { key: 'pending', label: '受付済' },
-    { key: 'preparing', label: '調理中' },
-    { key: 'ready', label: '準備完了' },
-    { key: 'delivered', label: '完了' },
+    { key: 'pending',     label: '受付済' },
+    { key: 'preparing',   label: '調理中' },
+    { key: 'ready',       label: '準備完了' },
+    { key: 'delivered',   label: '完了' },
   ];
   document.getElementById('filters').innerHTML = defs.map(f => `
     <button class="filter-btn ${f.key === currentFilter ? 'active' : ''}" onclick="setFilter('${f.key}')">${f.label}</button>
@@ -53,9 +75,7 @@ function renderTable() {
     const dt = new Date(order.createdAt);
     const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
     const itemsSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
-    const nextClick = s.next
-      ? `onclick="advanceStatus('${order.id}', '${s.next}')"`
-      : '';
+    const nextClick = s.next ? `onclick="advanceStatus('${order.id}', '${s.next}')"` : '';
     const typeTag = order.type === 'instore'
       ? '<span class="type-tag instore">店内</span>'
       : order.type === 'takeout'
@@ -67,8 +87,6 @@ function renderTable() {
     if (order.isReservation && order.scheduledDate) {
       const rd = new Date(order.scheduledDate + 'T00:00:00');
       scheduledStr = `<br><small class="reservation-datetime">${rd.getMonth()+1}/${rd.getDate()} ${order.scheduledTime}</small>`;
-    } else if (order.scheduledTime) {
-      scheduledStr = `<br><small>${order.scheduledTime}</small>`;
     }
 
     return `
@@ -90,16 +108,32 @@ function renderTable() {
 
 function advanceStatus(id, nextStatus) {
   updateOrderStatus(id, nextStatus);
-  renderStats(getOrders());
+  refreshOrders(false);
+}
+
+// ── 更新ロジック ───────────────────────────────────────
+function refreshOrders(withSound) {
+  const orders = getOrders();
+  if (withSound && lastOrderCount >= 0 && orders.length > lastOrderCount) {
+    playOrderSound();
+    flashNewOrder();
+  }
+  lastOrderCount = orders.length;
+  renderStats(orders);
   renderTable();
 }
 
+function flashNewOrder() {
+  const bar = document.getElementById('stats-bar');
+  bar.classList.add('new-order-flash');
+  setTimeout(() => bar.classList.remove('new-order-flash'), 1500);
+}
+
+// ── デモデータ ─────────────────────────────────────────
 function addDemoOrders() {
-  const names = ['田中太郎', '鈴木花子', '佐藤次郎', '山田美咲'];
+  const names = ['たなか たろう', 'すずき はなこ', 'さとう じろう', 'やまだ みさき'];
   const phones = ['090-1111-2222', '080-3333-4444', '070-5555-6666', '090-7777-8888'];
-  const addresses = ['東京都渋谷区1-1-1', '大阪府梅田2-2-2', '名古屋市栄3-3-3', ''];
   const statuses = ['pending', 'preparing', 'ready', 'delivered'];
-  const times = ['12:00', '12:30', '13:00', '11:30'];
 
   names.forEach((name, i) => {
     const items = [MENU[i % MENU.length], MENU[(i + 2) % MENU.length]];
@@ -114,12 +148,9 @@ function addDemoOrders() {
       items: orderItems,
       total,
     });
-    if (order.status !== statuses[i]) {
-      updateOrderStatus(order.id, statuses[i]);
-    }
+    if (order.status !== statuses[i]) updateOrderStatus(order.id, statuses[i]);
   });
 
-  // 予約デモデータ
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().slice(0, 10);
@@ -129,7 +160,7 @@ function addDemoOrders() {
 
   addOrder({
     type: 'takeout',
-    customer: { name: '予約 佐々木', phone: '080-0001-0001' },
+    customer: { name: 'ささき よしこ', phone: '080-0001-0001' },
     isReservation: true,
     scheduledDate: tomorrowStr,
     scheduledTime: '18:00',
@@ -139,7 +170,7 @@ function addDemoOrders() {
   });
   addOrder({
     type: 'takeout',
-    customer: { name: '予約 中村', phone: '090-0002-0002', address: '' },
+    customer: { name: 'なかむら けんじ', phone: '090-0002-0002' },
     isReservation: true,
     scheduledDate: dayAfterStr,
     scheduledTime: '12:30',
@@ -147,36 +178,28 @@ function addDemoOrders() {
     total: MENU[10].price * 3,
   });
 
-  renderStats(getOrders());
-  renderTable();
+  refreshOrders(false);
 }
 
-function refreshIfChanged() {
-  const current = localStorage.getItem('orders') || '[]';
-  if (current !== refreshIfChanged._last) {
-    refreshIfChanged._last = current;
-    renderStats(getOrders());
-    renderTable();
-  }
-}
-refreshIfChanged._last = null;
-
+// ── 初期化 ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  renderStats(getOrders());
   renderFilters();
-  renderTable();
-  refreshIfChanged._last = localStorage.getItem('orders') || '[]';
+  refreshOrders(false);
 
   document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
   document.getElementById('clear-btn').addEventListener('click', () => {
     if (confirm('全注文データを削除しますか？')) {
       localStorage.removeItem('orders');
-      refreshIfChanged._last = '[]';
-      renderStats(getOrders());
-      renderTable();
+      lastOrderCount = 0;
+      refreshOrders(false);
     }
   });
 
-  // 他タブ（注文アプリ）での変更を3秒ごとに反映
-  setInterval(refreshIfChanged, 3000);
+  // 他タブ（注文アプリ）でlocalStorageが変わったら即反映
+  window.addEventListener('storage', e => {
+    if (e.key === 'orders') refreshOrders(true);
+  });
+
+  // storage イベントが届かない環境（同一タブ遷移等）のフォールバック
+  setInterval(() => refreshOrders(true), 3000);
 });

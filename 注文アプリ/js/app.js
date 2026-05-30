@@ -207,10 +207,23 @@ function resetApp() {
   document.getElementById('reservation-fields').classList.remove('show');
 }
 
+function toHiragana(str) {
+  // カタカナ→ひらがな変換
+  return str.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderTabs();
   renderMenu();
   renderCartItems();
+
+  // 名前欄：入力をひらがなに変換
+  const nameInput = document.getElementById('customer-name');
+  nameInput.addEventListener('input', () => {
+    const pos = nameInput.selectionStart;
+    nameInput.value = toHiragana(nameInput.value);
+    nameInput.setSelectionRange(pos, pos);
+  });
 
   document.getElementById('cart-btn').addEventListener('click', openCart);
   document.getElementById('cart-overlay').addEventListener('click', closeCart);

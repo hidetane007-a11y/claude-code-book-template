@@ -461,6 +461,14 @@ header h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
 }
 .ai-import-btn:hover { background: var(--primary-dark); }
 
+/* ── New Order Flash ── */
+@keyframes orderFlash {
+  0%   { background: #fef3c7; }
+  50%  { background: #fde68a; }
+  100% { background: transparent; }
+}
+.new-order-flash { animation: orderFlash 1.5s ease; }
+
 /* ── Reservation ── */
 .order-timing-toggle { display: flex; border-radius: var(--radius); border: 1.5px solid var(--border); overflow: hidden; }
 .timing-btn { flex: 1; padding: .65rem; border: none; background: var(--surface); cursor: pointer; font-size: .88rem; font-weight: 500; transition: background .15s, color .15s; }
