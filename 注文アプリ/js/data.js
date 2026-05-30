@@ -27,32 +27,65 @@ const STATUS_LABELS = {
   delivered: { text: '完了',     next: null,         color: '#6b7280' },
 };
 
-function getOrders() {
-  return JSON.parse(localStorage.getItem('orders') || '[]');
+// ── Supabase クライアント初期化 ───────────────────────────────────────────────
+const _sb = (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL')
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// ── データ操作（Supabase / localStorage 自動切替） ────────────────────────────
+
+async function getOrders() {
+  if (!_sb) {
+    return JSON.parse(localStorage.getItem('orders') || '[]');
+  }
+  const { data, error } = await _sb
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); return []; }
+  return (data || []).map(row => ({ ...row.data, id: row.id, status: row.status, createdAt: row.created_at }));
 }
 
-function saveOrders(orders) {
-  localStorage.setItem('orders', JSON.stringify(orders));
-}
-
-function addOrder(order) {
-  const orders = getOrders();
+async function addOrder(order) {
   const date = new Date();
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
-  const seq = String(orders.filter(o => o.id.includes(datePart)).length + 1).padStart(3, '0');
-  order.id = `ORD-${datePart}-${seq}`;
-  order.status = 'pending';
+  order.status  = 'pending';
   order.createdAt = date.toISOString();
-  orders.unshift(order);
-  saveOrders(orders);
+
+  if (!_sb) {
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const seq = String(orders.filter(o => o.id && o.id.includes(datePart)).length + 1).padStart(3, '0');
+    order.id = `ORD-${datePart}-${seq}`;
+    orders.unshift(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    return order;
+  }
+
+  const { count } = await _sb
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .like('id', `ORD-${datePart}-%`);
+  const seq = String((count || 0) + 1).padStart(3, '0');
+  order.id = `ORD-${datePart}-${seq}`;
+
+  const { error } = await _sb.from('orders').insert({
+    id: order.id,
+    status: order.status,
+    is_reservation: !!order.isReservation,
+    created_at: order.createdAt,
+    data: order,
+  });
+  if (error) throw error;
   return order;
 }
 
-function updateOrderStatus(id, status) {
-  const orders = getOrders();
-  const order = orders.find(o => o.id === id);
-  if (order) {
-    order.status = status;
-    saveOrders(orders);
+async function updateOrderStatus(id, status) {
+  if (!_sb) {
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const o = orders.find(o => o.id === id);
+    if (o) { o.status = status; localStorage.setItem('orders', JSON.stringify(orders)); }
+    return;
   }
+  const { error } = await _sb.from('orders').update({ status }).eq('id', id);
+  if (error) throw error;
 }

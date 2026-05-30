@@ -95,7 +95,7 @@ function showResult(data) {
   document.getElementById('ai-result').classList.add('show');
 }
 
-function importParsedOrder() {
+async function importParsedOrder() {
   if (!parsedOrderData) return;
 
   var items = (parsedOrderData.items || []).map(function(item) {
@@ -111,12 +111,13 @@ function importParsedOrder() {
   var total = items.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
 
   var order = {
-    type: parsedOrderData.order_type || 'takeout',
+    type: 'takeout',
     customer: {
       name: parsedOrderData.customer_name || '（不明）',
       phone: parsedOrderData.phone || '',
-      address: parsedOrderData.address || '',
     },
+    isReservation: false,
+    scheduledDate: '',
     scheduledTime: parsedOrderData.delivery_date || '',
     items: items,
     total: total,
@@ -124,22 +125,26 @@ function importParsedOrder() {
     source: 'ai-import',
   };
 
-  addOrder(order);
-  renderStats(getOrders());
-  renderTable();
-
-  document.getElementById('ai-input-text').value = '';
-  document.getElementById('ai-result').classList.remove('show');
-  parsedOrderData = null;
-
   var btn = document.getElementById('ai-import-btn');
-  var origText = btn.textContent;
-  btn.textContent = '✓ 追加しました';
-  btn.style.background = '#10b981';
-  setTimeout(function() {
-    btn.textContent = origText;
-    btn.style.background = '';
-  }, 2000);
+  btn.disabled = true;
+  try {
+    await addOrder(order);
+    await refreshOrders(false);
+    document.getElementById('ai-input-text').value = '';
+    document.getElementById('ai-result').classList.remove('show');
+    parsedOrderData = null;
+    var origText = btn.textContent;
+    btn.textContent = '✓ 追加しました';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = origText;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 2000);
+  } catch (e) {
+    alert('追加に失敗しました: ' + e.message);
+    btn.disabled = false;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

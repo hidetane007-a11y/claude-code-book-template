@@ -144,11 +144,11 @@ function clearFormErrors() {
 
 function validateForm() {
   let valid = true;
-  const name = document.getElementById('customer-name').value.trim();
+  const name  = document.getElementById('customer-name').value.trim();
   const phone = document.getElementById('customer-phone').value.trim();
   clearFormErrors();
 
-  if (!name) { markError('customer-name', 'name-error'); valid = false; }
+  if (!name)  { markError('customer-name',  'name-error');  valid = false; }
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) { markError('customer-phone', 'phone-error'); valid = false; }
   if (isReservation) {
     const date = document.getElementById('scheduled-date').value;
@@ -166,12 +166,17 @@ function markError(inputId, errorId) {
   document.getElementById(errorId).classList.add('show');
 }
 
-function confirmOrder() {
+async function confirmOrder() {
   if (!validateForm()) return;
+
+  const btn = document.getElementById('modal-confirm');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+
   const order = {
     type: isReservation ? 'takeout' : 'instore',
     customer: {
-      name: document.getElementById('customer-name').value.trim(),
+      name:  document.getElementById('customer-name').value.trim(),
       phone: document.getElementById('customer-phone').value.trim(),
     },
     isReservation,
@@ -180,12 +185,19 @@ function confirmOrder() {
     items: cart.map(c => ({ ...c })),
     total: cart.reduce((s, c) => s + c.price * c.qty, 0),
   };
-  const saved = addOrder(order);
-  closeModal();
-  showComplete(saved.id);
-  cart = [];
-  updateCartBadge();
-  renderCartItems();
+
+  try {
+    const saved = await addOrder(order);
+    closeModal();
+    showComplete(saved.id);
+    cart = [];
+    updateCartBadge();
+    renderCartItems();
+  } catch (e) {
+    alert('注文の送信に失敗しました。もう一度お試しください。');
+    btn.disabled = false;
+    btn.textContent = '注文を確定する';
+  }
 }
 
 function showComplete(orderId) {
@@ -198,17 +210,18 @@ function showComplete(orderId) {
 
 function resetApp() {
   document.getElementById('complete-screen').classList.remove('open');
-  document.getElementById('customer-name').value = '';
+  document.getElementById('customer-name').value  = '';
   document.getElementById('customer-phone').value = '';
   document.getElementById('scheduled-date').value = '';
   document.getElementById('scheduled-time').value = '';
   isReservation = false;
   document.querySelectorAll('.timing-btn').forEach(b => b.classList.toggle('active', b.dataset.timing === 'now'));
   document.getElementById('reservation-fields').classList.remove('show');
+  document.getElementById('modal-confirm').disabled = false;
+  document.getElementById('modal-confirm').textContent = '注文を確定する';
 }
 
 function toHiragana(str) {
-  // カタカナ→ひらがな変換
   return str.replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 }
 
@@ -217,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
   renderCartItems();
 
-  // 名前欄：入力をひらがなに変換
   const nameInput = document.getElementById('customer-name');
   nameInput.addEventListener('input', () => {
     const pos = nameInput.selectionStart;

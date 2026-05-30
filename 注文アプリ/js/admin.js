@@ -1,7 +1,8 @@
 let currentFilter = 'all';
 let lastOrderCount = -1;
+let cachedOrders   = [];
 
-// ── 通知音 ───────────────────────────────────────────
+// ── 通知音 ────────────────────────────────────────────
 function playOrderSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -21,16 +22,22 @@ function playOrderSound() {
   } catch (e) {}
 }
 
+function flashNewOrder() {
+  const bar = document.getElementById('stats-bar');
+  bar.classList.add('new-order-flash');
+  setTimeout(() => bar.classList.remove('new-order-flash'), 1500);
+}
+
 // ── 描画 ─────────────────────────────────────────────
-function renderStats(orders) {
+function renderStats() {
   const counts = { pending: 0, preparing: 0, ready: 0, delivered: 0 };
   let reservationCount = 0;
-  orders.forEach(o => {
+  cachedOrders.forEach(o => {
     counts[o.status] = (counts[o.status] || 0) + 1;
     if (o.isReservation) reservationCount++;
   });
   document.getElementById('stats-bar').innerHTML = `
-    <div class="stat-card"><strong>${orders.length}</strong>総注文数</div>
+    <div class="stat-card"><strong>${cachedOrders.length}</strong>総注文数</div>
     <div class="stat-card"><strong>${reservationCount}</strong>予約</div>
     <div class="stat-card"><strong>${counts.pending}</strong>受付済</div>
     <div class="stat-card"><strong>${counts.preparing}</strong>調理中</div>
@@ -59,7 +66,7 @@ function setFilter(key) {
 }
 
 function renderTable() {
-  const all = getOrders();
+  const all = cachedOrders;
   const orders = currentFilter === 'all' ? all
     : currentFilter === 'reservation' ? all.filter(o => o.isReservation)
     : all.filter(o => o.status === currentFilter);
@@ -106,100 +113,100 @@ function renderTable() {
   }).join('');
 }
 
-function advanceStatus(id, nextStatus) {
-  updateOrderStatus(id, nextStatus);
-  refreshOrders(false);
-}
-
 // ── 更新ロジック ───────────────────────────────────────
-function refreshOrders(withSound) {
-  const orders = getOrders();
-  if (withSound && lastOrderCount >= 0 && orders.length > lastOrderCount) {
+async function refreshOrders(withSound) {
+  cachedOrders = await getOrders();
+  if (withSound && lastOrderCount >= 0 && cachedOrders.length > lastOrderCount) {
     playOrderSound();
     flashNewOrder();
   }
-  lastOrderCount = orders.length;
-  renderStats(orders);
+  lastOrderCount = cachedOrders.length;
+  renderStats();
   renderTable();
 }
 
-function flashNewOrder() {
-  const bar = document.getElementById('stats-bar');
-  bar.classList.add('new-order-flash');
-  setTimeout(() => bar.classList.remove('new-order-flash'), 1500);
+async function advanceStatus(id, nextStatus) {
+  await updateOrderStatus(id, nextStatus);
+  await refreshOrders(false);
 }
 
 // ── デモデータ ─────────────────────────────────────────
-function addDemoOrders() {
-  const names = ['たなか たろう', 'すずき はなこ', 'さとう じろう', 'やまだ みさき'];
-  const phones = ['090-1111-2222', '080-3333-4444', '070-5555-6666', '090-7777-8888'];
+async function addDemoOrders() {
+  const names    = ['たなか たろう', 'すずき はなこ', 'さとう じろう', 'やまだ みさき'];
+  const phones   = ['090-1111-2222', '080-3333-4444', '070-5555-6666', '090-7777-8888'];
   const statuses = ['pending', 'preparing', 'ready', 'delivered'];
 
-  names.forEach((name, i) => {
+  for (let i = 0; i < names.length; i++) {
     const items = [MENU[i % MENU.length], MENU[(i + 2) % MENU.length]];
     const orderItems = items.map(m => ({ id: m.id, name: m.name, price: m.price, qty: 1 + (i % 2) }));
-    const total = orderItems.reduce((s, c) => s + c.price * c.qty, 0);
-    const order = addOrder({
+    const order = await addOrder({
       type: 'instore',
-      customer: { name, phone: phones[i] },
+      customer: { name: names[i], phone: phones[i] },
       isReservation: false,
       scheduledDate: '',
       scheduledTime: '',
       items: orderItems,
-      total,
+      total: orderItems.reduce((s, c) => s + c.price * c.qty, 0),
     });
-    if (order.status !== statuses[i]) updateOrderStatus(order.id, statuses[i]);
-  });
+    if (order.status !== statuses[i]) await updateOrderStatus(order.id, statuses[i]);
+  }
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
   const dayAfter = new Date();
   dayAfter.setDate(dayAfter.getDate() + 2);
-  const dayAfterStr = dayAfter.toISOString().slice(0, 10);
 
-  addOrder({
+  await addOrder({
     type: 'takeout',
     customer: { name: 'ささき よしこ', phone: '080-0001-0001' },
     isReservation: true,
-    scheduledDate: tomorrowStr,
+    scheduledDate: tomorrow.toISOString().slice(0, 10),
     scheduledTime: '18:00',
     items: [{ id: MENU[0].id, name: MENU[0].name, price: MENU[0].price, qty: 2 },
             { id: MENU[5].id, name: MENU[5].name, price: MENU[5].price, qty: 1 }],
     total: MENU[0].price * 2 + MENU[5].price,
   });
-  addOrder({
+  await addOrder({
     type: 'takeout',
     customer: { name: 'なかむら けんじ', phone: '090-0002-0002' },
     isReservation: true,
-    scheduledDate: dayAfterStr,
+    scheduledDate: dayAfter.toISOString().slice(0, 10),
     scheduledTime: '12:30',
     items: [{ id: MENU[10].id, name: MENU[10].name, price: MENU[10].price, qty: 3 }],
     total: MENU[10].price * 3,
   });
 
-  refreshOrders(false);
+  await refreshOrders(false);
 }
 
 // ── 初期化 ────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   renderFilters();
-  refreshOrders(false);
+  await refreshOrders(false);
 
   document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
-  document.getElementById('clear-btn').addEventListener('click', () => {
-    if (confirm('全注文データを削除しますか？')) {
+  document.getElementById('clear-btn').addEventListener('click', async () => {
+    if (!confirm('全注文データを削除しますか？')) return;
+    if (_sb) {
+      await _sb.from('orders').delete().neq('id', '');
+    } else {
       localStorage.removeItem('orders');
-      lastOrderCount = 0;
-      refreshOrders(false);
     }
+    lastOrderCount = 0;
+    await refreshOrders(false);
   });
 
-  // 他タブ（注文アプリ）でlocalStorageが変わったら即反映
-  window.addEventListener('storage', e => {
-    if (e.key === 'orders') refreshOrders(true);
-  });
-
-  // storage イベントが届かない環境（同一タブ遷移等）のフォールバック
-  setInterval(() => refreshOrders(true), 3000);
+  if (_sb) {
+    // Supabase リアルタイム購読
+    _sb.channel('orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' },
+        () => refreshOrders(true))
+      .subscribe();
+  } else {
+    // localStorage フォールバック（同一ブラウザ他タブ）
+    window.addEventListener('storage', e => {
+      if (e.key === 'orders') refreshOrders(true);
+    });
+    setInterval(() => refreshOrders(true), 3000);
+  }
 });
