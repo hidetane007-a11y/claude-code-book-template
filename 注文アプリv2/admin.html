@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>注文管理 | 管理者画面</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div class="admin-top">
+
+  <div class="admin-header">
+    <h1>📋 注文管理</h1>
+    <div class="admin-actions">
+      <button class="admin-action-btn" id="demo-btn">＋ テストデータ追加</button>
+      <button class="admin-action-btn" id="clear-btn">🗑️ 全件削除</button>
+      <a class="admin-link" href="index.html">← 注文ページへ</a>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <!-- AI Import Panel -->
+  <div class="ai-import-panel">
+    <button class="ai-panel-header" id="ai-toggle-btn">
+      <span>📩 テキストから注文を取り込む（AI解析）</span>
+      <span class="ai-toggle-icon">▼</span>
+    </button>
+    <div class="ai-panel-body" id="ai-import-body">
+      <div class="ai-form-row">
+        <label class="ai-form-label">Anthropic APIキー</label>
+        <div class="ai-key-wrap">
+          <input type="password" id="ai-api-key" class="ai-input" placeholder="sk-ant-...">
+          <span class="ai-key-hint">localStorageに保存されます</span>
+        </div>
+      </div>
+
+      <!-- Gmail Section -->
+      <div class="gmail-section">
+        <div class="gmail-section-title">Gmail自動取得</div>
+        <div class="ai-form-row">
+          <label class="ai-form-label">Google Client ID</label>
+          <div class="ai-key-wrap">
+            <input type="password" id="gmail-client-id" class="ai-input" placeholder="123456789-xxx.apps.googleusercontent.com">
+            <span class="ai-key-hint">Google Cloud Console → OAuth 2.0クライアントID</span>
+          </div>
+        </div>
+        <div class="gmail-action-row">
+          <div class="gmail-keyword-wrap">
+            <label class="ai-form-label">検索キーワード</label>
+            <input type="text" id="gmail-keyword" class="ai-input gmail-keyword-input" placeholder="注文" value="注文">
+          </div>
+          <div class="gmail-btn-wrap">
+            <button class="gmail-fetch-btn" id="gmail-fetch-btn">📬 Gmailから取得する</button>
+            <span class="gmail-status" id="gmail-status">未接続</span>
+          </div>
+        </div>
+        <div class="gmail-email-section" id="gmail-email-section">
+          <div class="gmail-email-list" id="gmail-email-list"></div>
+        </div>
+      </div>
+
+      <div class="ai-divider"><span>または手動で貼り付け</span></div>
+
+      <div class="ai-form-row">
+        <label class="ai-form-label">メール・LINEを貼り付け</label>
+        <textarea id="ai-input-text" class="ai-textarea" rows="6" placeholder="注文メールやLINEトークをここに貼り付けてください…"></textarea>
+      </div>
+      <button class="ai-parse-btn" id="ai-parse-btn">🤖 AIで解析する</button>
+
+      <div class="ai-result" id="ai-result">
+        <div class="ai-result-grid">
+          <div class="ai-result-row"><span class="ai-rlabel">お名前</span><span id="ai-result-name"></span></div>
+          <div class="ai-result-row"><span class="ai-rlabel">電話番号</span><span id="ai-result-phone"></span></div>
+          <div class="ai-result-row"><span class="ai-rlabel">種別</span><span id="ai-result-type"></span></div>
+          <div class="ai-result-row"><span class="ai-rlabel">希望日時</span><span id="ai-result-date"></span></div>
+          <div class="ai-result-row"><span class="ai-rlabel">支払方法</span><span id="ai-result-payment"></span></div>
+          <div class="ai-result-row ai-items-row">
+            <span class="ai-rlabel">注文内容</span>
+            <ul class="ai-items-list" id="ai-result-items"></ul>
+          </div>
+          <div class="ai-result-row"><span class="ai-rlabel">合計金額</span><strong id="ai-result-total"></strong></div>
+          <div class="ai-result-row"><span class="ai-rlabel">備考</span><span id="ai-result-notes"></span></div>
+        </div>
+        <button class="ai-import-btn" id="ai-import-btn">📥 注文リストに追加</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+
+</div><!-- /.admin-top -->
+
+<div class="main-content">
+
+  <div class="orders-area">
+    <div class="order-grid" id="order-grid">
+      <p class="empty-msg">注文がありません</p>
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-empty">
+      <div class="detail-empty-icon">📋</div>
+      <p>注文を選択してください</p>
+    </div>
+  </div>
+
+</div><!-- /.main-content -->
+
+<!-- 伝票印刷用エリア（@media print でのみ表示） -->
+<div id="print-area"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/ai-import.js"></script>
+<script src="js/gmail.js"></script>
+</body>
+</html>
