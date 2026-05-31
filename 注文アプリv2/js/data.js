@@ -84,15 +84,35 @@ async function addOrder(order) {
   order.id = `ORD-${datePart}-${timeStr}-${rand}`;
 
   _debugLog('insert開始 id=' + order.id);
-  const { error } = await _sb.from('orders').insert({
-    id: order.id,
-    status: order.status,
-    is_reservation: !!order.isReservation,
-    created_at: order.createdAt,
-    data: order,
-  });
-  _debugLog('insert完了 error=' + JSON.stringify(error));
-  if (error) throw error;
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 10000);
+  let response;
+  try {
+    response = await fetch(SUPABASE_URL + '/rest/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        id: order.id,
+        status: order.status,
+        is_reservation: !!order.isReservation,
+        created_at: order.createdAt,
+        data: order,
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(tid);
+  }
+  _debugLog('insert完了 status=' + response.status);
+  if (!response.ok) {
+    const msg = await response.text();
+    throw new Error('HTTP ' + response.status + ': ' + msg);
+  }
   return order;
 }
 
