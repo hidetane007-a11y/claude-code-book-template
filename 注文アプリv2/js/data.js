@@ -27,6 +27,21 @@ const STATUS_LABELS = {
   delivered: { text: '完了',     next: null,         color: '#6b7280' },
 };
 
+// ── デバッグ表示（診断用） ─────────────────────────────────────────────────────
+function _debugLog(msg) {
+  let el = document.getElementById('_supabase_debug');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_supabase_debug';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);color:#0f0;font:11px monospace;padding:6px 8px;z-index:99999;max-height:160px;overflow-y:auto;word-break:break-all;';
+    document.body.appendChild(el);
+  }
+  const line = document.createElement('div');
+  line.textContent = new Date().toISOString().slice(11, 23) + ' ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
 // ── Supabase クライアント初期化 ───────────────────────────────────────────────
 const _sb = (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL')
   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -52,7 +67,10 @@ async function addOrder(order) {
   order.status  = 'pending';
   order.createdAt = date.toISOString();
 
+  _debugLog('addOrder: _sb=' + (!!_sb) + ' URL=' + (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL.slice(0, 30) : 'undefined'));
+
   if (!_sb) {
+    _debugLog('→ localStorageモード（Supabase未接続）');
     const orders = JSON.parse(localStorage.getItem('orders') || '[]');
     const seq = String(orders.filter(o => o.id && o.id.includes(datePart)).length + 1).padStart(3, '0');
     order.id = `ORD-${datePart}-${seq}`;
@@ -61,20 +79,19 @@ async function addOrder(order) {
     return order;
   }
 
-  const { count } = await _sb
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-    .like('id', `ORD-${datePart}-%`);
-  const seq = String((count || 0) + 1).padStart(3, '0');
-  order.id = `ORD-${datePart}-${seq}`;
+  const timeStr = date.toTimeString().slice(0, 8).replace(/:/g, '');
+  const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  order.id = `ORD-${datePart}-${timeStr}-${rand}`;
 
-  const { error } = await _sb.from('orders').insert({
+  _debugLog('insert開始 id=' + order.id);
+  const { data: inserted, error } = await _sb.from('orders').insert({
     id: order.id,
     status: order.status,
     is_reservation: !!order.isReservation,
     created_at: order.createdAt,
     data: order,
-  });
+  }).select();
+  _debugLog('insert完了 error=' + JSON.stringify(error) + ' rows=' + (inserted ? inserted.length : 'null'));
   if (error) throw error;
   return order;
 }

@@ -225,8 +225,8 @@ async function confirmOrder() {
     cart = [];
     updateCart();
     showComplete(saved.id);
-  } catch {
-    alert('注文の送信に失敗しました。もう一度お試しください。');
+  } catch (e) {
+    alert('注文の送信に失敗しました。\nエラー: ' + (e && e.message ? e.message : String(e)));
     btn.disabled = false;
     btn.textContent = '注文を確定する';
   }

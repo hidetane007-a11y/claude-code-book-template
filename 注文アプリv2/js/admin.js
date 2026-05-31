@@ -2,6 +2,7 @@ let currentFilter = 'all';
 let selectedOrderId = null;
 let lastOrderCount = -1;
 let cachedOrders = [];
+let realtimeChannel = null;
 
 // ── 通知音 ────────────────────────────────────────────────────────
 
@@ -336,10 +337,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   if (_sb) {
-    _sb.channel('orders-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' },
-        () => refreshOrders(true))
-      .subscribe();
+    function setRealtimeStatus(status) {
+      const el = document.getElementById('realtime-status');
+      if (!el) return;
+      if (status === 'SUBSCRIBED') {
+        el.textContent = '🟢 リアルタイム接続中';
+        el.style.color = '#10b981';
+      } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+        el.textContent = '🔴 切断中（ポーリングで更新）';
+        el.style.color = '#ef4444';
+      } else {
+        el.textContent = '🟡 接続中…';
+        el.style.color = '#f59e0b';
+      }
+    }
+
+    function subscribeRealtime() {
+      if (realtimeChannel) _sb.removeChannel(realtimeChannel);
+      realtimeChannel = _sb.channel('orders-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' },
+          () => refreshOrders(true))
+        .subscribe(status => {
+          setRealtimeStatus(status);
+          if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+            setTimeout(subscribeRealtime, 3000);
+          }
+        });
+    }
+    subscribeRealtime();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        refreshOrders(true);
+        subscribeRealtime();
+      }
+    });
+
+    setInterval(() => refreshOrders(false), 5000);
   } else {
     window.addEventListener('storage', e => {
       if (e.key === 'orders') refreshOrders(true);
