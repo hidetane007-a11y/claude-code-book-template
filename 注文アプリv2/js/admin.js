@@ -174,6 +174,17 @@ function renderDetailPanel() {
          → ${STATUS_LABELS[s.next].text}へ
        </button>` : '';
 
+  const tableGrid = !order.isReservation
+    ? `<div class="detail-table-section">
+         <div class="detail-table-label">テーブル番号</div>
+         <div class="detail-table-grid">
+           ${Array.from({ length: 10 }, (_, i) => i + 1).map(n => `
+             <button class="detail-table-btn ${order.tableNumber === n ? 'selected' : ''}"
+                     onclick="assignTable('${order.id}', ${n}, event)">${n}</button>
+           `).join('')}
+         </div>
+       </div>` : '';
+
   panel.innerHTML = `
     <div class="detail-content">
       <div class="detail-order-id">${order.id}</div>
@@ -184,6 +195,7 @@ function renderDetailPanel() {
       <div class="detail-meta">
         ${tableBadge}${resBadge}${resTimeHtml}
       </div>
+      ${tableGrid}
       <div class="detail-items">
         ${order.items.map(i => `
           <div class="detail-item">
@@ -225,6 +237,17 @@ function printOrder(id) {
     <div class="print-total">合計 ¥${order.total.toLocaleString()}</div>
   `;
   window.print();
+}
+
+// ── Table assignment ──────────────────────────────────────────────
+
+async function assignTable(id, tableNumber, event) {
+  if (event) event.stopPropagation();
+  const order = cachedOrders.find(o => o.id === id);
+  if (!order) return;
+  const next = order.tableNumber === tableNumber ? null : tableNumber;
+  await updateOrderTable(id, next);
+  await refreshOrders(false);
 }
 
 // ── Status advance ────────────────────────────────────────────────

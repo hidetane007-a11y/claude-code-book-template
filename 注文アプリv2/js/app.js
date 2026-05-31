@@ -1,7 +1,6 @@
 let cart = [];
 let currentCategory = CATEGORIES[0];
 let isReservation = false;
-let selectedTableNumber = null;
 
 // ── Menu ─────────────────────────────────────────────────────────
 
@@ -135,28 +134,12 @@ function openOrderModal() {
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
   document.getElementById('summary-items').textContent = items;
   document.getElementById('summary-total').textContent = `¥${total.toLocaleString()}`;
-  renderTableNumberGrid();
   document.getElementById('modal-overlay').classList.add('open');
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   clearFormErrors();
-}
-
-// ── Table number ──────────────────────────────────────────────────
-
-function renderTableNumberGrid() {
-  document.getElementById('table-number-grid').innerHTML =
-    Array.from({ length: 10 }, (_, i) => i + 1).map(n => `
-      <button class="table-number-btn ${selectedTableNumber === n ? 'selected' : ''}"
-              onclick="selectTable(${n})">${n}</button>
-    `).join('');
-}
-
-function selectTable(n) {
-  selectedTableNumber = n;
-  renderTableNumberGrid();
 }
 
 // ── Order type toggle ─────────────────────────────────────────────
@@ -166,11 +149,8 @@ function setTiming(type) {
   document.querySelectorAll('.timing-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.timing === type)
   );
-  const tableGroup = document.getElementById('table-number-group');
-  const resFields  = document.getElementById('reservation-fields');
-
+  const resFields = document.getElementById('reservation-fields');
   if (isReservation) {
-    tableGroup.style.display = 'none';
     resFields.classList.add('show');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -179,7 +159,6 @@ function setTiming(type) {
     dateInput.min = minDate;
     if (!dateInput.value) dateInput.value = minDate;
   } else {
-    tableGroup.style.display = '';
     resFields.classList.remove('show');
   }
 }
@@ -206,12 +185,7 @@ function validateForm() {
   if (!name)  { markError('customer-name', 'name-error'); valid = false; }
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) { markError('customer-phone', 'phone-error'); valid = false; }
 
-  if (!isReservation) {
-    if (!selectedTableNumber) {
-      document.getElementById('table-error').classList.add('show');
-      valid = false;
-    }
-  } else {
+  if (isReservation) {
     const date = document.getElementById('scheduled-date').value;
     const time = document.getElementById('scheduled-time').value;
     const tomorrow = new Date();
@@ -233,7 +207,7 @@ async function confirmOrder() {
 
   const order = {
     type: isReservation ? 'takeout' : 'instore',
-    tableNumber: isReservation ? null : selectedTableNumber,
+    tableNumber: null,
     customer: {
       name:  document.getElementById('customer-name').value.trim(),
       phone: document.getElementById('customer-phone').value.trim(),
@@ -249,7 +223,6 @@ async function confirmOrder() {
     const saved = await addOrder(order);
     closeModal();
     cart = [];
-    selectedTableNumber = null;
     updateCart();
     showComplete(saved.id);
   } catch {
@@ -274,15 +247,12 @@ function resetApp() {
   document.getElementById('scheduled-date').value = '';
   document.getElementById('scheduled-time').value = '';
   isReservation = false;
-  selectedTableNumber = null;
   document.querySelectorAll('.timing-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.timing === 'now')
   );
   document.getElementById('reservation-fields').classList.remove('show');
-  document.getElementById('table-number-group').style.display = '';
   document.getElementById('modal-confirm').disabled = false;
   document.getElementById('modal-confirm').textContent = '注文を確定する';
-  renderTableNumberGrid();
 }
 
 // ── Init ──────────────────────────────────────────────────────────
@@ -291,7 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTabs();
   renderMenu();
   renderCartItems();
-  renderTableNumberGrid();
 
   document.getElementById('cart-header-btn').addEventListener('click', openCart);
   document.getElementById('cart-overlay').addEventListener('click', closeCart);

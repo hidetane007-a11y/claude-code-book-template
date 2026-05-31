@@ -321,6 +321,40 @@ body {
   min-height: 54px;
 }
 
+/* ── Detail: Table assignment ── */
+.detail-table-section {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.detail-table-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.detail-table-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.detail-table-btn {
+  height: 44px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-table-btn.selected {
+  border-color: var(--primary);
+  background: #fef3e9;
+  color: var(--primary);
+}
+
 /* ── AI Import Panel ── */
 .ai-import-panel {
   border-top: 1px solid var(--border);

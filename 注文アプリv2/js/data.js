@@ -89,3 +89,17 @@ async function updateOrderStatus(id, status) {
   const { error } = await _sb.from('orders').update({ status }).eq('id', id);
   if (error) throw error;
 }
+
+async function updateOrderTable(id, tableNumber) {
+  if (!_sb) {
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const o = orders.find(o => o.id === id);
+    if (o) { o.tableNumber = tableNumber; localStorage.setItem('orders', JSON.stringify(orders)); }
+    return;
+  }
+  const { data: row } = await _sb.from('orders').select('data').eq('id', id).single();
+  if (row) {
+    const { error } = await _sb.from('orders').update({ data: { ...row.data, tableNumber } }).eq('id', id);
+    if (error) throw error;
+  }
+}
