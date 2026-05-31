@@ -84,14 +84,14 @@ async function addOrder(order) {
   order.id = `ORD-${datePart}-${timeStr}-${rand}`;
 
   _debugLog('insert開始 id=' + order.id);
-  const { data: inserted, error } = await _sb.from('orders').insert({
+  const { error } = await _sb.from('orders').insert({
     id: order.id,
     status: order.status,
     is_reservation: !!order.isReservation,
     created_at: order.createdAt,
     data: order,
-  }).select();
-  _debugLog('insert完了 error=' + JSON.stringify(error) + ' rows=' + (inserted ? inserted.length : 'null'));
+  });
+  _debugLog('insert完了 error=' + JSON.stringify(error));
   if (error) throw error;
   return order;
 }
