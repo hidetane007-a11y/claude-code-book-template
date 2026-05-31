@@ -1,6 +1,6 @@
-let cart = [];
-let currentCategory = CATEGORIES[0];
-let isReservation = false;
+var cart = [];
+var currentCategory = CATEGORIES[0];
+var isReservation = false;
 
 // ── Menu ─────────────────────────────────────────────────────────
 
@@ -171,24 +171,24 @@ function clearFormErrors() {
 }
 
 function markError(inputId, errorId) {
-  const input = document.getElementById(inputId);
+  var input = document.getElementById(inputId);
   if (input) input.classList.add('error');
   document.getElementById(errorId).classList.add('show');
 }
 
 function validateForm() {
   clearFormErrors();
-  let valid = true;
-  const name  = document.getElementById('customer-name').value.trim();
-  const phone = document.getElementById('customer-phone').value.trim();
+  var valid = true;
+  var name  = document.getElementById('customer-name').value.trim();
+  var phone = document.getElementById('customer-phone').value.trim();
 
   if (!name)  { markError('customer-name', 'name-error'); valid = false; }
   if (!phone || !/^[\d\-+() ]{7,}$/.test(phone)) { markError('customer-phone', 'phone-error'); valid = false; }
 
   if (isReservation) {
-    const date = document.getElementById('scheduled-date').value;
-    const time = document.getElementById('scheduled-time').value;
-    const tomorrow = new Date();
+    var date = document.getElementById('scheduled-date').value;
+    var time = document.getElementById('scheduled-time').value;
+    var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     if (!date || date < tomorrow.toISOString().slice(0, 10)) { markError('scheduled-date', 'date-error'); valid = false; }
     if (!time) { markError('scheduled-time', 'time-error'); valid = false; }
@@ -198,38 +198,37 @@ function validateForm() {
 
 // ── Confirm & Complete ────────────────────────────────────────────
 
-async function confirmOrder() {
+function confirmOrder() {
   if (!validateForm()) return;
 
-  const btn = document.getElementById('modal-confirm');
+  var btn = document.getElementById('modal-confirm');
   btn.disabled = true;
   btn.textContent = '送信中…';
 
-  const order = {
+  var name  = document.getElementById('customer-name').value.trim();
+  var phone = document.getElementById('customer-phone').value.trim();
+  var order = {
     type: isReservation ? 'takeout' : 'instore',
     tableNumber: null,
-    customer: {
-      name:  document.getElementById('customer-name').value.trim(),
-      phone: document.getElementById('customer-phone').value.trim(),
-    },
-    isReservation,
+    customer: { name: name, phone: phone },
+    isReservation: isReservation,
     scheduledDate: isReservation ? document.getElementById('scheduled-date').value : '',
     scheduledTime: isReservation ? document.getElementById('scheduled-time').value : '',
-    items: cart.map(c => ({ ...c })),
-    total: cart.reduce((s, c) => s + c.price * c.qty, 0),
+    items: cart.map(function(c) { return Object.assign({}, c); }),
+    total: cart.reduce(function(s, c) { return s + c.price * c.qty; }, 0),
   };
 
-  try {
-    const saved = await addOrder(order);
+  addOrder(order).then(function(saved) {
     closeModal();
     cart = [];
     updateCart();
     showComplete(saved.id);
-  } catch (e) {
-    alert('注文の送信に失敗しました。\nエラー: ' + (e && e.message ? e.message : String(e)));
+  }).catch(function(e) {
+    var msg = e && e.message ? e.message : String(e);
+    alert('注文の送信に失敗しました。\nエラー: ' + msg);
     btn.disabled = false;
     btn.textContent = '注文を確定する';
-  }
+  });
 }
 
 function showComplete(orderId) {
