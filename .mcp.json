@@ -1,35 +1,41 @@
-{"mcpServers": {
+{
+  "mcpServers": {
+    "obsidian": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:27125/mcp/",
+      "headers": {
+        "Authorization": "Bearer 7c61d9308419ed351038a174280bdbbe47fa41a7c5b49a342624a51cb8e79c1e"
+      }
+    },
     "google-calendar": {
-        "command": "npx",
-        "args": ["-y", "@cocal/google-calendar-mcp"],
-        "env": {
-            "GOOGLE_OAUTH_CREDENTIALS": "/workspaces/claude-code-book-template/ai-secretary/config/google-credentials.json"
-        }
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cocal/google-calendar-mcp"
+      ],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "/workspaces/claude-code-book-template/ai-secretary/config/google-credentials.json"
+      }
     },
     "playwright": {
-        "command": "npx",
-        "args": [
-             "@playwright/mcp@latest",
-             "--browser",
-             "chromium",
-             "--isolated",
-             "--no-sandbox"
-             ]
-         },
-    "notion": {
-        "command": "npx",
-        "args": ["-y", "@notionhq/notion-mcp-server"],
-        "env": {
-            "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ntn_l90479739886p6z7IiwOo3hjrrj3zHX0j713gpwz7NJ2hk\", \"Notion-Version\": \"2022-06-28\"}"
-        }
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser",
+        "chromium",
+        "--isolated",
+        "--no-sandbox"
+      ]
     },
-    "obsidian": {
-        "command": "npx",
-        "args": ["-y", "mcp-obsidian"],
-        "env": {
-            "OBSIDIAN_API_KEY": "YOUR_API_KEY_HERE",
-            "OBSIDIAN_HOST": "http://localhost:27123"
-        }
+    "notion": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer ntn_l90479739886p6z7IiwOo3hjrrj3zHX0j713gpwz7NJ2hk\", \"Notion-Version\": \"2022-06-28\"}"
+      }
     }
   }
 }
