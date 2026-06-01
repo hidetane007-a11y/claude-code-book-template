@@ -51,21 +51,20 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
 .main-grid {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .menu-area {
-  flex: 1;
-  min-height: 0; /* flex child が overflow-y: scroll を有効にするための必須指定 */
-  overflow-y: scroll;
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   padding-bottom: 72px; /* space for bottom bar */
   touch-action: pan-y;
-  -webkit-transform: translateZ(0); /* Android Chrome: GPU レイヤーでタッチスクロール安定化 */
-  transform: translateZ(0);
 }
 
 /* ── Tabs ── */
@@ -445,8 +444,8 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
   }
 
   .menu-area {
-    flex: none;
-    min-height: unset;
+    position: static;
+    top: auto;
     height: 100%;
     padding-bottom: 0;
   }
