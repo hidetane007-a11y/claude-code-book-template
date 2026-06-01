@@ -2,11 +2,8 @@
 body {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: pan-y;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .admin-top {
@@ -120,21 +117,9 @@ body {
 /* ── Main content area ── */
 .main-content {
   flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
 }
 
 .orders-area {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
   padding: 1rem 1.5rem;
 }
 
@@ -512,19 +497,22 @@ body {
 
 /* ── Landscape: Show detail panel ── */
 @media (orientation: landscape) and (min-width: 900px) {
-  .main-content { display: flex; }
+  .main-content {
+    display: flex;
+    align-items: flex-start;
+  }
 
   .orders-area {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
     flex: 1;
-    min-height: 0;
-    height: 100%;
     padding: .8rem 1rem;
   }
 
-  .detail-panel { display: flex; }
+  .detail-panel {
+    display: flex;
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
 }
