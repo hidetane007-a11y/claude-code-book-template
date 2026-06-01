@@ -2,7 +2,11 @@
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
 }
 
 .admin-top {
@@ -116,15 +120,18 @@ body {
 /* ── Main content area ── */
 .main-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   overflow: hidden;
 }
 
 .orders-area {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
   padding: 1rem 1.5rem;
 }
 
