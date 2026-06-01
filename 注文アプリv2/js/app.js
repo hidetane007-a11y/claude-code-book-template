@@ -256,6 +256,16 @@ function resetApp() {
 
 // ── Init ──────────────────────────────────────────────────────────
 
+function updateViewportHeight() {
+  var vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+  document.documentElement.style.setProperty('--actual-vh', vh + 'px');
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', updateViewportHeight);
+}
+window.addEventListener('resize', updateViewportHeight);
+updateViewportHeight();
+
 document.addEventListener('DOMContentLoaded', () => {
   renderTabs();
   renderMenu();

@@ -2,7 +2,8 @@
 body {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100vh;
+  height: calc(var(--actual-vh, 1vh) * 100);
   overflow: hidden;
 }
 
@@ -49,16 +50,22 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
 /* Main layout: portrait = menu fills body, landscape = split grid */
 .main-grid {
   flex: 1;
+  min-height: 0;
   overflow: hidden;
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-area {
-  height: 100%;
-  overflow-y: auto;
+  flex: 1;
+  min-height: 0; /* flex child が overflow-y: scroll を有効にするための必須指定 */
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   padding-bottom: 72px; /* space for bottom bar */
+  touch-action: pan-y;
+  -webkit-transform: translateZ(0); /* Android Chrome: GPU レイヤーでタッチスクロール安定化 */
+  transform: translateZ(0);
 }
 
 /* ── Tabs ── */
@@ -214,6 +221,7 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding: .8rem 1.3rem;
   display: flex;
   flex-direction: column;
@@ -318,9 +326,11 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
   border-radius: var(--radius);
   width: 100%;
   max-width: 520px;
+  max-height: 90vh;
   max-height: 90dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding: 1.8rem;
   display: flex;
   flex-direction: column;
@@ -434,7 +444,12 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
     grid-template-columns: 1fr 320px;
   }
 
-  .menu-area { padding-bottom: 0; }
+  .menu-area {
+    flex: none;
+    min-height: unset;
+    height: 100%;
+    padding-bottom: 0;
+  }
 
   /* Cart panel becomes static right column */
   .cart-panel {
