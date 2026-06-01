@@ -5,6 +5,8 @@ body {
   height: 100vh;
   height: calc(var(--actual-vh, 1vh) * 100);
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
 }
 
 header {
@@ -51,12 +53,13 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
 .main-grid {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
   position: relative;
 }
 
 .menu-area {
-  position: fixed;
-  top: var(--header-h);
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
@@ -444,8 +447,11 @@ header h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
   }
 
   .menu-area {
-    position: static;
+    position: relative;
     top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
     height: 100%;
     padding-bottom: 0;
   }
