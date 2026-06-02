@@ -4,49 +4,83 @@ let lastOrderCount = -1;
 let cachedOrders = [];
 let realtimeChannel = null;
 
+// ── AudioContext（グローバル・モバイル対応）────────────────────────
+let _audioCtx = null;
+
+function _ensureAudioCtx() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
+// 最初のタップ/クリックで AudioContext をアンロック（iOS/Android 必須）
+['touchstart', 'click'].forEach(type => {
+  document.addEventListener(type, function unlock() {
+    _ensureAudioCtx().resume();
+    document.removeEventListener(type, unlock);
+  }, { once: true });
+});
+
 // ── 通知音 ────────────────────────────────────────────────────────
 
 function playOrderSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    ctx.resume(); // タイマー起動時に停止状態になるブラウザ対策
-    function playNote(freq, start, dur, vol) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      osc.type = 'sawtooth';
-      osc.frequency.value = freq;
-      filter.type = 'lowpass';
-      filter.frequency.value = 1200;
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      gain.gain.setValueAtTime(0, ctx.currentTime + start);
-      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.03);
-      gain.gain.setValueAtTime(vol, ctx.currentTime + start + dur - 0.05);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + dur);
-    }
-    // 運命モチーフ第1句：ソソソ ミ♭（G4=392, Eb4=311）
-    playNote(392, 0.00, 0.18, 0.6);
-    playNote(392, 0.20, 0.18, 0.6);
-    playNote(392, 0.40, 0.18, 0.6);
-    playNote(311, 0.60, 0.65, 0.7);
-    // 第2句：ファファファ レ（F4=349, D4=294）
-    playNote(349, 1.45, 0.18, 0.6);
-    playNote(349, 1.65, 0.18, 0.6);
-    playNote(349, 1.85, 0.18, 0.6);
-    playNote(294, 2.05, 0.70, 0.7);
+    const ctx = _ensureAudioCtx();
+    ctx.resume().then(() => {
+      function playNote(freq, start, dur, vol) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        filter.type = 'lowpass';
+        filter.frequency.value = 1200;
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0, ctx.currentTime + start);
+        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.03);
+        gain.gain.setValueAtTime(vol, ctx.currentTime + start + dur - 0.05);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      }
+      // 運命モチーフ第1句：ソソソ ミ♭（G4=392, Eb4=311）
+      playNote(392, 0.00, 0.18, 0.6);
+      playNote(392, 0.20, 0.18, 0.6);
+      playNote(392, 0.40, 0.18, 0.6);
+      playNote(311, 0.60, 0.65, 0.7);
+      // 第2句：ファファファ レ（F4=349, D4=294）
+      playNote(349, 1.45, 0.18, 0.6);
+      playNote(349, 1.65, 0.18, 0.6);
+      playNote(349, 1.85, 0.18, 0.6);
+      playNote(294, 2.05, 0.70, 0.7);
+    });
   } catch (e) {}
 }
 
+// ── フラッシュ（CSS animation 廃止・JS 直接操作）─────────────────
+
 function flashNewOrder() {
   const overlay = document.getElementById('fate-flash-overlay');
-  overlay.classList.remove('flashing');
-  void overlay.offsetWidth;
-  overlay.classList.add('flashing');
-  // animationend で消さない → forwards で赤背景が残り続ける
+  if (overlay._flashTimer) clearInterval(overlay._flashTimer);
+  let step = 0;
+  overlay._flashTimer = setInterval(() => {
+    step++;
+    if (step % 2 === 1) {
+      overlay.style.background = (step % 4 === 1) ? '#dc2626' : '#ffffff';
+      overlay.style.opacity    = '0.85';
+    } else {
+      overlay.style.opacity = '0';
+    }
+    if (step >= 10) {
+      clearInterval(overlay._flashTimer);
+      overlay._flashTimer = null;
+      overlay.style.background = '#dc2626';
+      overlay.style.opacity    = '0.3';
+    }
+  }, 250);
 }
 
 // ── Stats ─────────────────────────────────────────────────────────
@@ -156,7 +190,9 @@ function renderOrderGrid() {
 
 function selectOrder(id) {
   selectedOrderId = id;
-  document.getElementById('fate-flash-overlay').classList.remove('flashing');
+  const overlay = document.getElementById('fate-flash-overlay');
+  if (overlay._flashTimer) { clearInterval(overlay._flashTimer); overlay._flashTimer = null; }
+  overlay.style.opacity = '0';
   renderOrderGrid();
   renderDetailPanel();
 }
@@ -343,6 +379,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   await refreshOrders(false);
 
   document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
+  document.getElementById('test-notify-btn').addEventListener('click', () => {
+    playOrderSound();
+    flashNewOrder();
+  });
   document.getElementById('clear-btn').addEventListener('click', async () => {
     if (!confirm('全注文データを削除しますか？')) return;
     if (_sb) {
