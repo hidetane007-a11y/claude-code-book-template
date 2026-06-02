@@ -9,26 +9,44 @@ let realtimeChannel = null;
 function playOrderSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [[0, 880], [0.18, 1108], [0.36, 1318]].forEach(([delay, freq]) => {
+    ctx.resume(); // タイマー起動時に停止状態になるブラウザ対策
+    function playNote(freq, start, dur, vol) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
+      const filter = ctx.createBiquadFilter();
+      osc.type = 'sawtooth';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, ctx.currentTime + delay);
-      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + delay + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.55);
-      osc.start(ctx.currentTime + delay);
-      osc.stop(ctx.currentTime + delay + 0.55);
-    });
+      filter.type = 'lowpass';
+      filter.frequency.value = 1200;
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.03);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + start + dur - 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur);
+    }
+    // 運命モチーフ第1句：ソソソ ミ♭（G4=392, Eb4=311）
+    playNote(392, 0.00, 0.18, 0.6);
+    playNote(392, 0.20, 0.18, 0.6);
+    playNote(392, 0.40, 0.18, 0.6);
+    playNote(311, 0.60, 0.65, 0.7);
+    // 第2句：ファファファ レ（F4=349, D4=294）
+    playNote(349, 1.45, 0.18, 0.6);
+    playNote(349, 1.65, 0.18, 0.6);
+    playNote(349, 1.85, 0.18, 0.6);
+    playNote(294, 2.05, 0.70, 0.7);
   } catch (e) {}
 }
 
 function flashNewOrder() {
-  const bar = document.getElementById('stats-bar');
-  bar.classList.add('new-order-flash');
-  setTimeout(() => bar.classList.remove('new-order-flash'), 1500);
+  const overlay = document.getElementById('fate-flash-overlay');
+  overlay.classList.remove('flashing');
+  void overlay.offsetWidth;
+  overlay.classList.add('flashing');
+  // animationend で消さない → forwards で赤背景が残り続ける
 }
 
 // ── Stats ─────────────────────────────────────────────────────────
@@ -138,6 +156,7 @@ function renderOrderGrid() {
 
 function selectOrder(id) {
   selectedOrderId = id;
+  document.getElementById('fate-flash-overlay').classList.remove('flashing');
   renderOrderGrid();
   renderDetailPanel();
 }
