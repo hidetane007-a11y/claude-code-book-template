@@ -56,6 +56,11 @@ function playOrderSound() {
       playNote(349, 1.65, 0.18, 0.6);
       playNote(349, 1.85, 0.18, 0.6);
       playNote(294, 2.05, 0.70, 0.7);
+      // 第3句：ミ♭ミ♭ミ♭ ド（Eb4=311, C4=261）
+      playNote(311, 3.10, 0.18, 0.6);
+      playNote(311, 3.30, 0.18, 0.6);
+      playNote(311, 3.50, 0.18, 0.6);
+      playNote(261, 3.70, 1.10, 0.7);
     });
   } catch (e) {}
 }
@@ -66,19 +71,20 @@ function flashNewOrder() {
   const overlay = document.getElementById('fate-flash-overlay');
   if (overlay._flashTimer) clearInterval(overlay._flashTimer);
   let step = 0;
+  const colors = ['rgba(220,38,38,0.85)', 'rgba(255,255,255,0.85)'];
   overlay._flashTimer = setInterval(() => {
     step++;
     if (step % 2 === 1) {
-      overlay.style.background = (step % 4 === 1) ? '#dc2626' : '#ffffff';
-      overlay.style.opacity    = '0.85';
+      overlay.style.backgroundColor = colors[Math.floor((step - 1) / 2) % 2];
+      overlay.style.display = 'block';
     } else {
-      overlay.style.opacity = '0';
+      overlay.style.display = 'none';
     }
-    if (step >= 10) {
+    if (step >= 20) {
       clearInterval(overlay._flashTimer);
       overlay._flashTimer = null;
-      overlay.style.background = '#dc2626';
-      overlay.style.opacity    = '0.3';
+      overlay.style.backgroundColor = 'rgba(220,38,38,0.3)';
+      overlay.style.display = 'block';
     }
   }, 250);
 }
@@ -192,7 +198,7 @@ function selectOrder(id) {
   selectedOrderId = id;
   const overlay = document.getElementById('fate-flash-overlay');
   if (overlay._flashTimer) { clearInterval(overlay._flashTimer); overlay._flashTimer = null; }
-  overlay.style.opacity = '0';
+  overlay.style.display = 'none';
   renderOrderGrid();
   renderDetailPanel();
 }
