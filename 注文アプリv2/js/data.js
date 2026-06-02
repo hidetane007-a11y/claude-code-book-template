@@ -125,6 +125,25 @@ function updateOrderStatus(id, status) {
   });
 }
 
+// ── deleteAllOrders ──────────────────────────────────────────────────────────
+
+function deleteAllOrders() {
+  if (!_sbReady()) {
+    localStorage.removeItem('orders');
+    return Promise.resolve();
+  }
+  return fetch(SUPABASE_URL + '/rest/v1/orders?id=not.is.null', {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Prefer': 'return=minimal',
+    },
+  }).then(function(r) {
+    if (!r.ok) throw new Error('deleteAllOrders HTTP ' + r.status);
+  });
+}
+
 // ── updateOrderTable ─────────────────────────────────────────────────────────
 
 function updateOrderTable(id, tableNumber) {

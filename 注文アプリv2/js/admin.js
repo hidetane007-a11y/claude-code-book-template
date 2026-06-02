@@ -335,63 +335,15 @@ async function refreshOrders(withSound) {
   renderDetailPanel();
 }
 
-// ── Demo data ─────────────────────────────────────────────────────
-
-async function addDemoOrders() {
-  const names    = ['たなか たろう', 'すずき はなこ', 'さとう じろう', 'やまだ みさき'];
-  const phones   = ['090-1111-2222', '080-3333-4444', '070-5555-6666', '090-7777-8888'];
-  const statuses = ['pending', 'preparing', 'ready', 'delivered'];
-  const tables   = [1, 3, 5, 2];
-
-  for (let i = 0; i < names.length; i++) {
-    const items = [MENU[i % MENU.length], MENU[(i + 2) % MENU.length]];
-    const orderItems = items.map(m => ({ id: m.id, name: m.name, price: m.price, qty: 1 + (i % 2) }));
-    const order = await addOrder({
-      type: 'instore',
-      tableNumber: tables[i],
-      customer: { name: names[i], phone: phones[i] },
-      isReservation: false,
-      scheduledDate: '',
-      scheduledTime: '',
-      items: orderItems,
-      total: orderItems.reduce((s, c) => s + c.price * c.qty, 0),
-    });
-    if (order.status !== statuses[i]) await updateOrderStatus(order.id, statuses[i]);
-  }
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  await addOrder({
-    type: 'takeout',
-    tableNumber: null,
-    customer: { name: 'ささき よしこ', phone: '080-0001-0001' },
-    isReservation: true,
-    scheduledDate: tomorrow.toISOString().slice(0, 10),
-    scheduledTime: '18:00',
-    items: [
-      { id: MENU[0].id, name: MENU[0].name, price: MENU[0].price, qty: 2 },
-      { id: MENU[5].id, name: MENU[5].name, price: MENU[5].price, qty: 1 },
-    ],
-    total: MENU[0].price * 2 + MENU[5].price,
-  });
-
-  await refreshOrders(false);
-}
-
 // ── Init ──────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
   renderFilters();
   await refreshOrders(false);
 
-  document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
-document.getElementById('clear-btn').addEventListener('click', async () => {
+  document.getElementById('clear-btn').addEventListener('click', async () => {
     if (!confirm('全注文データを削除しますか？')) return;
-    if (_sb) {
-      await _sb.from('orders').delete().neq('id', '');
-    } else {
-      localStorage.removeItem('orders');
-    }
+    await deleteAllOrders();
     lastOrderCount = 0;
     selectedOrderId = null;
     await refreshOrders(false);
