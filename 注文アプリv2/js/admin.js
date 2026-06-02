@@ -385,11 +385,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await refreshOrders(false);
 
   document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
-  document.getElementById('test-notify-btn').addEventListener('click', () => {
-    playOrderSound();
-    flashNewOrder();
-  });
-  document.getElementById('clear-btn').addEventListener('click', async () => {
+document.getElementById('clear-btn').addEventListener('click', async () => {
     if (!confirm('全注文データを削除しますか？')) return;
     if (_sb) {
       await _sb.from('orders').delete().neq('id', '');
