@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c5cab">
+<title>ハウス環境モニター｜プランA デモ</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="loginGate" class="login-gate">
+  <form id="loginForm" class="login-card">
+    <h1>ハウス環境モニター</h1>
+    <p class="subtitle">プランA デモ版・関係者限定</p>
+    <label for="loginPassword">パスワード</label>
+    <input type="password" id="loginPassword" autocomplete="current-password" required>
+    <p id="loginError" class="login-error" hidden>パスワードが違います</p>
+    <button type="submit" class="action-btn primary">ログイン</button>
+  </form>
+</div>
+
+<div class="app" id="appRoot" hidden>
+
+  <header class="app-header">
+    <div class="header-row">
+      <div class="title-block">
+        <h1>ハウス環境モニター</h1>
+        <p class="subtitle">鹿児島台湾フルーツ ハウス栽培自動化 ／ プランA「見える化」デモ版</p>
+      </div>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="テーマ切替">🌙</button>
+    </div>
+    <div class="header-meta">
+      <span id="connBadge" class="status-pill good"><span class="pill-icon">✓</span><span class="pill-label">通信良好</span></span>
+      <span id="lastUpdated" class="muted">最終更新 --:--:--</span>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="panel" aria-labelledby="envHeading">
+      <h2 id="envHeading">環境データ</h2>
+      <div class="stat-grid">
+
+        <article class="stat-card" data-metric="temp">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🌡️</span>
+            <h3>気温</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">正常</span></span>
+          </div>
+          <div class="stat-value"><span data-value>--</span><span class="unit">℃</span></div>
+          <svg class="sparkline" data-spark viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline points="" />
+            <circle r="2.4" cx="100" cy="15" />
+          </svg>
+          <div class="stat-range muted">閾値 5.0℃〜35.0℃（越冬確保ライン）</div>
+        </article>
+
+        <article class="stat-card" data-metric="humidity">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">💧</span>
+            <h3>湿度</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">正常</span></span>
+          </div>
+          <div class="stat-value"><span data-value>--</span><span class="unit">%RH</span></div>
+          <svg class="sparkline" data-spark viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline points="" />
+            <circle r="2.4" cx="100" cy="15" />
+          </svg>
+          <div class="stat-range muted">閾値 40%〜85%</div>
+        </article>
+
+        <article class="stat-card" data-metric="co2">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🫧</span>
+            <h3>CO2濃度</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">正常</span></span>
+          </div>
+          <div class="stat-value"><span data-value>--</span><span class="unit">ppm</span></div>
+          <svg class="sparkline" data-spark viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline points="" />
+            <circle r="2.4" cx="100" cy="15" />
+          </svg>
+          <div class="stat-range muted">目安 400〜1200ppm（寝太郎投入時）</div>
+        </article>
+
+        <article class="stat-card" data-metric="soil">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">🌱</span>
+            <h3>土壌水分</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">正常</span></span>
+          </div>
+          <div class="stat-value"><span data-value>--</span><span class="unit">%</span></div>
+          <svg class="sparkline" data-spark viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline points="" />
+            <circle r="2.4" cx="100" cy="15" />
+          </svg>
+          <div class="stat-range muted">閾値 25%〜70%</div>
+        </article>
+
+        <article class="stat-card" data-metric="light">
+          <div class="stat-head">
+            <span class="stat-icon" aria-hidden="true">☀️</span>
+            <h3>日射・照度</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">正常</span></span>
+          </div>
+          <div class="stat-value"><span data-value>--</span><span class="unit">klux</span></div>
+          <svg class="sparkline" data-spark viewBox="0 0 100 30" preserveAspectRatio="none">
+            <polyline points="" />
+            <circle r="2.4" cx="100" cy="15" />
+          </svg>
+          <div class="stat-range muted">日中の目安 10〜80klux</div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="camHeading">
+      <h2 id="camHeading">カメラ</h2>
+      <div class="camera-grid">
+
+        <article class="camera-card" data-camera="house">
+          <div class="camera-view house">
+            <span class="camera-badge"><span class="rec-dot"></span>LIVE</span>
+            <span class="camera-time" data-camtime>--:--:--</span>
+          </div>
+          <div class="camera-label">
+            <span>ハウス内カメラ</span>
+            <span class="muted small">定点・生育モニタリング</span>
+          </div>
+        </article>
+
+        <article class="camera-card" data-camera="security">
+          <div class="camera-view security">
+            <span class="camera-badge"><span class="rec-dot"></span>LIVE</span>
+            <span class="camera-time" data-camtime>--:--:--</span>
+          </div>
+          <div class="camera-label">
+            <span>防犯カメラ（入口）</span>
+            <span class="muted small">屋外対応・広角</span>
+          </div>
+        </article>
+
+      </div>
+      <p class="disclaimer">※カメラ映像はデモ表示です。実機接続時はライブ映像に置き換わります。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="eqHeading">
+      <h2 id="eqHeading">機材ステータス</h2>
+      <div class="equipment-grid">
+
+        <article class="equip-card" data-equip="irrigation">
+          <div class="equip-head">
+            <span class="stat-icon" aria-hidden="true">🚿</span>
+            <h3>灌水タイマー</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">待機中</span></span>
+          </div>
+          <div class="equip-row">
+            <span class="muted">次回灌水まで</span>
+            <span class="equip-figure" data-irrigation-countdown>--:--</span>
+          </div>
+          <div class="equip-row">
+            <span class="muted">前回実行</span>
+            <span data-irrigation-last>--:--:--</span>
+          </div>
+        </article>
+
+        <article class="equip-card" data-equip="curtain">
+          <div class="equip-head">
+            <span class="stat-icon" aria-hidden="true">🎞️</span>
+            <h3>ビニール巻き上げ（手動）</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">閉</span></span>
+          </div>
+          <div class="equip-row">
+            <div class="progress-track"><div class="progress-fill" data-curtain-fill></div></div>
+          </div>
+          <div class="equip-row">
+            <span class="muted">開口率</span>
+            <span data-curtain-pct>0%</span>
+          </div>
+          <button class="action-btn" type="button" data-curtain-toggle>開閉を切り替える</button>
+        </article>
+
+        <article class="equip-card" data-equip="co2gen">
+          <div class="equip-head">
+            <span class="stat-icon" aria-hidden="true">🧪</span>
+            <h3>CO2発生剤（驚異の寝太郎）</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">十分</span></span>
+          </div>
+          <div class="equip-row">
+            <div class="progress-track"><div class="progress-fill co2" data-co2gen-fill></div></div>
+          </div>
+          <div class="equip-row">
+            <span class="muted">残量</span>
+            <span data-co2gen-pct>100%</span>
+          </div>
+          <div class="equip-row">
+            <span class="muted">交換目安</span>
+            <span data-co2gen-days>約30日後</span>
+          </div>
+        </article>
+
+        <article class="equip-card" data-equip="network">
+          <div class="equip-head">
+            <span class="stat-icon" aria-hidden="true">📶</span>
+            <h3>通信（モバイルルーター）</h3>
+            <span class="status-pill good" data-status><span class="pill-icon">✓</span><span class="pill-label">良好</span></span>
+          </div>
+          <div class="equip-row signal-row">
+            <div class="signal-bars" data-signal-bars>
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <span data-signal-label class="muted">電波強度: 強</span>
+          </div>
+          <div class="equip-row">
+            <span class="muted">接続機器</span>
+            <span data-device-count>5台（センサー3・カメラ2）</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="logHeading">
+      <h2 id="logHeading">イベントログ</h2>
+      <ul class="event-log" id="eventLog"></ul>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-actions">
+      <button id="pauseBtn" class="action-btn" type="button">一時停止</button>
+      <button id="logoutBtn" class="action-btn ghost" type="button">ログアウト</button>
+    </div>
+    <p class="disclaimer">※本画面はデモ用の疑似データです。実機接続時は farmo／あぐりログ等のセンサー実測値に置き換わります。</p>
+  </footer>
+
+</div>
+<script src="js/main.js" defer></script>
+</body>
+</html>
