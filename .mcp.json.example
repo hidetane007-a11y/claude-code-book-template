@@ -1,0 +1,30 @@
+{
+  "_comment": "このファイルを .mcp.json にコピーし、各トークンを実際の値に置き換えて使用する。.mcp.json は .gitignore 済みなのでコミットされない。",
+  "mcpServers": {
+    "obsidian": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:27125/mcp/",
+      "headers": {
+        "Authorization": "Bearer <OBSIDIAN_LOCAL_REST_API_TOKEN>"
+      }
+    },
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@cocal/google-calendar-mcp"],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "/workspaces/claude-code-book-template/ai-secretary/config/google-credentials.json"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--browser", "chromium", "--isolated", "--no-sandbox"]
+    },
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer <NOTION_INTEGRATION_TOKEN>\", \"Notion-Version\": \"2022-06-28\"}"
+      }
+    }
+  }
+}
