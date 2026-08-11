@@ -1,0 +1,145 @@
+{
+  "id": "negotiation",
+  "name": "Negotiation",
+  "beats": [
+    {
+      "id": "start",
+      "reply_en": "Thank you for meeting with us today. We're very interested in a long-term partnership. I'd like to discuss the terms of our proposed agreement. Shall we start with pricing?",
+      "reply_jp": "本日はお時間をいただきありがとうございます。長期的なパートナーシップに大変関心があります。提案する契約の条件について話し合いたいと思います。価格から始めましょうか？",
+      "vocabulary": [
+        { "en": "long-term partnership", "jp": "長期的なパートナーシップ" },
+        { "en": "terms", "jp": "条件・規約" },
+        { "en": "proposed agreement", "jp": "提案する契約" }
+      ],
+      "transitions": [
+        { "keywords": ["yes","sure","proceed","start","ok","pricing","price"], "next": "open_price" },
+        { "keywords": ["scope","project","timeline","deliverable","first","what","clarify"], "next": "clarify_scope" },
+        { "default": true, "next": "open_price" }
+      ]
+    },
+    {
+      "id": "clarify_scope",
+      "reply_en": "Absolutely. The project scope includes full implementation, training, and 12-month support. The deliverables are clearly outlined in Section 3 of the proposal. Shall we review pricing now?",
+      "reply_jp": "もちろんです。プロジェクトの範囲には、完全な実装、トレーニング、12ヶ月のサポートが含まれます。成果物は提案書の第3節に明記されています。では価格を確認しましょうか？",
+      "vocabulary": [
+        { "en": "scope", "jp": "範囲・スコープ" },
+        { "en": "deliverables", "jp": "成果物" },
+        { "en": "outlined", "jp": "概説されている" }
+      ],
+      "transitions": [
+        { "default": true, "next": "open_price" }
+      ]
+    },
+    {
+      "id": "open_price",
+      "reply_en": "Our initial proposal is $50,000 for the full package. This reflects the comprehensive service and our expertise in this field. What are your thoughts?",
+      "reply_jp": "最初の提案はフルパッケージで5万ドルです。これは包括的なサービスとこの分野での専門知識を反映しています。いかがお考えですか？",
+      "vocabulary": [
+        { "en": "initial proposal", "jp": "最初の提案" },
+        { "en": "comprehensive", "jp": "包括的な" },
+        { "en": "expertise", "jp": "専門知識・専門性" },
+        { "en": "reflects", "jp": "反映する" }
+      ],
+      "transitions": [
+        { "keywords": ["high","expensive","much","budget","lower","reduce","discount","negotiate"], "next": "counter_offer" },
+        { "keywords": ["accept","agree","ok","reasonable","fair","deal","yes"], "next": "accept_deal" },
+        { "keywords": ["think","consider","discuss","team","back","let us"], "next": "request_time" },
+        { "default": true, "next": "counter_offer" }
+      ]
+    },
+    {
+      "id": "counter_offer",
+      "reply_en": "I understand your concern about budget. We're flexible. What figure did you have in mind? I want to find a solution that works for both parties.",
+      "reply_jp": "予算についてのご懸念はわかります。柔軟に対応できます。どのくらいの金額をお考えですか？両者にとって良い解決策を見つけたいと思います。",
+      "vocabulary": [
+        { "en": "flexible", "jp": "柔軟な" },
+        { "en": "figure", "jp": "金額・数字" },
+        { "en": "both parties", "jp": "双方・両者" },
+        { "en": "works for", "jp": "〜にとって都合が良い" }
+      ],
+      "transitions": [
+        { "keywords": ["40","45","35","30","thousand","k","percent","off","discount"], "next": "negotiate_middle" },
+        { "keywords": ["what","include","can you","offer","propose"], "next": "add_value" },
+        { "default": true, "next": "negotiate_middle" }
+      ]
+    },
+    {
+      "id": "negotiate_middle",
+      "reply_en": "I appreciate your transparency. We could meet in the middle at $42,000, but I'd need to include a performance clause. That way both sides are protected. Does that sound fair?",
+      "reply_jp": "率直にお話しいただき感謝します。中間の4万2千ドルで合意できますが、業績条項を含める必要があります。そうすれば双方が保護されます。公平だと思いませんか？",
+      "vocabulary": [
+        { "en": "meet in the middle", "jp": "中間で合意する・妥協する" },
+        { "en": "performance clause", "jp": "業績条項" },
+        { "en": "both sides are protected", "jp": "双方が保護される" }
+      ],
+      "transitions": [
+        { "keywords": ["agree","accept","deal","ok","yes","fair","sounds good"], "next": "accept_deal" },
+        { "keywords": ["still","too","high","lower","more","negotiate","different"], "next": "final_offer" },
+        { "default": true, "next": "accept_deal" }
+      ]
+    },
+    {
+      "id": "add_value",
+      "reply_en": "We can add an extra month of support and dedicated account manager at no additional cost. This brings significantly more value. How does that sound?",
+      "reply_jp": "追加コストなしで、1ヶ月分の追加サポートと専任のアカウントマネージャーを提供できます。これにより大幅に価値が上がります。いかがでしょうか？",
+      "vocabulary": [
+        { "en": "at no additional cost", "jp": "追加コストなし" },
+        { "en": "dedicated", "jp": "専任の・専用の" },
+        { "en": "account manager", "jp": "アカウントマネージャー" },
+        { "en": "significantly", "jp": "大幅に・著しく" }
+      ],
+      "transitions": [
+        { "default": true, "next": "accept_deal" }
+      ]
+    },
+    {
+      "id": "request_time",
+      "reply_en": "Of course, take all the time you need. I can give you until Friday. Would it help if I sent over some additional case studies?",
+      "reply_jp": "もちろん、十分な時間をお取りください。金曜日まで待ちます。追加の事例研究をお送りすれば参考になりますか？",
+      "vocabulary": [
+        { "en": "take all the time you need", "jp": "十分な時間をかけてください" },
+        { "en": "case studies", "jp": "事例研究・ケーススタディ" },
+        { "en": "send over", "jp": "送る" }
+      ],
+      "transitions": [
+        { "default": true, "next": "accept_deal" }
+      ]
+    },
+    {
+      "id": "final_offer",
+      "reply_en": "This is my best and final offer: $40,000 with all the extras included. I'm afraid I can't go lower than this. But I'm confident this represents outstanding value.",
+      "reply_jp": "これが最善かつ最終提案です：4万ドルですべての特典込みです。これ以上は下げられません。ただ、この提案は卓越した価値があると確信しています。",
+      "vocabulary": [
+        { "en": "best and final offer", "jp": "最善かつ最終提案" },
+        { "en": "I'm afraid", "jp": "残念ながら" },
+        { "en": "outstanding value", "jp": "卓越した価値" }
+      ],
+      "transitions": [
+        { "default": true, "next": "accept_deal" }
+      ]
+    },
+    {
+      "id": "accept_deal",
+      "reply_en": "Excellent! I'm glad we could reach an agreement. I'll have the contracts drawn up and sent to you by tomorrow. This is the beginning of a great partnership!",
+      "reply_jp": "素晴らしい！合意に達することができて嬉しいです。明日までに契約書を作成してお送りします。素晴らしいパートナーシップの始まりですね！",
+      "vocabulary": [
+        { "en": "reach an agreement", "jp": "合意に達する" },
+        { "en": "drawn up", "jp": "（契約書を）作成する" },
+        { "en": "partnership", "jp": "パートナーシップ・協力関係" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_en": "Thank you so much. Looking forward to working together. We'll be in touch soon. Have a great day!",
+      "reply_jp": "ありがとうございます。一緒に仕事できることを楽しみにしています。近いうちにご連絡します。良い一日をお過ごしください！",
+      "vocabulary": [
+        { "en": "Looking forward to", "jp": "〜を楽しみにしています" },
+        { "en": "be in touch", "jp": "連絡を取り合う" }
+      ],
+      "transitions": []
+    }
+  ]
+}

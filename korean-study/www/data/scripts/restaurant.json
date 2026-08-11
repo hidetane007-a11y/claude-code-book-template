@@ -1,0 +1,331 @@
+{
+  "id": "restaurant",
+  "name": "レストラン",
+  "beats": [
+    {
+      "id": "start",
+      "reply_kr": "어서 오세요! 몇 분이세요?",
+      "reply_jp": "いらっしゃいませ！何名様ですか？",
+      "romanization": "Eoseo oseyo! Myeot buniseyo?",
+      "vocabulary": [
+        { "kr": "몇 분", "jp": "何名様" },
+        { "kr": "이세요", "jp": "でいらっしゃいますか（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["혼자","一人","1人","ひとり","solo","one","1명","일 명"], "next": "seat_one" },
+        { "keywords": ["둘","2명","두 명","2人","二人","two","2"], "next": "seat_two" },
+        { "keywords": ["셋","3명","세 명","3人","三人","three","3"], "next": "seat_three" },
+        { "keywords": ["넷","4명","네 명","4人","four","4"], "next": "seat_four" },
+        { "default": true, "next": "seat_two" }
+      ]
+    },
+    {
+      "id": "seat_one",
+      "reply_kr": "한 분이시군요. 이쪽으로 오세요. 메뉴판 드릴게요.",
+      "reply_jp": "お一人様ですね。こちらへどうぞ。メニューをお持ちします。",
+      "romanization": "Han bunishigunyo. Ijjog-euro oseyo. Menyupan deurilgeyo.",
+      "vocabulary": [
+        { "kr": "한 분", "jp": "お一人" },
+        { "kr": "이쪽", "jp": "こちら" },
+        { "kr": "메뉴판", "jp": "メニュー" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_order" }
+      ]
+    },
+    {
+      "id": "seat_two",
+      "reply_kr": "두 분이시군요. 이쪽 자리로 안내해 드릴게요. 메뉴판 드릴게요.",
+      "reply_jp": "2名様ですね。こちらのお席にご案内します。メニューをお持ちします。",
+      "romanization": "Du bunishigunyo. Ijjog jariро annae haе deurilgeyo.",
+      "vocabulary": [
+        { "kr": "두 분", "jp": "2名様" },
+        { "kr": "안내하다", "jp": "案内する" },
+        { "kr": "자리", "jp": "席・場所" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_order" }
+      ]
+    },
+    {
+      "id": "seat_three",
+      "reply_kr": "세 분이시군요. 저쪽 테이블로 안내해 드릴게요.",
+      "reply_jp": "3名様ですね。あちらのテーブルにご案内します。",
+      "romanization": "Se bunishigunyo. Jeojjog teibeulro annae haе deurilgeyo.",
+      "vocabulary": [
+        { "kr": "세 분", "jp": "3名様" },
+        { "kr": "저쪽", "jp": "あちら" },
+        { "kr": "테이블", "jp": "テーブル" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_order" }
+      ]
+    },
+    {
+      "id": "seat_four",
+      "reply_kr": "네 분이시군요. 저쪽 큰 테이블로 안내해 드릴게요.",
+      "reply_jp": "4名様ですね。あちらの大きなテーブルにご案内します。",
+      "romanization": "Ne bunishigunyo.",
+      "vocabulary": [
+        { "kr": "네 분", "jp": "4名様" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_order" }
+      ]
+    },
+    {
+      "id": "ask_order",
+      "reply_kr": "주문 받아도 될까요? 뭐로 드시겠어요?",
+      "reply_jp": "ご注文はお決まりですか？何になさいますか？",
+      "romanization": "Jumun badado doelkkayo? Mworo deushigesseoyo?",
+      "vocabulary": [
+        { "kr": "주문", "jp": "注文" },
+        { "kr": "받다", "jp": "受ける・もらう" },
+        { "kr": "드시다", "jp": "召し上がる（尊敬語）" }
+      ],
+      "transitions": [
+        { "keywords": ["비빔밥","ビビンバ","bibimbap","비빔"], "next": "order_bibimbap" },
+        { "keywords": ["불고기","プルゴギ","bulgogi","불"], "next": "order_bulgogi" },
+        { "keywords": ["삼겹살","サムギョプサル","pork belly","삼겹"], "next": "order_samgyeopsal" },
+        { "keywords": ["냉면","ネンミョン","cold noodle","냉면"], "next": "order_naengmyeon" },
+        { "keywords": ["김치찌개","キムチチゲ","kimchi jjigae","김치"], "next": "order_kimchi_jjigae" },
+        { "keywords": ["메뉴","menu","メニュー","추천","recommend","おすすめ"], "next": "recommend" },
+        { "default": true, "next": "recommend" }
+      ]
+    },
+    {
+      "id": "recommend",
+      "reply_kr": "오늘 추천 메뉴는 비빔밥이에요! 저희 집 비빔밥이 정말 맛있어요.",
+      "reply_jp": "本日のおすすめはビビンバです！当店のビビンバは本当においしいですよ。",
+      "romanization": "Oneul chucheon menyuneun bibimbab-ieyo!",
+      "vocabulary": [
+        { "kr": "추천", "jp": "おすすめ・推薦" },
+        { "kr": "오늘", "jp": "今日" },
+        { "kr": "정말", "jp": "本当に" },
+        { "kr": "맛있다", "jp": "おいしい" }
+      ],
+      "transitions": [
+        { "keywords": ["비빔밥","ビビンバ","はい","네","그걸로"], "next": "order_bibimbap" },
+        { "keywords": ["불고기","プルゴギ"], "next": "order_bulgogi" },
+        { "keywords": ["삼겹살","サムギョプサル"], "next": "order_samgyeopsal" },
+        { "keywords": ["냉면","ネンミョン"], "next": "order_naengmyeon" },
+        { "keywords": ["김치찌개","キムチチゲ"], "next": "order_kimchi_jjigae" },
+        { "default": true, "next": "order_bibimbap" }
+      ]
+    },
+    {
+      "id": "order_bibimbap",
+      "reply_kr": "비빔밥 주문 받았습니다! 맵기는 어떻게 해드릴까요? 보통, 덜 맵게, 더 맵게 있어요.",
+      "reply_jp": "ビビンバのご注文ですね！辛さはいかがなさいますか？普通、辛さ控えめ、辛さ増しがあります。",
+      "romanization": "Bibimbab jumun badassseumnida!",
+      "vocabulary": [
+        { "kr": "맵기", "jp": "辛さ" },
+        { "kr": "보통", "jp": "普通" },
+        { "kr": "덜 맵게", "jp": "辛さ控えめに" },
+        { "kr": "더 맵게", "jp": "より辛く" }
+      ],
+      "transitions": [
+        { "keywords": ["보통","普通","normal","medium"], "next": "ask_drink" },
+        { "keywords": ["덜","less","控えめ","安め","甘口"], "next": "ask_drink" },
+        { "keywords": ["더","more","辛い","辛口","spicy","많이"], "next": "ask_drink" },
+        { "default": true, "next": "ask_drink" }
+      ]
+    },
+    {
+      "id": "order_bulgogi",
+      "reply_kr": "불고기 주문 받았습니다! 인원수대로 2인분 드릴까요?",
+      "reply_jp": "プルゴギのご注文ですね！人数分、2人前お出ししますか？",
+      "romanization": "Bulgogi jumun badassseumnida! Inwonsudearo i-inbun deurilkkayo?",
+      "vocabulary": [
+        { "kr": "불고기", "jp": "プルゴギ（甘辛焼き肉）" },
+        { "kr": "인분", "jp": "人前（料理の単位）" },
+        { "kr": "인원수", "jp": "人数" }
+      ],
+      "transitions": [
+        { "keywords": ["네","yes","はい","그렇게"], "next": "ask_drink" },
+        { "keywords": ["아니","one","1인분","하나","ひとつ"], "next": "ask_drink" },
+        { "default": true, "next": "ask_drink" }
+      ]
+    },
+    {
+      "id": "order_samgyeopsal",
+      "reply_kr": "삼겹살 주문 받았습니다! 삼겹살은 직접 구워 드시는 거예요. 몇 인분 드릴까요?",
+      "reply_jp": "サムギョプサルのご注文ですね！ご自分で焼いていただきます。何人前にしますか？",
+      "romanization": "Samgyeopsal jumun badassseumnida!",
+      "vocabulary": [
+        { "kr": "삼겹살", "jp": "サムギョプサル（豚バラ肉）" },
+        { "kr": "직접", "jp": "直接・自分で" },
+        { "kr": "굽다", "jp": "焼く" }
+      ],
+      "transitions": [
+        { "keywords": ["2인분","두","two","2","둘"], "next": "ask_drink" },
+        { "keywords": ["1인분","하나","one","1","혼자"], "next": "ask_drink" },
+        { "keywords": ["3인분","세","three","3","셋"], "next": "ask_drink" },
+        { "default": true, "next": "ask_drink" }
+      ]
+    },
+    {
+      "id": "order_naengmyeon",
+      "reply_kr": "냉면 주문 받았습니다! 물냉면으로 드릴까요, 비빔냉면으로 드릴까요?",
+      "reply_jp": "ネンミョンのご注文ですね！水ネンミョンにしますか、ビビムネンミョンにしますか？",
+      "romanization": "Naengmyeon jumun badassseumnida! Mul-naengmyeon-euro deurilkkayo, bibim-naengmyeon-euro deurilkkayo?",
+      "vocabulary": [
+        { "kr": "냉면", "jp": "冷麺（ネンミョン）" },
+        { "kr": "물냉면", "jp": "水冷麺（スープあり）" },
+        { "kr": "비빔냉면", "jp": "ビビム冷麺（和え麺）" }
+      ],
+      "transitions": [
+        { "keywords": ["물","water","スープ","soup","mulnaeng"], "next": "ask_drink" },
+        { "keywords": ["비빔","bibim","和え","混ぜ"], "next": "ask_drink" },
+        { "default": true, "next": "ask_drink" }
+      ]
+    },
+    {
+      "id": "order_kimchi_jjigae",
+      "reply_kr": "김치찌개 주문 받았습니다! 뜨겁게 나오니까 조심하세요.",
+      "reply_jp": "キムチチゲのご注文ですね！熱くなっているのでお気をつけください。",
+      "romanization": "Gimchijjigae jumun badassseumnida! Tteugeobge naonikka joshimhaseyo.",
+      "vocabulary": [
+        { "kr": "김치찌개", "jp": "キムチチゲ" },
+        { "kr": "뜨겁다", "jp": "熱い" },
+        { "kr": "조심하다", "jp": "気をつける" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_drink" }
+      ]
+    },
+    {
+      "id": "ask_drink",
+      "reply_kr": "음료는 뭐로 드시겠어요? 물, 주스, 소주, 맥주가 있어요.",
+      "reply_jp": "お飲み物は何になさいますか？水、ジュース、焼酎、ビールがあります。",
+      "romanization": "Eumnyoneun mworo deushigesseoyo? Mul, juseu, soju, maekjuga isseoyo.",
+      "vocabulary": [
+        { "kr": "음료", "jp": "飲み物" },
+        { "kr": "물", "jp": "水" },
+        { "kr": "소주", "jp": "焼酎（韓国焼酎）" },
+        { "kr": "맥주", "jp": "ビール" }
+      ],
+      "transitions": [
+        { "keywords": ["물","water","水","お水","みず"], "next": "confirm_order" },
+        { "keywords": ["주스","juice","ジュース"], "next": "confirm_order" },
+        { "keywords": ["소주","焼酎","soju","お酒"], "next": "confirm_order_soju" },
+        { "keywords": ["맥주","ビール","beer","맥"], "next": "confirm_order_beer" },
+        { "keywords": ["없어요","됐어요","괜찮","anh","なし"], "next": "confirm_order" },
+        { "default": true, "next": "confirm_order" }
+      ]
+    },
+    {
+      "id": "confirm_order_soju",
+      "reply_kr": "소주 드릴게요! 음식은 잠시 후 나올 거예요.",
+      "reply_jp": "焼酎をお持ちします！お料理はしばらくしてから出てきます。",
+      "romanization": "Soju deurilgeyo! Eumsig-eun jamshi hu naol geoyeyo.",
+      "vocabulary": [
+        { "kr": "소주", "jp": "焼酎" },
+        { "kr": "잠시 후", "jp": "しばらく後" },
+        { "kr": "나오다", "jp": "出てくる" }
+      ],
+      "transitions": [
+        { "default": true, "next": "food_ready" }
+      ]
+    },
+    {
+      "id": "confirm_order_beer",
+      "reply_kr": "맥주 드릴게요! 국산 맥주와 수입 맥주 중 어떤 거로 드릴까요?",
+      "reply_jp": "ビールですね！国産ビールと輸入ビール、どちらになさいますか？",
+      "romanization": "Maekju deurilgeyo! Guksan maekjuwa suip maekju jung eotteon georo deurilkkayo?",
+      "vocabulary": [
+        { "kr": "국산", "jp": "国産" },
+        { "kr": "수입", "jp": "輸入" }
+      ],
+      "transitions": [
+        { "keywords": ["국산","domestic","韓国","korean"], "next": "food_ready" },
+        { "keywords": ["수입","import","輸入"], "next": "food_ready" },
+        { "default": true, "next": "food_ready" }
+      ]
+    },
+    {
+      "id": "confirm_order",
+      "reply_kr": "알겠습니다! 음식은 잠시 후 나올 거예요. 맛있게 드세요!",
+      "reply_jp": "かしこまりました！お料理はしばらくしてから出てきます。どうぞ召し上がれ！",
+      "romanization": "Algesseumnida! Eumsig-eun jamshi hu naol geoyeyo. Masitge deuseyo!",
+      "vocabulary": [
+        { "kr": "잠시", "jp": "しばらく・少々" },
+        { "kr": "맛있게 드세요", "jp": "おいしく召し上がれ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "food_ready" }
+      ]
+    },
+    {
+      "id": "food_ready",
+      "reply_kr": "음식 나왔습니다! 맛있게 드세요. 반찬은 리필 가능해요.",
+      "reply_jp": "お料理が出ました！召し上がれ。おかずはおかわりできますよ。",
+      "romanization": "Eumsig nawassseumnida! Masitge deuseyo. Banchan-eun ripil ganeunghaeyo.",
+      "vocabulary": [
+        { "kr": "반찬", "jp": "おかず（副菜）" },
+        { "kr": "리필", "jp": "おかわり・リフィル" },
+        { "kr": "가능하다", "jp": "可能だ" }
+      ],
+      "transitions": [
+        { "keywords": ["맛있어요","おいしい","おいしかった","good","맛있","최고"], "next": "compliment_response" },
+        { "keywords": ["계산","pay","支払い","check","bill","얼마"], "next": "bill" },
+        { "keywords": ["리필","おかわり","more","refill","더"], "next": "refill" },
+        { "keywords": ["영수증","receipt","レシート"], "next": "bill" },
+        { "default": true, "next": "compliment_response" }
+      ]
+    },
+    {
+      "id": "refill",
+      "reply_kr": "네, 바로 가져다 드릴게요!",
+      "reply_jp": "はい、すぐにお持ちします！",
+      "romanization": "Ne, baro gajyeoda deurilgeyo!",
+      "vocabulary": [
+        { "kr": "바로", "jp": "すぐに" },
+        { "kr": "가져다 주다", "jp": "持ってくる" }
+      ],
+      "transitions": [
+        { "default": true, "next": "bill" }
+      ]
+    },
+    {
+      "id": "compliment_response",
+      "reply_kr": "감사합니다! 또 오세요. 계산하실 건가요?",
+      "reply_jp": "ありがとうございます！またお越しください。お会計はよろしいですか？",
+      "romanization": "Gamsahamnida! Ddo oseyo. Gyesanhasil geongayo?",
+      "vocabulary": [
+        { "kr": "계산", "jp": "会計・計算" },
+        { "kr": "또", "jp": "また" }
+      ],
+      "transitions": [
+        { "keywords": ["네","yes","はい","주세요","お願い"], "next": "bill" },
+        { "default": true, "next": "bill" }
+      ]
+    },
+    {
+      "id": "bill",
+      "reply_kr": "총 이만 원입니다. 카드로 결제하시겠어요?",
+      "reply_jp": "合計20,000ウォンです。カードでのお支払いですか？",
+      "romanization": "Chong iman won-imnida. Kaduро gyeoljehashigesseoyo?",
+      "vocabulary": [
+        { "kr": "총", "jp": "合計" },
+        { "kr": "이만 원", "jp": "20,000ウォン" },
+        { "kr": "결제", "jp": "支払い" }
+      ],
+      "transitions": [
+        { "keywords": ["카드","card","クレジット"], "next": "end" },
+        { "keywords": ["현금","cash","現金"], "next": "end" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_kr": "감사합니다! 맛있게 드셨나요? 또 오세요!",
+      "reply_jp": "ありがとうございます！おいしく召し上がれましたか？またお越しください！",
+      "romanization": "Gamsahamnida! Masitge deushyeotnayo? Ddo oseyo!",
+      "vocabulary": [
+        { "kr": "드셨나요", "jp": "召し上がりましたか（丁寧過去疑問）" }
+      ],
+      "transitions": []
+    }
+  ]
+}

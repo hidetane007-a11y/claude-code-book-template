@@ -1,0 +1,141 @@
+{
+  "id": "smalltalk",
+  "name": "Small Talk",
+  "beats": [
+    {
+      "id": "start",
+      "reply_en": "Hi! What a lovely day, isn't it? I heard it's going to be sunny all week. Did you have a good weekend?",
+      "reply_jp": "こんにちは！良い天気ですね。今週はずっと晴れるみたいです。週末はいかがでしたか？",
+      "vocabulary": [
+        { "en": "lovely day", "jp": "良い天気・素敵な日" },
+        { "en": "What a ~!", "jp": "なんて〜でしょう！" },
+        { "en": "sunny", "jp": "晴れの" }
+      ],
+      "transitions": [
+        { "keywords": ["great","good","wonderful","amazing","fantastic","enjoyed","relaxed"], "next": "positive_weekend" },
+        { "keywords": ["busy","tired","work","not","bad","ok","quiet"], "next": "busy_weekend" },
+        { "keywords": ["travel","trip","went","visited","museum","restaurant","movie"], "next": "activity_weekend" },
+        { "default": true, "next": "positive_weekend" }
+      ]
+    },
+    {
+      "id": "positive_weekend",
+      "reply_en": "That sounds wonderful! I spent mine hiking in the mountains. The views were absolutely breathtaking. Do you enjoy outdoor activities?",
+      "reply_jp": "素晴らしいですね！私は山でハイキングをして過ごしました。景色は本当に息をのむほどでした。アウトドア活動はお好きですか？",
+      "vocabulary": [
+        { "en": "breathtaking", "jp": "息をのむほどの" },
+        { "en": "outdoor activities", "jp": "アウトドア活動" },
+        { "en": "hiking", "jp": "ハイキング" }
+      ],
+      "transitions": [
+        { "keywords": ["yes","love","enjoy","like","do","sometimes","often"], "next": "hobby_talk" },
+        { "keywords": ["no","not really","prefer","indoor","inside","rather"], "next": "indoor_hobby" },
+        { "default": true, "next": "hobby_talk" }
+      ]
+    },
+    {
+      "id": "busy_weekend",
+      "reply_en": "I can relate! Work-life balance is so important. I try to make time for myself on weekends. Do you have any hobbies you enjoy?",
+      "reply_jp": "わかります！ワークライフバランスはとても大切ですね。週末は自分の時間を作るようにしています。何か趣味はありますか？",
+      "vocabulary": [
+        { "en": "I can relate", "jp": "共感できます" },
+        { "en": "work-life balance", "jp": "ワークライフバランス" },
+        { "en": "make time for myself", "jp": "自分の時間を作る" }
+      ],
+      "transitions": [
+        { "default": true, "next": "hobby_talk" }
+      ]
+    },
+    {
+      "id": "activity_weekend",
+      "reply_en": "Oh, that sounds fun! I love exploring new places too. There's a great new exhibition at the art museum — have you been?",
+      "reply_jp": "わあ、楽しそうですね！私も新しい場所を探索するのが好きです。美術館で素晴らしい新しい展覧会がありますよ。行きましたか？",
+      "vocabulary": [
+        { "en": "exploring", "jp": "探索する" },
+        { "en": "exhibition", "jp": "展覧会・展示" },
+        { "en": "art museum", "jp": "美術館" }
+      ],
+      "transitions": [
+        { "default": true, "next": "hobby_talk" }
+      ]
+    },
+    {
+      "id": "hobby_talk",
+      "reply_en": "That's really interesting! I've been getting into cooking lately. I tried making sushi last weekend — it was challenging but fun! Have you tried cooking anything new recently?",
+      "reply_jp": "それは面白いですね！私は最近料理にはまっています。先週末は寿司作りに挑戦しました。難しかったけど楽しかったです！最近何か新しい料理を試しましたか？",
+      "vocabulary": [
+        { "en": "get into", "jp": "〜にはまる・始める" },
+        { "en": "challenging", "jp": "難しい・やりがいのある" },
+        { "en": "lately", "jp": "最近" }
+      ],
+      "transitions": [
+        { "keywords": ["yes","tried","made","cooked","baked","recipe"], "next": "food_talk" },
+        { "keywords": ["no","not","can't","never","don't cook"], "next": "restaurant_talk" },
+        { "default": true, "next": "food_talk" }
+      ]
+    },
+    {
+      "id": "indoor_hobby",
+      "reply_en": "I totally get that! I enjoy reading and watching documentaries on rainy days. Have you watched anything good on TV lately?",
+      "reply_jp": "よくわかります！雨の日は読書やドキュメンタリーを見るのが好きです。最近テレビで何か面白いもの見ましたか？",
+      "vocabulary": [
+        { "en": "I totally get that", "jp": "よくわかります" },
+        { "en": "documentary", "jp": "ドキュメンタリー" },
+        { "en": "on rainy days", "jp": "雨の日に" }
+      ],
+      "transitions": [
+        { "default": true, "next": "food_talk" }
+      ]
+    },
+    {
+      "id": "food_talk",
+      "reply_en": "Oh, that sounds delicious! By the way, have you tried the new Italian place that opened downtown? A colleague recommended it highly.",
+      "reply_jp": "美味しそうですね！ところで、ダウンタウンに新しくオープンしたイタリアンのお店に行きましたか？同僚が強くお薦めしていました。",
+      "vocabulary": [
+        { "en": "By the way", "jp": "ところで" },
+        { "en": "downtown", "jp": "繁華街・市内中心部" },
+        { "en": "highly recommended", "jp": "強くお薦め" },
+        { "en": "colleague", "jp": "同僚" }
+      ],
+      "transitions": [
+        { "default": true, "next": "wrap_up" }
+      ]
+    },
+    {
+      "id": "restaurant_talk",
+      "reply_en": "You should try it sometime! Anyway, it's been great chatting with you. We should do this more often. Let's catch up again soon!",
+      "reply_jp": "いつか行ってみてください！いずれにせよ、お話しできて楽しかったです。またお話ししましょう。近いうちにまた！",
+      "vocabulary": [
+        { "en": "chatting", "jp": "おしゃべりする" },
+        { "en": "catch up", "jp": "近況報告する" },
+        { "en": "do this more often", "jp": "もっと頻繁にする" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "wrap_up",
+      "reply_en": "Anyway, I don't want to keep you. It's been lovely chatting! Hope you have a great rest of the week.",
+      "reply_jp": "お引き止めしてすみません。お話しできて楽しかったです！残りの週も素晴らしい時間をお過ごしください。",
+      "vocabulary": [
+        { "en": "I don't want to keep you", "jp": "お引き止めしたくない" },
+        { "en": "lovely chatting", "jp": "楽しいおしゃべり" },
+        { "en": "rest of the week", "jp": "残りの週" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_en": "Take care! See you around. Bye!",
+      "reply_jp": "お気をつけて！またお会いしましょう。さようなら！",
+      "vocabulary": [
+        { "en": "Take care", "jp": "お気をつけて" },
+        { "en": "See you around", "jp": "またいつか" }
+      ],
+      "transitions": []
+    }
+  ]
+}

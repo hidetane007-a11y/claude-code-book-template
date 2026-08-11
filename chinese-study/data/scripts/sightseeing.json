@@ -1,0 +1,174 @@
+{
+  "id": "sightseeing",
+  "name": "観光",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "您好！需要帮忙吗？",
+      "reply_jp": "こんにちは！何かお手伝いできますか？",
+      "pinyin": "Nín hǎo! Xūyào bāngmáng ma?",
+      "vocabulary": [
+        { "zh": "帮忙", "jp": "手伝う", "pinyin": "bāngmáng" }
+      ],
+      "transitions": [
+        { "keywords": ["路","道","direction","どこ","where","去","找"], "next": "ask_where" },
+        { "keywords": ["票","チケット","ticket","入场","entrance"], "next": "buy_ticket" },
+        { "keywords": ["照片","写真","photo","picture","拍"], "next": "photo_request" },
+        { "keywords": ["推荐","おすすめ","recommend","景点","スポット"], "next": "recommend" },
+        { "default": true, "next": "ask_where" }
+      ]
+    },
+    {
+      "id": "ask_where",
+      "reply_zh": "您要去哪里？我来帮您指路。",
+      "reply_jp": "どこへ行きたいですか？道案内しますよ。",
+      "pinyin": "Nín yào qù nǎlǐ? Wǒ lái bāng nín zhǐ lù.",
+      "vocabulary": [
+        { "zh": "指路", "jp": "道を教える", "pinyin": "zhǐ lù" }
+      ],
+      "transitions": [
+        { "keywords": ["故宫","Forbidden City","紫禁城"], "next": "direction_gugong" },
+        { "keywords": ["长城","Great Wall","万里の長城"], "next": "direction_greatwall" },
+        { "keywords": ["天安门","Tiananmen"], "next": "direction_tiananmen" },
+        { "keywords": ["博物馆","museum","美術館"], "next": "direction_museum" },
+        { "default": true, "next": "direction_general" }
+      ]
+    },
+    {
+      "id": "direction_gugong",
+      "reply_zh": "故宫就在天安门广场旁边。坐地铁一号线到天安门东站。",
+      "reply_jp": "故宮は天安門広場のそばです。地下鉄1号線で天安門東駅へ。",
+      "pinyin": "Gùgōng jiù zài Tiān'ānmén guǎngchǎng pángbiān. Zuò dìtiě yī hào xiàn dào Tiān'ānmén dōng zhàn.",
+      "vocabulary": [
+        { "zh": "故宫", "jp": "故宮（紫禁城）", "pinyin": "gùgōng" },
+        { "zh": "地铁", "jp": "地下鉄", "pinyin": "dìtiě" }
+      ],
+      "transitions": [{ "default": true, "next": "buy_ticket" }]
+    },
+    {
+      "id": "direction_greatwall",
+      "reply_zh": "长城离市区较远，建议坐旅游大巴，大约两小时。",
+      "reply_jp": "万里の長城は市街から遠く、観光バスで約2時間かかります。",
+      "pinyin": "Chángchéng lí shìqū jiào yuǎn, jiànyì zuò lǚyóu dàbā, dàyuē liǎng xiǎoshí.",
+      "vocabulary": [
+        { "zh": "建议", "jp": "おすすめする・提案する", "pinyin": "jiànyì" },
+        { "zh": "旅游大巴", "jp": "観光バス", "pinyin": "lǚyóu dàbā" }
+      ],
+      "transitions": [{ "default": true, "next": "buy_ticket" }]
+    },
+    {
+      "id": "direction_tiananmen",
+      "reply_zh": "天安门广场就在前面，步行五分钟就到了。",
+      "reply_jp": "天安門広場は目の前で、徒歩5分です。",
+      "pinyin": "Tiān'ānmén guǎngchǎng jiù zài qiánmiàn, bùxíng wǔ fēnzhōng jiù dào le.",
+      "vocabulary": [
+        { "zh": "步行", "jp": "徒歩", "pinyin": "bùxíng" },
+        { "zh": "广场", "jp": "広場", "pinyin": "guǎngchǎng" }
+      ],
+      "transitions": [{ "default": true, "next": "buy_ticket" }]
+    },
+    {
+      "id": "direction_museum",
+      "reply_zh": "国家博物馆在天安门广场东侧，每周一闭馆。",
+      "reply_jp": "国家博物館は天安門広場の東側です。毎週月曜休館です。",
+      "pinyin": "Guójiā bówùguǎn zài Tiān'ānmén guǎngchǎng dōng cè, měi zhōu yī bì guǎn.",
+      "vocabulary": [
+        { "zh": "博物馆", "jp": "博物館", "pinyin": "bówùguǎn" },
+        { "zh": "闭馆", "jp": "休館", "pinyin": "bì guǎn" }
+      ],
+      "transitions": [{ "default": true, "next": "buy_ticket" }]
+    },
+    {
+      "id": "direction_general",
+      "reply_zh": "请告诉我目的地名称，我来帮您查一查。",
+      "reply_jp": "目的地の名前を教えてください。調べてみます。",
+      "pinyin": "Qǐng gàosù wǒ mùdìdì míngchēng, wǒ lái bāng nín chá yī chá.",
+      "vocabulary": [
+        { "zh": "目的地", "jp": "目的地", "pinyin": "mùdìdì" }
+      ],
+      "transitions": [{ "default": true, "next": "buy_ticket" }]
+    },
+    {
+      "id": "buy_ticket",
+      "reply_zh": "需要买门票吗？成人票一百二十元，学生票六十元。",
+      "reply_jp": "入場券が必要ですか？大人120元、学生60元です。",
+      "pinyin": "Xūyào mǎi ménpiào ma? Chéngrén piào yī bǎi èrshí yuán, xuésheng piào liùshí yuán.",
+      "vocabulary": [
+        { "zh": "门票", "jp": "入場券", "pinyin": "ménpiào" },
+        { "zh": "成人票", "jp": "大人料金", "pinyin": "chéngrén piào" }
+      ],
+      "transitions": [
+        { "keywords": ["成人","大人","adult","一张","一枚"], "next": "ticket_adult" },
+        { "keywords": ["学生","student","学割"], "next": "ticket_student" },
+        { "keywords": ["不用","いらない","no","需要预约","online"], "next": "recommend" },
+        { "default": true, "next": "ticket_adult" }
+      ]
+    },
+    {
+      "id": "ticket_adult",
+      "reply_zh": "好的，成人票一张。请扫二维码支付。",
+      "reply_jp": "かしこまりました、大人1枚です。QRコードで支払ってください。",
+      "pinyin": "Hǎo de, chéngrén piào yī zhāng. Qǐng sǎo èr wéi mǎ zhīfù.",
+      "vocabulary": [
+        { "zh": "二维码", "jp": "QRコード", "pinyin": "èr wéi mǎ" },
+        { "zh": "扫", "jp": "スキャンする", "pinyin": "sǎo" }
+      ],
+      "transitions": [{ "default": true, "next": "photo_request" }]
+    },
+    {
+      "id": "ticket_student",
+      "reply_zh": "学生票需要出示学生证。您有吗？",
+      "reply_jp": "学生料金には学生証が必要です。お持ちですか？",
+      "pinyin": "Xuésheng piào xūyào chūshì xuésheng zhèng. Nín yǒu ma?",
+      "vocabulary": [
+        { "zh": "学生证", "jp": "学生証", "pinyin": "xuésheng zhèng" },
+        { "zh": "出示", "jp": "提示する", "pinyin": "chūshì" }
+      ],
+      "transitions": [{ "default": true, "next": "photo_request" }]
+    },
+    {
+      "id": "photo_request",
+      "reply_zh": "需要我帮您拍照吗？",
+      "reply_jp": "写真を撮りましょうか？",
+      "pinyin": "Xūyào wǒ bāng nín pāizhào ma?",
+      "vocabulary": [
+        { "zh": "拍照", "jp": "写真を撮る", "pinyin": "pāizhào" }
+      ],
+      "transitions": [
+        { "keywords": ["是","yes","はい","麻烦","谢谢"], "next": "take_photo" },
+        { "default": true, "next": "recommend" }
+      ]
+    },
+    {
+      "id": "take_photo",
+      "reply_zh": "好的！请站在那边。三、二、一，茄子！",
+      "reply_jp": "はい！あちらに立ってください。3・2・1、チーズ！",
+      "pinyin": "Hǎo de! Qǐng zhàn zài nà biān. Sān, èr, yī, qiézi!",
+      "vocabulary": [
+        { "zh": "茄子", "jp": "チーズ（写真撮影の掛け声）", "pinyin": "qiézi" }
+      ],
+      "transitions": [{ "default": true, "next": "recommend" }]
+    },
+    {
+      "id": "recommend",
+      "reply_zh": "附近还有很多好地方。晚上可以去王府井逛街。",
+      "reply_jp": "近くにもいい場所がたくさんあります。夜は王府井でショッピングもいいですよ。",
+      "pinyin": "Fùjìn hái yǒu hěn duō hǎo dìfāng. Wǎnshang kěyǐ qù Wángfǔjǐng guàng jiē.",
+      "vocabulary": [
+        { "zh": "附近", "jp": "近く・周辺", "pinyin": "fùjìn" },
+        { "zh": "逛街", "jp": "街をぶらぶらする", "pinyin": "guàng jiē" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "祝您玩得开心！有问题随时来找我。",
+      "reply_jp": "楽しい観光を！何かあればいつでも声をかけてください。",
+      "pinyin": "Zhù nín wán de kāixīn! Yǒu wèntí suíshí lái zhǎo wǒ.",
+      "vocabulary": [
+        { "zh": "开心", "jp": "楽しい・嬉しい", "pinyin": "kāixīn" }
+      ],
+      "transitions": []
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #e85d04;
+  --primary-dark: #c44d00;
+  --bg: #f8f7f4;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --radius: 16px;
+  --shadow: 0 2px 8px rgba(0,0,0,.08);
+  --tap: 48px;
+  --header-h: 64px;
+}
+
+body {
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* iOS Safari zoom prevention: all inputs must be >= 16px */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 16px;
+}
+
+button { cursor: pointer; border: none; background: none; }
+
+/* Touch-friendly active state; hover only for pointer devices */
+button:active { opacity: .75; }
+@media (hover: hover) {
+  button:hover { opacity: .88; }
+  button:active { opacity: 1; }
+}
+
+/* ── Type tags ── */
+.type-tag { font-size: .78rem; font-weight: 600; border-radius: 6px; padding: .15rem .5rem; display: inline-block; }
+.type-tag.instore    { background: #ede9fe; color: #5b21b6; }
+.type-tag.takeout    { background: #d1fae5; color: #065f46; }
+.type-tag.reservation { background: #fef3c7; color: #92400e; }

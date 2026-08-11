@@ -1,0 +1,130 @@
+{
+  "id": "meeting",
+  "name": "Meeting",
+  "beats": [
+    {
+      "id": "start",
+      "reply_en": "Good morning, everyone. Let's get started. Today's agenda is the Q3 budget review. Any questions before we begin?",
+      "reply_jp": "おはようございます。では始めましょう。本日の議題は第3四半期の予算レビューです。始める前に何かご質問はありますか？",
+      "vocabulary": [
+        { "en": "agenda", "jp": "議題" },
+        { "en": "budget review", "jp": "予算レビュー" },
+        { "en": "get started", "jp": "始める" }
+      ],
+      "transitions": [
+        { "keywords": ["question","ask","clarify","what","how"], "next": "answer_question" },
+        { "keywords": ["no","ready","let's","start","begin","fine","ok","proceed"], "next": "present_data" },
+        { "default": true, "next": "present_data" }
+      ]
+    },
+    {
+      "id": "answer_question",
+      "reply_en": "Good question. The documents were sent last Friday. Please check your email. Shall we proceed?",
+      "reply_jp": "良い質問です。資料は先週金曜日に送付しました。メールをご確認ください。進めてよろしいですか？",
+      "vocabulary": [
+        { "en": "documents", "jp": "資料・書類" },
+        { "en": "proceed", "jp": "進む・続ける" },
+        { "en": "check your email", "jp": "メールを確認する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "present_data" }
+      ]
+    },
+    {
+      "id": "present_data",
+      "reply_en": "Looking at the numbers, revenue is up 12% compared to last quarter. However, expenses have also increased by 8%. What do you think about these figures?",
+      "reply_jp": "数字を見ると、収益は前四半期比12%増です。しかし経費も8%増加しています。これらの数字についてどうお考えですか？",
+      "vocabulary": [
+        { "en": "revenue", "jp": "収益・売上" },
+        { "en": "expenses", "jp": "経費・費用" },
+        { "en": "figures", "jp": "数字・数値" },
+        { "en": "compared to", "jp": "〜と比較して" }
+      ],
+      "transitions": [
+        { "keywords": ["good","great","positive","agree","excellent","impressive"], "next": "discuss_positive" },
+        { "keywords": ["concern","worried","problem","issue","however","but","though"], "next": "discuss_concern" },
+        { "keywords": ["suggest","propose","idea","recommend","should","could"], "next": "take_suggestion" },
+        { "default": true, "next": "discuss_concern" }
+      ]
+    },
+    {
+      "id": "discuss_positive",
+      "reply_en": "I agree. The revenue growth is encouraging. We should continue the current strategy. I'd like to propose increasing the marketing budget by 15%. Does everyone agree?",
+      "reply_jp": "同意します。収益の成長は励みになります。現在の戦略を継続すべきです。マーケティング予算を15%増やすことを提案したいと思います。皆さん同意しますか？",
+      "vocabulary": [
+        { "en": "encouraging", "jp": "励みになる・好ましい" },
+        { "en": "strategy", "jp": "戦略" },
+        { "en": "I'd like to propose", "jp": "〜を提案したい" }
+      ],
+      "transitions": [
+        { "keywords": ["agree","yes","support","good","approve","sounds"], "next": "make_decision" },
+        { "keywords": ["disagree","no","not sure","concern","wait","hold"], "next": "handle_objection" },
+        { "default": true, "next": "make_decision" }
+      ]
+    },
+    {
+      "id": "discuss_concern",
+      "reply_en": "That's a valid concern. The 8% expense increase is mainly due to hiring. I propose we review the headcount plan. Could you share your thoughts?",
+      "reply_jp": "それは正当な懸念です。経費8%増は主に採用によるものです。人員計画を見直すことを提案します。ご意見をお聞かせいただけますか？",
+      "vocabulary": [
+        { "en": "valid concern", "jp": "正当な懸念" },
+        { "en": "headcount", "jp": "人員数" },
+        { "en": "share your thoughts", "jp": "意見を述べる" }
+      ],
+      "transitions": [
+        { "keywords": ["reduce","cut","decrease","lower","less","freeze"], "next": "take_suggestion" },
+        { "keywords": ["agree","accept","ok","fine","proceed","continue"], "next": "make_decision" },
+        { "default": true, "next": "take_suggestion" }
+      ]
+    },
+    {
+      "id": "take_suggestion",
+      "reply_en": "That's a great suggestion. Let me note that down. I think we should put it to a vote. All in favor?",
+      "reply_jp": "素晴らしいご提案です。メモしておきます。投票にかけるべきだと思います。賛成の方は？",
+      "vocabulary": [
+        { "en": "note that down", "jp": "メモする" },
+        { "en": "put it to a vote", "jp": "投票にかける" },
+        { "en": "all in favor", "jp": "賛成の方は" }
+      ],
+      "transitions": [
+        { "default": true, "next": "make_decision" }
+      ]
+    },
+    {
+      "id": "handle_objection",
+      "reply_en": "I understand your concern. Let's table this for now and revisit it next week with more data. Does that work for everyone?",
+      "reply_jp": "ご懸念はわかります。今は保留にして、来週データが揃ってから再度検討しましょう。皆さん、それでよろしいですか？",
+      "vocabulary": [
+        { "en": "table", "jp": "（議案を）延期する" },
+        { "en": "revisit", "jp": "再検討する" },
+        { "en": "Does that work?", "jp": "それでよろしいですか？" }
+      ],
+      "transitions": [
+        { "default": true, "next": "make_decision" }
+      ]
+    },
+    {
+      "id": "make_decision",
+      "reply_en": "Excellent. We've reached a consensus. I'll send the meeting minutes by end of day. Thank you all for your input. Meeting adjourned!",
+      "reply_jp": "素晴らしい。合意に達しました。本日中に議事録をお送りします。皆様のご意見ありがとうございました。以上で終了です！",
+      "vocabulary": [
+        { "en": "consensus", "jp": "合意" },
+        { "en": "meeting minutes", "jp": "議事録" },
+        { "en": "adjourned", "jp": "閉会" },
+        { "en": "input", "jp": "意見・貢献" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_en": "See you at the next meeting. Have a productive day!",
+      "reply_jp": "次回の会議でまたお会いしましょう。充実した一日を！",
+      "vocabulary": [
+        { "en": "productive", "jp": "生産的な" }
+      ],
+      "transitions": []
+    }
+  ]
+}

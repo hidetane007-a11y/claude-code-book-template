@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#F59E0B">
+  <title>量詞クイズ | 中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .stage-num { background: var(--measure); }
+    .stage-card.done { border-color: var(--measure); background: #FFFBEB; }
+    .result-circle { border-color: var(--measure); }
+    .result-score { color: var(--measure); }
+    .sentence-display {
+      font-size: 1.75rem; font-weight: 700; text-align: center;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .blank-underline { border-bottom: 3px solid var(--measure); display: inline-block; min-width: 2em; }
+  </style>
+</head>
+<body>
+  <!-- セット選択 -->
+  <div id="screen-sets" class="screen active">
+    <div class="page-wrap">
+      <div class="page-header">
+        <a href="./index.html" class="back-btn">←</a>
+        <h1>🔢 量詞クイズ</h1>
+      </div>
+      <div class="page-content">
+        <div class="tip-box">
+          量詞（リョウシ）は日本語の「助数詞」に相当します。<br>
+          <strong>一杯茶・一本书・一张纸</strong>など、名詞によって変わります。
+        </div>
+        <div class="section-title">セットを選ぶ</div>
+        <div id="set-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- クイズ -->
+  <div id="screen-quiz" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="confirmExit()">←</button>
+        <h1 id="quiz-title">セット 1</h1>
+      </div>
+      <div class="page-content">
+        <div style="font-size:0.875rem;color:var(--muted);text-align:center;margin-bottom:12px;" id="quiz-num">1 / 5</div>
+        <div class="pbar mb-16"><div class="pbar-fill measure" id="quiz-pbar" style="width:0%"></div></div>
+
+        <div class="question-box">
+          <div class="sentence-display" id="quiz-sentence"></div>
+          <div style="font-size:0.875rem;color:var(--muted);" id="quiz-noun-jp"></div>
+        </div>
+
+        <div id="quiz-choices"></div>
+        <div id="quiz-feedback"></div>
+        <div id="quiz-next" style="margin-top:14px;display:none;">
+          <button class="btn btn-measure btn-full" onclick="nextQuestion()">次へ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="screen-result" class="screen">
+    <div class="page-wrap">
+      <div class="page-header"><h1>🔢 結果</h1></div>
+      <div class="page-content">
+        <div class="result-circle">
+          <div class="result-score" id="result-score">0</div>
+          <div class="result-total" id="result-total">/ 0 問</div>
+        </div>
+        <p style="text-align:center;color:var(--muted);margin-bottom:20px;" id="result-msg"></p>
+        <div id="unlock-msg" style="display:none;" class="card mb-12">
+          <p style="text-align:center;color:var(--measure);font-weight:600;">🎉 次のセットが解放されました！</p>
+        </div>
+        <button class="btn btn-measure btn-full btn-lg mb-12" onclick="retrySet()">もう一度</button>
+        <button class="btn btn-outline btn-full" onclick="ChineseNav.showScreen('screen-sets');renderSets();">セット一覧へ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/measure-words-data.js"></script>
+
+  <script>
+    let currentSetId = 1;
+    let currentQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+
+    function renderSets() {
+      const s = ChineseState.getState();
+      const list = document.getElementById('set-list');
+      list.innerHTML = '';
+      MEASURE_WORDS_DATA.sets.forEach(set => {
+        const done   = s.measureWords.completedSets.includes(set.id);
+        const locked = set.id > s.measureWords.currentSet;
+        const el = document.createElement('div');
+        el.className = 'stage-card' + (done ? ' done' : '') + (locked ? ' locked' : '');
+        el.innerHTML = `
+          <div class="stage-num">${set.id}</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:0.9375rem;">セット ${set.id}</div>
+            <div style="font-size:0.8125rem;color:var(--muted);">${set.questions.length}問</div>
+          </div>
+          <span>${done ? '✅' : locked ? '🔒' : '▶'}</span>
+        `;
+        if (!locked) el.onclick = () => startSet(set.id);
+        list.appendChild(el);
+      });
+    }
+
+    function startSet(setId) {
+      currentSetId = setId;
+      const set = MEASURE_WORDS_DATA.sets.find(s => s.id === setId);
+      currentQuestions = [...set.questions].sort(() => Math.random() - 0.5);
+      currentQIndex = 0;
+      score = 0;
+      document.getElementById('quiz-title').textContent = 'セット ' + setId;
+      renderQuestion();
+      ChineseNav.showScreen('screen-quiz');
+    }
+
+    function renderQuestion() {
+      const q = currentQuestions[currentQIndex];
+      const total = currentQuestions.length;
+      document.getElementById('quiz-num').textContent = (currentQIndex + 1) + ' / ' + total;
+      document.getElementById('quiz-pbar').style.width = (currentQIndex / total * 100) + '%';
+      document.getElementById('quiz-feedback').innerHTML = '';
+      document.getElementById('quiz-next').style.display = 'none';
+
+      // 空欄を下線付きで表示
+      const sentence = q.sentence.replace('__', '<span class="blank-underline">&nbsp;&nbsp;&nbsp;</span>');
+      document.getElementById('quiz-sentence').innerHTML = sentence;
+      document.getElementById('quiz-noun-jp').textContent = '（' + q.noun_jp + '）';
+
+      const choices = document.getElementById('quiz-choices');
+      choices.innerHTML = '';
+      q.choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = c;
+        btn.onclick = () => checkAnswer(c, btn, q);
+        choices.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, btn, q) {
+      const choices = document.getElementById('quiz-choices');
+      choices.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+      const correct = selected === q.correct;
+      if (correct) { btn.classList.add('correct'); score++; }
+      else {
+        btn.classList.add('wrong');
+        choices.querySelectorAll('.choice-btn').forEach(b => {
+          if (b.textContent === q.correct) b.classList.add('correct');
+        });
+      }
+
+      ChineseSpeech.speak(q.sentence.replace('__', q.correct), 'zh-CN');
+
+      const fb = document.getElementById('quiz-feedback');
+      fb.className = 'feedback-box ' + (correct ? 'correct' : 'wrong');
+      fb.innerHTML = `${correct ? '✅' : '❌'} <strong>${q.sentence.replace('__', q.correct)}</strong><br><span style="font-size:0.875rem;">${q.explanation}</span>`;
+      document.getElementById('quiz-next').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQIndex++;
+      if (currentQIndex >= currentQuestions.length) showResult();
+      else renderQuestion();
+    }
+
+    function showResult() {
+      const total = currentQuestions.length;
+      document.getElementById('result-score').textContent = score;
+      document.getElementById('result-total').textContent = '/ ' + total + ' 問';
+
+      const pct = Math.round(score / total * 100);
+      document.getElementById('result-msg').textContent =
+        pct === 100 ? '完璧です！🎉' : pct >= 80 ? 'よくできました！' : pct >= 60 ? 'もう少し練習しましょう！' : 'もう一度頑張りましょう！';
+
+      const unlocked = document.getElementById('unlock-msg');
+      if (score === total) {
+        ChineseState.completeMeasureSet(currentSetId, score);
+        ChineseState.updateStreak();
+        const nextExists = MEASURE_WORDS_DATA.sets.find(s => s.id === currentSetId + 1);
+        unlocked.style.display = nextExists ? 'block' : 'none';
+      } else {
+        unlocked.style.display = 'none';
+      }
+      ChineseNav.showScreen('screen-result');
+    }
+
+    function retrySet() { startSet(currentSetId); }
+
+    function confirmExit() {
+      ChineseNav.showScreen('screen-sets');
+      renderSets();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderSets);
+  </script>
+</body>
+</html>

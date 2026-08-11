@@ -1,0 +1,332 @@
+{
+  "id": "shopping",
+  "name": "ショッピング",
+  "beats": [
+    {
+      "id": "start",
+      "reply_kr": "어서 오세요! 뭘 찾으세요?",
+      "reply_jp": "いらっしゃいませ！何をお探しですか？",
+      "romanization": "Eoseo oseyo! Mweol chajeuseyo?",
+      "vocabulary": [
+        { "kr": "뭘", "jp": "何を（뭐를の縮約）" },
+        { "kr": "찾다", "jp": "探す・見つける" }
+      ],
+      "transitions": [
+        { "keywords": ["옷","服","洋服","clothes","티셔츠","tshirt","티"], "next": "clothes" },
+        { "keywords": ["바지","pants","ズボン","パンツ","trousers"], "next": "pants" },
+        { "keywords": ["신발","shoes","靴","くつ","슈즈"], "next": "shoes" },
+        { "keywords": ["가방","bag","バッグ","かばん","핸드백"], "next": "bag" },
+        { "keywords": ["화장품","コスメ","cosmetics","메이크업","skincare","スキンケア"], "next": "cosmetics" },
+        { "keywords": ["세일","sale","セール","할인","discount","安い"], "next": "sale_info" },
+        { "default": true, "next": "ask_what" }
+      ]
+    },
+    {
+      "id": "ask_what",
+      "reply_kr": "어떤 걸 찾고 계세요? 옷, 신발, 가방, 화장품 등 다 있어요.",
+      "reply_jp": "何をお探しですか？服、靴、バッグ、コスメなど何でもございます。",
+      "romanization": "Eotteon geol chajgo gyeseyo? Os, sinbal, gabang, hwajangpum deung da isseoyo.",
+      "vocabulary": [
+        { "kr": "어떤", "jp": "どんな・どの" },
+        { "kr": "등", "jp": "など" },
+        { "kr": "다", "jp": "全部・みんな" }
+      ],
+      "transitions": [
+        { "keywords": ["옷","服","clothes","티셔츠"], "next": "clothes" },
+        { "keywords": ["바지","pants","ズボン"], "next": "pants" },
+        { "keywords": ["신발","shoes","靴"], "next": "shoes" },
+        { "keywords": ["가방","bag","バッグ"], "next": "bag" },
+        { "keywords": ["화장품","コスメ","cosmetics"], "next": "cosmetics" },
+        { "default": true, "next": "clothes" }
+      ]
+    },
+    {
+      "id": "sale_info",
+      "reply_kr": "지금 세일 중이에요! 모든 상품이 20% 할인돼요.",
+      "reply_jp": "ただいまセール中です！全商品20%割引になります。",
+      "romanization": "Jigeum seil jung-ieyo! Modeun sangpumi isip peo-senteu haldindwaeyo.",
+      "vocabulary": [
+        { "kr": "세일", "jp": "セール" },
+        { "kr": "모든", "jp": "すべての" },
+        { "kr": "상품", "jp": "商品" },
+        { "kr": "할인", "jp": "割引" }
+      ],
+      "transitions": [
+        { "keywords": ["옷","服","clothes","티셔츠"], "next": "clothes" },
+        { "keywords": ["바지","pants","ズボン"], "next": "pants" },
+        { "keywords": ["신발","shoes","靴"], "next": "shoes" },
+        { "default": true, "next": "clothes" }
+      ]
+    },
+    {
+      "id": "clothes",
+      "reply_kr": "옷이요? 어떤 스타일을 찾으세요? 캐주얼, 포멀, 스포츠 다 있어요.",
+      "reply_jp": "お洋服ですか？どんなスタイルをお探しですか？カジュアル、フォーマル、スポーツ、何でもあります。",
+      "romanization": "Osieyo? Eotteon seutail-eul chajeuseyo?",
+      "vocabulary": [
+        { "kr": "스타일", "jp": "スタイル" },
+        { "kr": "캐주얼", "jp": "カジュアル" },
+        { "kr": "포멀", "jp": "フォーマル" },
+        { "kr": "스포츠", "jp": "スポーツ" }
+      ],
+      "transitions": [
+        { "keywords": ["캐주얼","casual","カジュアル"], "next": "ask_size" },
+        { "keywords": ["포멀","formal","フォーマル","정장"], "next": "ask_size" },
+        { "keywords": ["스포츠","sports","スポーツ","운동"], "next": "ask_size" },
+        { "default": true, "next": "ask_size" }
+      ]
+    },
+    {
+      "id": "pants",
+      "reply_kr": "바지 찾으세요? 청바지, 슬랙스, 레깅스 다 있어요. 어떤 거 찾으세요?",
+      "reply_jp": "パンツをお探しですか？ジーンズ、スラックス、レギンス、何でもあります。",
+      "romanization": "Baji chajeuseyo? Cheongbaji, seullaekseu, regingseu da isseoyo.",
+      "vocabulary": [
+        { "kr": "청바지", "jp": "ジーンズ・デニム" },
+        { "kr": "슬랙스", "jp": "スラックス" },
+        { "kr": "레깅스", "jp": "レギンス" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_size" }
+      ]
+    },
+    {
+      "id": "shoes",
+      "reply_kr": "신발이요? 운동화, 구두, 샌들 다 있어요. 어떤 걸 찾으세요?",
+      "reply_jp": "靴ですか？スニーカー、革靴、サンダル、何でもございます。",
+      "romanization": "Sinbarieyo? Undongwa, gudu, saendeul da isseoyo.",
+      "vocabulary": [
+        { "kr": "운동화", "jp": "スニーカー・運動靴" },
+        { "kr": "구두", "jp": "革靴" },
+        { "kr": "샌들", "jp": "サンダル" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_shoe_size" }
+      ]
+    },
+    {
+      "id": "bag",
+      "reply_kr": "가방이요? 핸드백, 백팩, 숄더백 다 있어요. 어떤 거 찾으세요?",
+      "reply_jp": "バッグですか？ハンドバッグ、バックパック、ショルダーバッグ、何でもあります。",
+      "romanization": "Gabangeyo? Haendebaek, baekpaek, syoldeobaek da isseoyo.",
+      "vocabulary": [
+        { "kr": "핸드백", "jp": "ハンドバッグ" },
+        { "kr": "백팩", "jp": "バックパック" },
+        { "kr": "숄더백", "jp": "ショルダーバッグ" }
+      ],
+      "transitions": [
+        { "default": true, "next": "show_bag" }
+      ]
+    },
+    {
+      "id": "cosmetics",
+      "reply_kr": "화장품이요? 어떤 거 찾으세요? 스킨케어, 메이크업, 향수 다 있어요.",
+      "reply_jp": "コスメですか？何をお探しですか？スキンケア、メイクアップ、香水、何でもあります。",
+      "romanization": "Hwajangpumieyo? Eotteon geo chajeuseyo?",
+      "vocabulary": [
+        { "kr": "화장품", "jp": "化粧品・コスメ" },
+        { "kr": "스킨케어", "jp": "スキンケア" },
+        { "kr": "향수", "jp": "香水" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ask_size" }
+      ]
+    },
+    {
+      "id": "ask_size",
+      "reply_kr": "사이즈는 어떻게 되세요? S, M, L, XL 있어요.",
+      "reply_jp": "サイズはどうなさいますか？S、M、L、XLがあります。",
+      "romanization": "Saijeuneun eotteoke doeseyo? S, M, L, XL isseoyo.",
+      "vocabulary": [
+        { "kr": "사이즈", "jp": "サイズ" },
+        { "kr": "어떻게 되세요", "jp": "どのようになりますか（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["s","S","스몰","small","작은","小"], "next": "show_item" },
+        { "keywords": ["m","M","미디엄","medium","보통"], "next": "show_item" },
+        { "keywords": ["l","L","라지","large","큰","大"], "next": "show_item" },
+        { "keywords": ["xl","XL","extra","엑스라지"], "next": "show_item" },
+        { "default": true, "next": "show_item" }
+      ]
+    },
+    {
+      "id": "ask_shoe_size",
+      "reply_kr": "발 사이즈가 어떻게 되세요?",
+      "reply_jp": "靴のサイズはどのくらいですか？",
+      "romanization": "Bal saijeuga eotteoke doeseyo?",
+      "vocabulary": [
+        { "kr": "발", "jp": "足" },
+        { "kr": "사이즈", "jp": "サイズ" }
+      ],
+      "transitions": [
+        { "keywords": ["240","24","250","25","260","26","270","27","280","28"], "next": "show_item" },
+        { "default": true, "next": "show_item" }
+      ]
+    },
+    {
+      "id": "show_item",
+      "reply_kr": "이 상품은 어떠세요? 지금 인기 있는 상품이에요.",
+      "reply_jp": "こちらの商品はいかがですか？今人気の商品です。",
+      "romanization": "I sangpumeun eotteoseyo? Jigeum ingi inneun sangpumieyo.",
+      "vocabulary": [
+        { "kr": "상품", "jp": "商品" },
+        { "kr": "인기", "jp": "人気" }
+      ],
+      "transitions": [
+        { "keywords": ["얼마","가격","price","値段","いくら","how much"], "next": "price" },
+        { "keywords": ["입어볼","試着","try","입어보다","입혀봐도"], "next": "try_on" },
+        { "keywords": ["다른","別の","other","another","다른 색","色違い"], "next": "other_color" },
+        { "keywords": ["좋아요","気に入った","buy","살게요","これ","이걸"], "next": "price" },
+        { "keywords": ["아니","없어요","別の"], "next": "other_color" },
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "show_bag",
+      "reply_kr": "이 가방은 어떠세요? 지금 베스트셀러예요. 색상도 다양해요.",
+      "reply_jp": "こちらのバッグはいかがですか？今ベストセラーです。色も豊富です。",
+      "romanization": "I gabang-eun eotteoseyo? Jigeum beseuteuselleo-yeyo.",
+      "vocabulary": [
+        { "kr": "베스트셀러", "jp": "ベストセラー" },
+        { "kr": "색상", "jp": "色・カラー" },
+        { "kr": "다양하다", "jp": "多様だ・豊富だ" }
+      ],
+      "transitions": [
+        { "keywords": ["얼마","price","値段","いくら"], "next": "price" },
+        { "keywords": ["다른","別の","other","색","color","컬러"], "next": "other_color" },
+        { "keywords": ["좋아요","이걸로","buy","살게요"], "next": "price" },
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "try_on",
+      "reply_kr": "네, 물론이죠! 탈의실은 저쪽에 있어요.",
+      "reply_jp": "はい、もちろんです！試着室はあちらにあります。",
+      "romanization": "Ne, mullon-ijyo! Taruishil-eun jeojjog-e isseoyo.",
+      "vocabulary": [
+        { "kr": "물론이죠", "jp": "もちろんです" },
+        { "kr": "탈의실", "jp": "試着室" }
+      ],
+      "transitions": [
+        { "keywords": ["좋아요","살게요","buy","이걸로","ここ"], "next": "price" },
+        { "keywords": ["작아요","크다","크네요","맞지않아","작다"], "next": "exchange_size" },
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "exchange_size",
+      "reply_kr": "다른 사이즈로 바꿔 드릴까요?",
+      "reply_jp": "別のサイズとお取替えしましょうか？",
+      "romanization": "Dareun saijeuro bakkwo deurilkkayo?",
+      "vocabulary": [
+        { "kr": "다른", "jp": "別の・他の" },
+        { "kr": "바꾸다", "jp": "替える・交換する" }
+      ],
+      "transitions": [
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "other_color",
+      "reply_kr": "다른 색상도 있어요. 검정, 흰색, 파란색 중 어떤 게 좋으세요?",
+      "reply_jp": "他の色もあります。黒、白、青の中でどれがよろしいですか？",
+      "romanization": "Dareun saeksangdo isseoyo. Geomjeong, huinsaek, paraensaek jung eotteon ge joeseyo?",
+      "vocabulary": [
+        { "kr": "검정", "jp": "黒" },
+        { "kr": "흰색", "jp": "白" },
+        { "kr": "파란색", "jp": "青" }
+      ],
+      "transitions": [
+        { "keywords": ["검정","black","黒","블랙"], "next": "price" },
+        { "keywords": ["흰","white","白","화이트"], "next": "price" },
+        { "keywords": ["파란","blue","青","블루"], "next": "price" },
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "price",
+      "reply_kr": "이 상품은 오만 원이에요. 할인해 드릴까요?",
+      "reply_jp": "この商品は50,000ウォンです。割引しましょうか？",
+      "romanization": "I sangpumeun oman won-ieyo. Hallinhaе deurilkkayo?",
+      "vocabulary": [
+        { "kr": "오만 원", "jp": "50,000ウォン" },
+        { "kr": "할인", "jp": "割引" }
+      ],
+      "transitions": [
+        { "keywords": ["네","yes","はい","お願い","주세요","할인"], "next": "discount" },
+        { "keywords": ["아니","no","괜찮","結構です","살게요","buy","구매"], "next": "checkout" },
+        { "keywords": ["비싸","高い","expensive","너무"], "next": "negotiate" },
+        { "default": true, "next": "discount" }
+      ]
+    },
+    {
+      "id": "negotiate",
+      "reply_kr": "조금 비싸죠? 저희가 삼만 오천 원으로 해드릴게요. 어떠세요?",
+      "reply_jp": "少し高いですよね？35,000ウォンにしますよ。いかがですか？",
+      "romanization": "Jogeum bissajyo? Jeohiga samman ocheon won-euro haedeurilgeyo.",
+      "vocabulary": [
+        { "kr": "비싸다", "jp": "高い（値段）" },
+        { "kr": "조금", "jp": "少し" },
+        { "kr": "삼만 오천", "jp": "35,000" }
+      ],
+      "transitions": [
+        { "keywords": ["네","ok","はい","살게요","이걸로"], "next": "checkout" },
+        { "keywords": ["아니","more","もっと","더","30000","삼만"], "next": "final_price" },
+        { "default": true, "next": "checkout" }
+      ]
+    },
+    {
+      "id": "final_price",
+      "reply_kr": "이게 최저가예요. 삼만 원까지 해드릴게요. 정말 좋은 상품이에요!",
+      "reply_jp": "これが最低価格です。30,000ウォンまでにします。本当に良い商品ですよ！",
+      "romanization": "Ige choejeogaiyeyo. Saman won-kkaji haedeurilgeyo.",
+      "vocabulary": [
+        { "kr": "최저가", "jp": "最低価格" },
+        { "kr": "까지", "jp": "まで" }
+      ],
+      "transitions": [
+        { "keywords": ["네","ok","はい","살게요"], "next": "checkout" },
+        { "default": true, "next": "checkout" }
+      ]
+    },
+    {
+      "id": "discount",
+      "reply_kr": "특별히 사만 원으로 해드릴게요!",
+      "reply_jp": "特別に40,000ウォンにしますよ！",
+      "romanization": "Teukbyeolhi saman won-euro haedeurilgeyo!",
+      "vocabulary": [
+        { "kr": "특별히", "jp": "特別に" },
+        { "kr": "사만 원", "jp": "40,000ウォン" }
+      ],
+      "transitions": [
+        { "default": true, "next": "checkout" }
+      ]
+    },
+    {
+      "id": "checkout",
+      "reply_kr": "감사합니다! 카드로 결제하시겠어요, 현금으로 하시겠어요?",
+      "reply_jp": "ありがとうございます！カードでお支払いになりますか、現金ですか？",
+      "romanization": "Gamsahamnida! Kaduро gyeoljehashigesseoyo, hyeongeum-euro hashigesseoyo?",
+      "vocabulary": [
+        { "kr": "결제", "jp": "支払い" },
+        { "kr": "현금", "jp": "現金" }
+      ],
+      "transitions": [
+        { "keywords": ["카드","card","クレジット","신용"], "next": "end" },
+        { "keywords": ["현금","cash","現金"], "next": "end" },
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_kr": "감사합니다! 쇼핑백에 넣어 드릴게요. 또 오세요!",
+      "reply_jp": "ありがとうございます！ショッピングバッグに入れますね。またお越しください！",
+      "romanization": "Gamsahamnida! Syopingbaege neoeo deurilgeyo. Ddo oseyo!",
+      "vocabulary": [
+        { "kr": "쇼핑백", "jp": "ショッピングバッグ" },
+        { "kr": "넣다", "jp": "入れる" }
+      ],
+      "transitions": []
+    }
+  ]
+}

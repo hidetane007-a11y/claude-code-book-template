@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#EF4444">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>中国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .hero { text-align: center; padding: 20px 0 8px; }
+    .hero-title { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; }
+    .hero-sub   { font-size: 0.8125rem; color: var(--muted); margin-top: 4px; }
+    .offline-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #ECFDF5; border: 1px solid #6EE7B7; color: #065F46;
+      border-radius: 99px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="offline-banner" class="offline-banner">オフラインです。一部機能が使えません。</div>
+
+  <div class="page-wrap">
+    <div class="page-header">
+      <h1>🇨🇳 中国語学習</h1>
+    </div>
+    <div class="page-content">
+      <div class="offline-badge">✈️ 完全オフライン対応</div>
+
+      <div class="streak-box">
+        <span class="s-icon">🔥</span>
+        <div>
+          <div class="s-count" id="streak-count">0</div>
+          <div class="s-label">日連続学習中</div>
+        </div>
+      </div>
+
+      <div class="section-title">学習モジュール</div>
+
+      <a href="./conversation.html" class="module-card m-conv">
+        <span class="card-icon">💬</span>
+        <div class="card-title">会話練習</div>
+        <div class="card-sub">6シナリオ・台本方式チャット</div>
+        <div class="progress-row"><span>完了</span><span id="conv-progress">0 / 6</span></div>
+        <div class="pbar"><div class="pbar-fill conv" id="conv-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./tones.html" class="module-card m-drill">
+        <span class="card-icon">🎵</span>
+        <div class="card-title">声調ドリル</div>
+        <div class="card-sub">4ステージ・聞き分け＆視覚確認</div>
+        <div class="progress-row"><span>ステージ</span><span id="tones-progress">1 / 4</span></div>
+        <div class="pbar"><div class="pbar-fill drill" id="tones-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./pinyin.html" class="module-card m-vowel">
+        <span class="card-icon">🔤</span>
+        <div class="card-title">ピンイン練習</div>
+        <div class="card-sub">声母23音・韻母20音</div>
+        <div class="progress-row"><span>習得</span><span id="pinyin-progress">0 / 43</span></div>
+        <div class="pbar"><div class="pbar-fill vowel" id="pinyin-bar" style="width:0%"></div></div>
+      </a>
+
+      <a href="./measure-words.html" class="module-card m-measure">
+        <span class="card-icon">🔢</span>
+        <div class="card-title">量詞クイズ</div>
+        <div class="card-sub">20種・4セット×5問の4択</div>
+        <div class="progress-row"><span>セット</span><span id="measure-progress">1 / 4</span></div>
+        <div class="pbar"><div class="pbar-fill measure" id="measure-bar" style="width:0%"></div></div>
+      </a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html" class="active"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./wordbook.html"><span class="nav-icon">📖</span>単語帳</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const s = ChineseState.getState();
+
+      document.getElementById('streak-count').textContent = s.streak.count;
+
+      const convDone = s.conversation.completedScenarios.length;
+      document.getElementById('conv-progress').textContent = convDone + ' / 6';
+      document.getElementById('conv-bar').style.width = (convDone / 6 * 100) + '%';
+
+      const tonesCurrent = Math.min(s.tones.currentStage, 4);
+      const tonesDone = s.tones.completedStages.length;
+      document.getElementById('tones-progress').textContent = tonesCurrent + ' / 4';
+      document.getElementById('tones-bar').style.width = (tonesDone / 4 * 100) + '%';
+
+      const pinyinDone = s.pinyin.completed.length;
+      document.getElementById('pinyin-progress').textContent = pinyinDone + ' / 43';
+      document.getElementById('pinyin-bar').style.width = (pinyinDone / 43 * 100) + '%';
+
+      const measureCurrent = Math.min(s.measureWords.currentSet, 4);
+      const measureDone = s.measureWords.completedSets.length;
+      document.getElementById('measure-progress').textContent = measureCurrent + ' / 4';
+      document.getElementById('measure-bar').style.width = (measureDone / 4 * 100) + '%';
+    });
+  </script>
+</body>
+</html>

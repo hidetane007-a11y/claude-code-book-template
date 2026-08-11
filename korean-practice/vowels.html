@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>母音発音練習 | 韓国語練習</title>
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    /* 母音マップ */
+    .vowel-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .vowel-tile {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: var(--card);
+      transition: transform 0.1s, border-color 0.15s;
+      position: relative;
+    }
+    .vowel-tile:active { transform: scale(0.94); }
+    .vowel-tile.in-progress { border-color: var(--vowels); background: #FFFBEB; }
+    .vowel-tile.completed { border-color: var(--success); background: #ECFDF5; }
+    .vowel-char { font-size: 1.625rem; font-weight: 700; line-height: 1; }
+    .vowel-roman { font-size: 0.6875rem; color: var(--muted); margin-top: 2px; }
+    .vowel-status {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.625rem;
+    }
+    .difficulty-stars {
+      font-size: 0.5rem;
+      margin-top: 2px;
+      letter-spacing: -1px;
+    }
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1.5px solid;
+    }
+
+    /* レッスン画面 */
+    .lesson-char-display {
+      font-size: 5rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 24px 0;
+      color: var(--text);
+      line-height: 1;
+    }
+    .lesson-roman {
+      text-align: center;
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .tip-card {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .tip-card.mouth { background: #FFF7ED; border: 1px solid #FDE68A; }
+    .tip-card.jp { background: #EFF6FF; border: 1px solid #BFDBFE; }
+    .tip-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+    .tip-text { font-size: 0.9375rem; line-height: 1.6; }
+    .example-word-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .ew-kr { font-size: 1.125rem; font-weight: 700; flex: 1; }
+    .ew-info { font-size: 0.75rem; color: var(--muted); }
+
+    /* 発音練習画面 */
+    .practice-area {
+      text-align: center;
+      padding: 16px 0;
+    }
+    .big-char {
+      font-size: 6rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .practice-step {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .step-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; font-weight: 700; }
+    .recognition-result {
+      min-height: 48px;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 1rem;
+      text-align: center;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .recognition-result.has-text { color: var(--text); font-weight: 600; }
+
+    /* ミニマルペア画面 */
+    .mp-question { font-size: 1.125rem; text-align: center; margin-bottom: 20px; font-weight: 600; }
+    .mp-choices { display: flex; gap: 16px; margin-bottom: 20px; }
+    .mp-choice-btn {
+      flex: 1;
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      font-size: 2.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .mp-choice-btn .mp-roman { font-size: 0.875rem; color: var(--muted); font-weight: 400; }
+    .mp-choice-btn:active { transform: scale(0.96); }
+    .mp-choice-btn.correct { border-color: var(--success); background: #ECFDF5; }
+    .mp-choice-btn.wrong { border-color: var(--danger); background: #FEF2F2; }
+    .mp-score { text-align: center; color: var(--muted); font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <!-- ===== 母音マップ ===== -->
+  <div id="screen-map" class="screen active">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>🔊 母音発音練習</h1>
+    </div>
+    <div class="page-content">
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--card); border-color:var(--border);"></div> 未練習
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#FFFBEB; border-color:var(--vowels);"></div> 練習中
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#ECFDF5; border-color:var(--success);"></div> 習得
+        </div>
+      </div>
+      <div class="vowel-grid" id="vowel-grid"></div>
+      <div class="text-muted text-small text-center">★の数 = 難易度（★★★が最も難しい）</div>
+    </div>
+  </div>
+
+  <!-- ===== 個別レッスン ===== -->
+  <div id="screen-lesson" class="screen">
+    <div class="page-header">
+      <button class="back-btn" onclick="KoreanNav.showScreen('screen-map'); renderMap();">←</button>
+      <h1 id="lesson-title">ㅏ のレッスン</h1>
+    </div>
+    <div class="page-content">
+      <div class="lesson-char-display" id="lesson-char"></div>
+      <div class="lesson-roman" id="lesson-roman"></div>
+
+      <div class="tip-card mouth">
+        <div class="tip-label">👄 口のコツ</div>
+        <div class="tip-text" id="lesson-mouth-tip"></div>
+      </div>
+      <div class="tip-card jp">
+        <div class="tip-label">🇯🇵 日本語との比較</div>
+        <div class="tip-text" id="lesson-jp-hint"></div>
+      </div>
+
+      <div class="section-title mt-16">例文</div>
+      <div id="lesson-examples"></div>
+
+      <div class="mt-24">
+        <button class="btn btn-vowels btn-full btn-lg" onclick="goToPractice()">発音を練習する →</button>
+      </div>
+      <div id="minimal-pair-link" class="mt-12"></div>
+    </div>
+  </div>
+
+  <!-- ===== 発音練習 ===== -->
+  <div id="screen-practice" class="screen">
+    <div class="page-header">
+      <button class="back-btn" onclick="stopListeningNow(); KoreanNav.showScreen('screen-lesson');">←</button>
+      <h1>発音練習</h1>
+    </div>
+    <div class="page-content">
+      <div class="practice-area">
+        <div class="big-char" id="practice-char"></div>
+        <div style="font-size: 1rem; color: var(--muted);" id="practice-roman"></div>
+      </div>
+
+      <!-- Step 1: 聞く -->
+      <div class="practice-step">
+        <div class="step-label">Step 1 — この音を聞いて</div>
+        <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 12px;" id="practice-example-text"></div>
+        <button class="btn btn-vowels btn-lg" id="listen-btn" onclick="listenExample()">🔊 聞く</button>
+      </div>
+
+      <!-- Step 2: 真似する -->
+      <div class="practice-step">
+        <div class="step-label">Step 2 — マイクで真似してみよう</div>
+        <button class="btn btn-outline btn-lg" id="mic-practice-btn" onclick="toggleMicPractice()">🎤 録音開始</button>
+        <div class="recognition-result" id="recognition-result">ここに認識結果が表示されます</div>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg mt-16" onclick="markMastered()">✓ 習得した！</button>
+
+      <div id="mp-link-practice" class="mt-12"></div>
+    </div>
+  </div>
+
+  <!-- ===== ミニマルペア ===== -->
+  <div id="screen-minimal-pair" class="screen">
+    <div class="page-header">
+      <button class="back-btn" onclick="KoreanNav.showScreen('screen-lesson');">←</button>
+      <h1>聞き分け練習</h1>
+    </div>
+    <div class="page-content">
+      <div class="mp-score" id="mp-score">0 / 5</div>
+      <div class="mp-question" id="mp-question">どちらが聞こえましたか？</div>
+      <div class="mp-choices" id="mp-choices"></div>
+      <div id="mp-feedback" class="mb-16"></div>
+      <div id="mp-result" style="display:none;" class="text-center">
+        <div style="font-size: 3rem; margin-bottom: 12px;">🎯</div>
+        <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;" id="mp-result-text"></div>
+        <button class="btn btn-vowels btn-full mb-12" onclick="startMinimalPair()">もう一度</button>
+        <button class="btn btn-outline btn-full" onclick="KoreanNav.showScreen('screen-lesson');">レッスンに戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="./index.html">
+      <span class="nav-icon">🏠</span>
+      ホーム
+    </a>
+    <a href="./wordbook.html">
+      <span class="nav-icon">📖</span>
+      単語帳
+    </a>
+    <a href="./index.html">
+      <span class="nav-icon">📊</span>
+      記録
+    </a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/vowels-data.js"></script>
+  <script>
+    let currentVowel = null;
+    let mpQuestions = [];
+    let mpIndex = 0;
+    let mpScore = 0;
+    let mpAnswered = false;
+    let micListening = false;
+
+    // 母音マップ描画
+    function renderMap() {
+      const state = KoreanState.getState();
+      const grid = document.getElementById('vowel-grid');
+      grid.innerHTML = '';
+
+      VOWELS.forEach(v => {
+        const isCompleted = state.vowels.completed.includes(v.char);
+        const isInProgress = state.vowels.inProgress === v.char;
+
+        const tile = document.createElement('div');
+        tile.className = `vowel-tile${isCompleted ? ' completed' : isInProgress ? ' in-progress' : ''}`;
+
+        const stars = '★'.repeat(v.difficulty) + '☆'.repeat(3 - v.difficulty);
+        tile.innerHTML = `
+          <span class="vowel-char">${v.char}</span>
+          <span class="vowel-roman">${v.romanization}</span>
+          <span class="difficulty-stars" style="color:${v.difficulty===3?'#EF4444':v.difficulty===2?'#F59E0B':'#10B981'}">${stars}</span>
+          <span class="vowel-status">${isCompleted ? '✓' : ''}</span>
+        `;
+        tile.onclick = () => showLesson(v);
+        grid.appendChild(tile);
+      });
+    }
+
+    // レッスン画面へ
+    function showLesson(vowel) {
+      currentVowel = vowel;
+      KoreanState.setVowelInProgress(vowel.char);
+
+      document.getElementById('lesson-title').textContent = `${vowel.char} のレッスン`;
+      document.getElementById('lesson-char').textContent = vowel.sound;
+      document.getElementById('lesson-roman').textContent = `[ ${vowel.romanization} ]`;
+      document.getElementById('lesson-mouth-tip').textContent = vowel.mouth_tip;
+      document.getElementById('lesson-jp-hint').textContent = vowel.jp_hint;
+
+      // 例文
+      const exList = document.getElementById('lesson-examples');
+      exList.innerHTML = '';
+      vowel.example_words.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = 'example-word-card';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <div class="ew-kr">${ex.kr}</div>
+            <div class="ew-info">${ex.romanization} ／ ${ex.jp}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="KoreanSpeech.speak('${ex.kr.replace(/'/g, "\\'")}')">🔊</button>
+        `;
+        exList.appendChild(div);
+      });
+
+      // ミニマルペアリンク
+      const mpLink = document.getElementById('minimal-pair-link');
+      if (vowel.minimal_pairs && vowel.minimal_pairs.length > 0) {
+        mpLink.innerHTML = `
+          <button class="btn btn-outline btn-full" onclick="startMinimalPair()">
+            🎯 聞き分け練習 (${vowel.char} vs ${vowel.minimal_pairs.join(' vs ')})
+          </button>
+        `;
+      } else {
+        mpLink.innerHTML = '';
+      }
+
+      KoreanNav.showScreen('screen-lesson');
+    }
+
+    // 発音練習画面へ
+    function goToPractice() {
+      if (!currentVowel) return;
+      stopListeningNow();
+
+      document.getElementById('practice-char').textContent = currentVowel.sound;
+      document.getElementById('practice-roman').textContent = `[ ${currentVowel.romanization} ]`;
+
+      const ex = currentVowel.example_words[0];
+      document.getElementById('practice-example-text').textContent =
+        ex ? `例: ${ex.kr}（${ex.jp}）` : '';
+
+      document.getElementById('recognition-result').textContent = 'ここに認識結果が表示されます';
+      document.getElementById('recognition-result').classList.remove('has-text');
+
+      const mpLinkEl = document.getElementById('mp-link-practice');
+      if (currentVowel.minimal_pairs && currentVowel.minimal_pairs.length > 0) {
+        mpLinkEl.innerHTML = `<button class="btn btn-outline btn-full" onclick="startMinimalPair()">🎯 聞き分け練習へ</button>`;
+      } else {
+        mpLinkEl.innerHTML = '';
+      }
+
+      KoreanNav.showScreen('screen-practice');
+    }
+
+    // サンプル音声を再生
+    function listenExample() {
+      if (!currentVowel) return;
+      const ex = currentVowel.example_words[0];
+      KoreanSpeech.speak(ex ? ex.kr : currentVowel.sound);
+    }
+
+    // マイク toggle
+    function toggleMicPractice() {
+      const btn = document.getElementById('mic-practice-btn');
+      if (micListening) {
+        stopListeningNow();
+      } else {
+        micListening = true;
+        btn.textContent = '⏹ 停止';
+        btn.classList.add('btn-danger');
+        btn.classList.remove('btn-outline');
+
+        KoreanSpeech.startListening(
+          'ko-KR',
+          (text, isFinal) => {
+            const el = document.getElementById('recognition-result');
+            el.textContent = text;
+            el.classList.add('has-text');
+            if (isFinal) {
+              micListening = false;
+              btn.textContent = '🎤 もう一度';
+              btn.classList.remove('btn-danger');
+              btn.classList.add('btn-outline');
+            }
+          },
+          (err) => {
+            micListening = false;
+            btn.textContent = '🎤 録音開始';
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-outline');
+            if (err === 'not_supported') {
+              KoreanNav.showToast('音声入力はこのブラウザでサポートされていません');
+            }
+          }
+        );
+      }
+    }
+
+    function stopListeningNow() {
+      if (micListening) {
+        KoreanSpeech.stopListening();
+        micListening = false;
+        const btn = document.getElementById('mic-practice-btn');
+        if (btn) {
+          btn.textContent = '🎤 録音開始';
+          btn.classList.remove('btn-danger');
+          btn.classList.add('btn-outline');
+        }
+      }
+    }
+
+    // 習得完了
+    function markMastered() {
+      if (!currentVowel) return;
+      KoreanState.markVowelCompleted(currentVowel.char);
+      KoreanNav.showToast(`🎉 ${currentVowel.char} を習得しました！`);
+      KoreanState.updateStreak();
+      KoreanNav.showScreen('screen-map');
+      renderMap();
+    }
+
+    // ミニマルペア開始
+    function startMinimalPair() {
+      if (!currentVowel || !currentVowel.minimal_pairs || currentVowel.minimal_pairs.length === 0) {
+        KoreanNav.showToast('このモジュールにはミニマルペアがありません');
+        return;
+      }
+
+      // 相手の母音を取得
+      const pairChars = currentVowel.minimal_pairs.slice(0, 1);
+      const pairVowel = VOWELS.find(v => v.char === pairChars[0]);
+      if (!pairVowel) {
+        KoreanNav.showToast('ペアデータが見つかりません');
+        return;
+      }
+
+      // 5問生成
+      mpQuestions = [];
+      for (let i = 0; i < 5; i++) {
+        const useMain = Math.random() < 0.5;
+        mpQuestions.push({
+          playVowel: useMain ? currentVowel : pairVowel,
+          choices: [currentVowel, pairVowel],
+          answer: useMain ? currentVowel.char : pairVowel.char
+        });
+      }
+      mpIndex = 0;
+      mpScore = 0;
+      mpAnswered = false;
+
+      document.getElementById('mp-result').style.display = 'none';
+      renderMpQuestion();
+      KoreanNav.showScreen('screen-minimal-pair');
+    }
+
+    function renderMpQuestion() {
+      const q = mpQuestions[mpIndex];
+      mpAnswered = false;
+
+      document.getElementById('mp-score').textContent = `${mpIndex} / 5`;
+      document.getElementById('mp-question').textContent = 'どちらの音が聞こえましたか？（先に🔊を押してください）';
+      document.getElementById('mp-feedback').innerHTML = '';
+
+      const choicesEl = document.getElementById('mp-choices');
+      choicesEl.innerHTML = '';
+      q.choices.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'mp-choice-btn';
+        btn.innerHTML = `${v.char}<span class="mp-roman">${v.romanization}</span>`;
+        btn.onclick = () => checkMpAnswer(v.char, q);
+        choicesEl.appendChild(btn);
+      });
+
+      // 自動再生
+      setTimeout(() => {
+        KoreanSpeech.speak(q.playVowel.example_words[0]?.kr || q.playVowel.sound);
+      }, 300);
+    }
+
+    function checkMpAnswer(selected, q) {
+      if (mpAnswered) return;
+      mpAnswered = true;
+
+      const isCorrect = selected === q.answer;
+      if (isCorrect) mpScore++;
+
+      // ボタンに色
+      document.querySelectorAll('.mp-choice-btn').forEach(btn => {
+        const char = btn.textContent.trim().charAt(0);
+        if (char === q.answer) btn.classList.add('correct');
+        else if (char === selected && !isCorrect) btn.classList.add('wrong');
+        btn.disabled = true;
+      });
+
+      const fb = document.getElementById('mp-feedback');
+      fb.innerHTML = `<div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}" style="border-radius:10px;padding:12px;text-align:center;">
+        ${isCorrect ? '✅ 正解！' : `❌ 正解は「${q.answer}」でした`}
+      </div>`;
+
+      setTimeout(() => {
+        mpIndex++;
+        if (mpIndex >= mpQuestions.length) {
+          showMpResult();
+        } else {
+          renderMpQuestion();
+        }
+      }, 1200);
+    }
+
+    function showMpResult() {
+      document.getElementById('mp-score').textContent = `${mpScore} / 5`;
+      document.getElementById('mp-question').textContent = '練習完了！';
+      document.getElementById('mp-choices').innerHTML = '';
+      document.getElementById('mp-feedback').innerHTML = '';
+
+      const resultEl = document.getElementById('mp-result');
+      const msg = mpScore >= 4 ? `${mpScore}/5 正解！聞き分けバッチリ！` : `${mpScore}/5 正解。もう一度練習してみましょう！`;
+      document.getElementById('mp-result-text').textContent = msg;
+      resultEl.style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', renderMap);
+  </script>
+</body>
+</html>

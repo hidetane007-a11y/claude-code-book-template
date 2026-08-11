@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>하다動詞ドリル | 韓国語練習</title>
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    /* ステージカード */
+    .stage-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px 20px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .stage-card:active:not(.locked) { border-color: var(--hada); }
+    .stage-card + .stage-card { margin-top: 10px; }
+    .stage-card.locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .stage-card.completed { border-color: var(--hada); background: #F5F3FF; }
+    .stage-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--hada);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.125rem;
+      flex-shrink: 0;
+    }
+    .stage-card.locked .stage-num { background: var(--muted); }
+    .stage-card.completed .stage-num { background: var(--hada); }
+    .stage-info { flex: 1; }
+    .stage-title { font-size: 1rem; font-weight: 700; }
+    .stage-subtitle { font-size: 0.8125rem; color: var(--muted); font-family: 'Noto Sans KR', sans-serif; }
+    .stage-badge { flex-shrink: 0; }
+
+    /* インプット画面 */
+    .explanation-box {
+      background: #F5F3FF;
+      border: 1px solid #DDD6FE;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .explanation-box p { font-size: 0.9375rem; line-height: 1.7; color: #4C1D95; }
+    .example-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .example-kr { font-size: 1.125rem; font-weight: 700; flex: 1; }
+    .example-sub { font-size: 0.75rem; color: var(--muted); }
+
+    /* ドリル画面 */
+    .drill-progress-bar { margin-bottom: 16px; }
+    .drill-num { font-size: 0.875rem; color: var(--muted); text-align: center; margin-bottom: 16px; }
+    .question-box {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .question-text { font-size: 1.0625rem; line-height: 1.6; }
+    .choice-grid { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn.correct { border-color: var(--success); background: #ECFDF5; color: #065F46; }
+    .choice-btn.wrong { border-color: var(--danger); background: #FEF2F2; color: #991B1B; }
+    .feedback-box {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+    .feedback-box.correct { background: #ECFDF5; border: 1px solid #6EE7B7; color: #065F46; }
+    .feedback-box.wrong { background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; }
+    .answer-input-area { display: flex; flex-direction: column; gap: 10px; }
+
+    /* 結果画面 */
+    .result-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid var(--hada);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .result-score { font-size: 2rem; font-weight: 700; color: var(--hada); line-height: 1; }
+    .result-total { font-size: 0.875rem; color: var(--muted); }
+    .result-message { text-align: center; font-size: 1rem; margin-bottom: 24px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <!-- ===== ステージ選択 ===== -->
+  <div id="screen-stages" class="screen active">
+    <div class="page-header">
+      <a href="./index.html" class="back-btn">←</a>
+      <h1>📝 하다動詞ドリル</h1>
+    </div>
+    <div class="page-content">
+      <div class="section-title">ステージを選ぶ</div>
+      <div id="stage-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== インプット画面 ===== -->
+  <div id="screen-input" class="screen">
+    <div class="page-header">
+      <button class="back-btn" onclick="KoreanNav.showScreen('screen-stages'); renderStages();">←</button>
+      <h1 id="input-title">Stage 1</h1>
+    </div>
+    <div class="page-content">
+      <div class="explanation-box">
+        <p id="input-explanation"></p>
+      </div>
+      <div class="section-title">例文</div>
+      <div id="examples-list"></div>
+      <div class="mt-24">
+        <button class="btn btn-hada btn-full btn-lg" onclick="startDrill()">ドリルを始める →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ドリル画面 ===== -->
+  <div id="screen-drill" class="screen">
+    <div class="page-header">
+      <button class="back-btn" onclick="confirmExitDrill()">←</button>
+      <h1 id="drill-title">ドリル</h1>
+    </div>
+    <div class="page-content">
+      <div class="drill-num" id="drill-num">1 / 5</div>
+      <div class="drill-progress-bar">
+        <div class="progress-bar">
+          <div class="progress-bar-fill hada" id="drill-progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="question-box">
+        <p class="question-text" id="question-text"></p>
+      </div>
+      <div id="answer-area"></div>
+      <div id="feedback-area"></div>
+      <div id="next-btn-area" style="margin-top: 16px; display: none;">
+        <button class="btn btn-hada btn-full" onclick="nextQuestion()">次へ →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 結果画面 ===== -->
+  <div id="screen-result" class="screen">
+    <div class="page-header">
+      <h1>📝 結果</h1>
+    </div>
+    <div class="page-content">
+      <div class="result-circle">
+        <div class="result-score" id="result-score">0</div>
+        <div class="result-total" id="result-total">/ 0 問</div>
+      </div>
+      <div class="result-message" id="result-message"></div>
+      <div id="result-unlock-msg" style="display:none;" class="card mb-16" style="border: 1px solid var(--hada);">
+        <p style="text-align:center; color: var(--hada); font-weight: 600;">🎉 次のステージが解放されました！</p>
+      </div>
+      <button class="btn btn-hada btn-full btn-lg mb-12" onclick="retryDrill()">もう一度</button>
+      <button class="btn btn-outline btn-full" onclick="KoreanNav.showScreen('screen-stages'); renderStages();">ステージ選択へ</button>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="./index.html">
+      <span class="nav-icon">🏠</span>
+      ホーム
+    </a>
+    <a href="./wordbook.html">
+      <span class="nav-icon">📖</span>
+      単語帳
+    </a>
+    <a href="./index.html">
+      <span class="nav-icon">📊</span>
+      記録
+    </a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/hada-drills.js"></script>
+  <script>
+    let currentStageData = null;
+    let currentDrillIndex = 0;
+    let drillAnswered = false;
+    let score = 0;
+
+    // ステージ一覧描画
+    function renderStages() {
+      const state = KoreanState.getState();
+      const list = document.getElementById('stage-list');
+      list.innerHTML = '';
+
+      HADA_STAGES.forEach(stageData => {
+        const isCompleted = state.hada.completedStages.includes(stageData.stage);
+        const isLocked = stageData.stage > state.hada.currentStage;
+
+        const div = document.createElement('div');
+        div.className = `stage-card${isLocked ? ' locked' : ''}${isCompleted ? ' completed' : ''}`;
+        div.innerHTML = `
+          <div class="stage-num">${stageData.stage}</div>
+          <div class="stage-info">
+            <div class="stage-title">${stageData.title}</div>
+            <div class="stage-subtitle">${stageData.subtitle}</div>
+          </div>
+          <div class="stage-badge">
+            ${isCompleted ? '<span style="color:var(--hada); font-size:1.375rem;">✓</span>' :
+              isLocked ? '<span style="font-size:1.25rem;">🔒</span>' :
+              '<span style="color:var(--muted); font-size:1.25rem;">›</span>'}
+          </div>
+        `;
+        if (!isLocked) {
+          div.onclick = () => showInput(stageData);
+        } else {
+          div.onclick = () => KoreanNav.showToast('前のステージをクリアしてください');
+        }
+        list.appendChild(div);
+      });
+    }
+
+    // インプット画面へ
+    function showInput(stageData) {
+      currentStageData = stageData;
+      document.getElementById('input-title').textContent = `Stage ${stageData.stage}: ${stageData.title}`;
+      document.getElementById('input-explanation').textContent = stageData.explanation;
+
+      const exList = document.getElementById('examples-list');
+      exList.innerHTML = '';
+      stageData.examples.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = 'example-card';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <div class="example-kr">${ex.kr}</div>
+            <div class="example-sub">${ex.romanization} ／ ${ex.jp}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="KoreanSpeech.speak('${ex.kr.replace(/'/g, "\\'")}')">🔊</button>
+        `;
+        exList.appendChild(div);
+      });
+
+      KoreanNav.showScreen('screen-input');
+    }
+
+    // ドリル開始
+    function startDrill() {
+      if (!currentStageData) return;
+      currentDrillIndex = 0;
+      score = 0;
+      drillAnswered = false;
+
+      document.getElementById('drill-title').textContent = `Stage ${currentStageData.stage}: ${currentStageData.title}`;
+      renderQuestion();
+      KoreanNav.showScreen('screen-drill');
+    }
+
+    // 問題描画
+    function renderQuestion() {
+      const drills = currentStageData.drills;
+      const drill = drills[currentDrillIndex];
+      const total = drills.length;
+
+      drillAnswered = false;
+      document.getElementById('drill-num').textContent = `${currentDrillIndex + 1} / ${total}`;
+      document.getElementById('drill-progress-fill').style.width = `${(currentDrillIndex / total) * 100}%`;
+      document.getElementById('question-text').textContent = drill.question;
+      document.getElementById('feedback-area').innerHTML = '';
+      document.getElementById('next-btn-area').style.display = 'none';
+
+      const answerArea = document.getElementById('answer-area');
+      answerArea.innerHTML = '';
+
+      if (drill.type === 'choice') {
+        const grid = document.createElement('div');
+        grid.className = 'choice-grid';
+        drill.choices.forEach(choice => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.textContent = choice;
+          btn.onclick = () => checkChoice(choice, drill);
+          grid.appendChild(btn);
+        });
+        answerArea.appendChild(grid);
+      } else {
+        // translate type
+        answerArea.innerHTML = `
+          <div class="answer-input-area">
+            <input type="text" class="input" id="translate-input" placeholder="韓国語で入力してください" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <button class="btn btn-hada btn-full" onclick="checkTranslate()">確認する</button>
+            <button class="btn btn-ghost btn-full btn-sm" onclick="showHint()">ヒントを見る</button>
+          </div>
+        `;
+        document.getElementById('translate-input').addEventListener('keydown', e => {
+          if (e.key === 'Enter') checkTranslate();
+        });
+        setTimeout(() => document.getElementById('translate-input')?.focus(), 100);
+      }
+    }
+
+    // 4択チェック
+    function checkChoice(selected, drill) {
+      if (drillAnswered) return;
+      drillAnswered = true;
+
+      const isCorrect = selected === drill.answer;
+      if (isCorrect) score++;
+
+      // ボタンに色付け
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        if (btn.textContent === drill.answer) btn.classList.add('correct');
+        else if (btn.textContent === selected && !isCorrect) btn.classList.add('wrong');
+        btn.disabled = true;
+      });
+
+      showFeedback(isCorrect, drill.answer, drill.hint);
+    }
+
+    // テキスト入力チェック
+    function checkTranslate() {
+      if (drillAnswered) return;
+      const input = document.getElementById('translate-input');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      drillAnswered = true;
+      const drill = currentStageData.drills[currentDrillIndex];
+      const isCorrect = val === drill.answer || val.replace(/\s+/g, '') === drill.answer.replace(/\s+/g, '');
+      if (isCorrect) score++;
+
+      input.disabled = true;
+
+      showFeedback(isCorrect, drill.answer, drill.hint);
+    }
+
+    function showHint() {
+      const drill = currentStageData.drills[currentDrillIndex];
+      KoreanNav.showToast(`💡 ${drill.hint}`);
+    }
+
+    function showFeedback(isCorrect, answer, hint) {
+      const fb = document.getElementById('feedback-area');
+      fb.innerHTML = `
+        <div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}">
+          ${isCorrect ? '✅ 正解！' : `❌ 不正解。正解は「${escHtml(answer)}」`}
+          ${hint ? `<br><span style="font-size:0.8125rem; opacity:0.8;">💡 ${escHtml(hint)}</span>` : ''}
+        </div>
+      `;
+      document.getElementById('next-btn-area').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentDrillIndex++;
+      if (currentDrillIndex >= currentStageData.drills.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function showResult() {
+      const total = currentStageData.drills.length;
+      const allCorrect = score === total;
+      const wasCompleted = KoreanState.getState().hada.completedStages.includes(currentStageData.stage);
+
+      if (allCorrect) {
+        KoreanState.completeDrillStage(currentStageData.stage, score);
+        KoreanState.updateStreak();
+      }
+
+      document.getElementById('result-score').textContent = score;
+      document.getElementById('result-total').textContent = `/ ${total} 問`;
+
+      const pct = Math.round((score / total) * 100);
+      let msg = '';
+      if (pct === 100) msg = '完璧！全問正解です！';
+      else if (pct >= 80) msg = 'すばらしい！もう少しで完璧！';
+      else if (pct >= 60) msg = 'よく頑張りました！復習して再挑戦！';
+      else msg = 'もう一度挑戦してみましょう！';
+      document.getElementById('result-message').textContent = msg;
+
+      const unlockMsg = document.getElementById('result-unlock-msg');
+      if (allCorrect && !wasCompleted && currentStageData.stage < 4) {
+        unlockMsg.style.display = 'block';
+      } else {
+        unlockMsg.style.display = 'none';
+      }
+
+      KoreanNav.showScreen('screen-result');
+    }
+
+    function retryDrill() {
+      startDrill();
+    }
+
+    function confirmExitDrill() {
+      if (currentDrillIndex === 0 || confirm('ドリルを中断しますか？')) {
+        KoreanNav.showScreen('screen-input');
+      }
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', renderStages);
+  </script>
+</body>
+</html>

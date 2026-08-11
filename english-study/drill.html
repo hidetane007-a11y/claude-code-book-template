@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#8B5CF6">
+  <title>文法ドリル | 英語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .track-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: white; background: var(--drill); border-radius: 99px; padding: 2px 8px; }
+  </style>
+</head>
+<body>
+  <!-- ステージ選択 -->
+  <div id="screen-stages" class="screen active">
+    <div class="page-wrap">
+      <div class="page-header">
+        <a href="./index.html" class="back-btn">←</a>
+        <h1>📝 文法ドリル</h1>
+      </div>
+      <div class="page-content">
+        <div class="tab-row">
+          <button class="tab-btn active" id="tab-verb" onclick="switchTab('verb')">Track A: 動詞変化</button>
+          <button class="tab-btn" id="tab-pattern" onclick="switchTab('pattern')">Track B: ビジネス文型</button>
+        </div>
+        <div class="section-title" id="track-label">Track A — 動詞変化</div>
+        <div id="stage-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 説明・例文 -->
+  <div id="screen-input" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="EnglishNav.showScreen('screen-stages');renderStages();">←</button>
+        <h1 id="input-title">Stage 1</h1>
+      </div>
+      <div class="page-content">
+        <div class="explanation-box" id="input-explanation"></div>
+        <div class="section-title">例文</div>
+        <div id="examples-list"></div>
+        <div class="mt-20">
+          <button class="btn btn-drill btn-full btn-lg" onclick="startDrill()">ドリルを始める →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ドリル問題 -->
+  <div id="screen-drill" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="confirmExit()">←</button>
+        <h1 id="drill-title">ドリル</h1>
+      </div>
+      <div class="page-content">
+        <div style="font-size:0.875rem;color:var(--muted);text-align:center;margin-bottom:12px;" id="drill-num">1 / 6</div>
+        <div class="pbar mb-16"><div class="pbar-fill drill" id="drill-pbar" style="width:0%"></div></div>
+        <div class="question-box" id="question-text"></div>
+        <div id="answer-area"></div>
+        <div id="feedback-area"></div>
+        <div id="next-area" style="margin-top:14px;display:none;">
+          <button class="btn btn-drill btn-full" onclick="nextQuestion()">次へ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="screen-result" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1>📝 結果</h1>
+      </div>
+      <div class="page-content">
+        <div class="result-circle">
+          <div class="result-score" id="result-score">0</div>
+          <div class="result-total" id="result-total">/ 0 問</div>
+        </div>
+        <p style="text-align:center;color:var(--muted);margin-bottom:20px;" id="result-msg"></p>
+        <div id="unlock-msg" style="display:none;" class="card mb-12">
+          <p style="text-align:center;color:var(--drill);font-weight:600;">🎉 次のステージが解放されました！</p>
+        </div>
+        <button class="btn btn-drill btn-full btn-lg mb-12" onclick="retryDrill()">もう一度</button>
+        <button class="btn btn-outline btn-full" onclick="EnglishNav.showScreen('screen-stages');renderStages();">ステージ選択へ</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./conversation.html"><span class="nav-icon">💬</span>会話</a>
+    <a href="./drill.html" class="active"><span class="nav-icon">📝</span>ドリル</a>
+    <a href="./phrasebook.html"><span class="nav-icon">📖</span>フレーズ</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script src="./data/drill-data.js"></script>
+
+  <script>
+    let currentTab = 'verb';
+    let currentStage = null;
+    let drillIdx = 0;
+    let answered = false;
+    let score = 0;
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-verb').classList.toggle('active', tab === 'verb');
+      document.getElementById('tab-pattern').classList.toggle('active', tab === 'pattern');
+      document.getElementById('track-label').textContent = tab === 'verb'
+        ? 'Track A — 動詞変化' : 'Track B — ビジネス文型';
+      renderStages();
+    }
+
+    function renderStages() {
+      const state = EnglishState.getState();
+      const trackKey = currentTab === 'verb' ? 'verbTrack' : 'patternTrack';
+      const trackState = state.drill[trackKey];
+      const stages = currentTab === 'verb' ? VERB_STAGES : PATTERN_STAGES;
+      const list = document.getElementById('stage-list');
+      list.innerHTML = '';
+
+      stages.forEach(sd => {
+        const done   = trackState.completedStages.includes(sd.stage);
+        const locked = sd.stage > trackState.currentStage;
+        const el = document.createElement('div');
+        el.className = `stage-card${locked ? ' locked' : ''}${done ? ' done' : ''}`;
+        el.innerHTML = `
+          <div class="stage-num">${sd.stage}</div>
+          <div style="flex:1;">
+            <div style="font-size:1rem;font-weight:700;">${escHtml(sd.title)}</div>
+            <div style="font-size:0.8125rem;color:var(--muted);">${escHtml(sd.subtitle)}</div>
+          </div>
+          <div>${done ? '<span style="color:var(--drill);font-size:1.375rem;">✓</span>' : locked ? '🔒' : '<span style="color:var(--muted);">›</span>'}</div>
+        `;
+        el.onclick = () => locked
+          ? EnglishNav.showToast('前のステージをクリアしてください')
+          : showInput(sd);
+        list.appendChild(el);
+      });
+    }
+
+    function showInput(sd) {
+      currentStage = sd;
+      document.getElementById('input-title').textContent = `Stage ${sd.stage}: ${sd.title}`;
+      document.getElementById('input-explanation').textContent = sd.explanation;
+
+      const list = document.getElementById('examples-list');
+      list.innerHTML = '';
+      sd.examples.forEach(ex => {
+        const el = document.createElement('div');
+        el.className = 'example-row';
+        el.innerHTML = `
+          <div style="flex:1;">
+            <div class="ex-en">${escHtml(ex.en)}</div>
+            <div class="ex-sub">${escHtml(ex.jp)}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="EnglishSpeech.speak('${escHtml(ex.en).replace(/'/g,"&#39;")}')">🔊</button>
+        `;
+        list.appendChild(el);
+      });
+
+      EnglishNav.showScreen('screen-input');
+    }
+
+    function startDrill() {
+      if (!currentStage) return;
+      drillIdx = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('drill-title').textContent = `Stage ${currentStage.stage}: ${currentStage.title}`;
+      renderQuestion();
+      EnglishNav.showScreen('screen-drill');
+    }
+
+    function renderQuestion() {
+      const drills = currentStage.drills;
+      const d = drills[drillIdx];
+      const total = drills.length;
+
+      answered = false;
+      document.getElementById('drill-num').textContent = `${drillIdx + 1} / ${total}`;
+      document.getElementById('drill-pbar').style.width = `${(drillIdx / total) * 100}%`;
+      document.getElementById('question-text').textContent = d.question;
+      document.getElementById('feedback-area').innerHTML = '';
+      document.getElementById('next-area').style.display = 'none';
+
+      const area = document.getElementById('answer-area');
+      area.innerHTML = '';
+
+      d.choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = c;
+        btn.onclick = () => checkChoice(c, d);
+        area.appendChild(btn);
+      });
+    }
+
+    function checkChoice(selected, d) {
+      if (answered) return;
+      answered = true;
+      const ok = selected === d.answer;
+      if (ok) score++;
+
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        if (btn.textContent === d.answer) btn.classList.add('correct');
+        else if (btn.textContent === selected && !ok) btn.classList.add('wrong');
+        btn.disabled = true;
+      });
+
+      document.getElementById('feedback-area').innerHTML = `
+        <div class="feedback-box ${ok ? 'correct' : 'wrong'}">
+          ${ok ? '✅ Correct!' : `❌ The correct answer is: "${escHtml(d.answer)}"`}
+          ${d.hint ? `<br><span style="font-size:0.8125rem;opacity:0.8;">💡 ${escHtml(d.hint)}</span>` : ''}
+        </div>
+      `;
+      document.getElementById('next-area').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      drillIdx++;
+      if (drillIdx >= currentStage.drills.length) showResult();
+      else renderQuestion();
+    }
+
+    function showResult() {
+      const total = currentStage.drills.length;
+      const allOk = score === total;
+      const trackKey = currentTab === 'verb' ? 'verbTrack' : 'patternTrack';
+      const wasCompleted = EnglishState.getState().drill[trackKey].completedStages.includes(currentStage.stage);
+
+      if (allOk) {
+        EnglishState.completeDrillStage(trackKey, currentStage.stage, score);
+        EnglishState.updateStreak();
+      }
+
+      document.getElementById('result-score').textContent = score;
+      document.getElementById('result-total').textContent = `/ ${total} 問`;
+
+      const pct = Math.round((score / total) * 100);
+      document.getElementById('result-msg').textContent =
+        pct === 100 ? 'Perfect! All correct!' :
+        pct >= 80   ? 'Great job! Almost perfect!' :
+        pct >= 60   ? 'Good effort! Review and try again.' :
+                      'Keep practicing! You can do it!';
+
+      document.getElementById('unlock-msg').style.display =
+        (allOk && !wasCompleted && currentStage.stage < 4) ? 'block' : 'none';
+
+      EnglishNav.showScreen('screen-result');
+    }
+
+    function retryDrill() { startDrill(); }
+
+    function confirmExit() {
+      if (drillIdx === 0 || confirm('ドリルを中断しますか？')) {
+        EnglishNav.showScreen('screen-input');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderStages);
+  </script>
+</body>
+</html>

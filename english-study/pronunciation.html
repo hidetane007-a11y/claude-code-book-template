@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#F59E0B">
+  <title>発音練習 | 英語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .lesson-word { font-size: 3rem; font-weight: 700; text-align: center; margin: 16px 0 4px; line-height: 1; }
+    .lesson-ipa  { text-align: center; font-size: 1.25rem; color: var(--muted); margin-bottom: 18px; }
+    .tip-box { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; font-size: 0.9375rem; line-height: 1.6; color: #92400E; }
+    .compare-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .compare-btn { background: #EFF6FF; color: var(--primary); border: none; border-radius: 99px; padding: 6px 14px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    .compare-btn:active { background: #DBEAFE; }
+    .pair-example { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <!-- タイルマップ -->
+  <div id="screen-map" class="screen active">
+    <div class="page-wrap">
+      <div class="page-header">
+        <a href="./index.html" class="back-btn">←</a>
+        <h1>🔊 発音練習</h1>
+        <span style="font-size:0.8125rem;color:var(--muted);" id="map-progress">0/35</span>
+      </div>
+      <div class="page-content">
+        <div class="tab-row">
+          <button class="tab-btn active" id="tab-sounds" onclick="switchTab('sounds')">Part 1: キー音</button>
+          <button class="tab-btn" id="tab-stress" onclick="switchTab('stress')">Part 2: 語強勢</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:4px;">
+            <span style="width:12px;height:12px;border-radius:3px;border:2px solid var(--success);background:#ECFDF5;display:inline-block;"></span>習得済み
+          </span>
+          <span style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:4px;">
+            <span style="width:12px;height:12px;border-radius:3px;border:2px solid var(--border);display:inline-block;"></span>未習得
+          </span>
+        </div>
+        <div class="vowel-grid" id="sound-grid"></div>
+        <div class="card" style="text-align:center;padding:14px;">
+          <p style="font-size:0.875rem;color:var(--muted);line-height:1.6;">
+            発音ペアをタップして練習を始めよう。<br>聞いて・真似して・マスターする。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 個別レッスン -->
+  <div id="screen-lesson" class="screen">
+    <div class="page-wrap">
+      <div class="page-header">
+        <button class="back-btn" onclick="EnglishNav.showScreen('screen-map');renderMap();">←</button>
+        <h1 id="lesson-title">発音練習</h1>
+      </div>
+      <div class="page-content">
+        <div class="lesson-word" id="lesson-word"></div>
+        <div class="lesson-ipa"  id="lesson-ipa"></div>
+
+        <button class="btn btn-vowel btn-full btn-lg mb-12" id="play-btn" onclick="playSound()">
+          🔊 音を聞く
+        </button>
+
+        <div class="tip-box" id="lesson-tip"></div>
+
+        <div class="section-title mt-16" id="compare-title">比較ペア</div>
+        <div class="compare-row" id="compare-area"></div>
+
+        <div class="section-title mt-16">例単語</div>
+        <div id="example-words"></div>
+
+        <div class="mt-20" style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-full" onclick="EnglishNav.showScreen('screen-map');renderMap();">マップへ戻る</button>
+          <button class="btn btn-vowel btn-full" onclick="markDone()">✓ 習得した</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="./index.html"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./conversation.html"><span class="nav-icon">💬</span>会話</a>
+    <a href="./pronunciation.html" class="active"><span class="nav-icon">🔊</span>発音</a>
+    <a href="./phrasebook.html"><span class="nav-icon">📖</span>フレーズ</a>
+  </nav>
+
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+
+  <script>
+  window.SOUND_ITEMS = [
+    { id:'lr1', group:'L/R', label:'light/right', ipa:'/l/ vs /r/', tip:'L: 舌先を上の歯の裏につける。R: 舌を口の中で浮かせる。', compare:['lead/read','lane/rain','lock/rock'], sound:'light... right' },
+    { id:'lr2', group:'L/R', label:'lead/read', ipa:'/liːd/ vs /riːd/', tip:'L音は舌が上あごに触れる。R音は舌がどこにも触れない。', compare:['light/right','liver/river','lice/rice'], sound:'lead... read' },
+    { id:'lr3', group:'L/R', label:'lock/rock', ipa:'/lɒk/ vs /rɒk/', tip:'L音で始まる単語は舌先を意識。R音は唇を少し丸めるとよい。', compare:['lamb/ram','lane/rain','low/row'], sound:'lock... rock' },
+    { id:'lr4', group:'L/R', label:'collect/correct', ipa:'/kəˈlekt/ vs /kəˈrekt/', tip:'語中のL/Rも同じルール。collectはL音、correctはR音。', compare:['glass/grass','fleet/free','blame/brain'], sound:'collect... correct' },
+    { id:'lr5', group:'L/R', label:'glass/grass', ipa:'/ɡlɑːs/ vs /ɡrɑːs/', tip:'語中のL/Rの区別。glassはGL（L音）、grassはGR（R音）。', compare:['fly/fry','blow/brow','play/pray'], sound:'glass... grass' },
+    { id:'th1', group:'TH', label:'this/dis', ipa:'/ðɪs/ vs /dɪs/', tip:'有声TH（ð）: 舌先を軽く歯の間に挟んで振動させる。Dは歯の裏。', compare:['they/day','those/doze','there/dare'], sound:'this... dis' },
+    { id:'th2', group:'TH', label:'think/sink', ipa:'/θɪŋk/ vs /sɪŋk/', tip:'無声TH（θ）: 舌先を歯の間に挟んで息を出す。Sは歯の後ろ。', compare:['thing/sing','thick/sick','thought/sought'], sound:'think... sink' },
+    { id:'th3', group:'TH', label:'three/free', ipa:'/θriː/ vs /friː/', tip:'TH（θ）は舌を歯の間に。F音は上の歯を下唇に軽く当てる。', compare:['thought/fought','thin/fin','month/buff'], sound:'three... free' },
+    { id:'th4', group:'TH', label:'thank/sank', ipa:'/θæŋk/ vs /sæŋk/', tip:'THで始まる単語は舌を歯の間に出す。Sは歯の裏で発音。', compare:['think/sink','thigh/sigh','truth/truce'], sound:'thank... sank' },
+    { id:'th5', group:'TH', label:'thought/taught', ipa:'/θɔːt/ vs /tɔːt/', tip:'THとTの違い。THは舌を歯の間に。Tは舌先を上の歯の裏に。', compare:['think/tink','path/pat','bath/bat'], sound:'thought... taught' },
+    { id:'vb1', group:'V/B', label:'vine/bine', ipa:'/vaɪn/ vs /baɪn/', tip:'V音: 上の歯を下唇に軽く当てて振動。B音: 唇を閉じてから開く。', compare:['very/berry','vent/bent','van/ban'], sound:'vine... bine' },
+    { id:'vb2', group:'V/B', label:'vest/best', ipa:'/vest/ vs /best/', tip:'Vest（V音）とBest（B音）の区別。Vは歯と唇の摩擦音。', compare:['veil/bail','vat/bat','vale/bale'], sound:'vest... best' },
+    { id:'vb3', group:'V/B', label:'very/berry', ipa:'/ˈveri/ vs /ˈberi/', tip:'Very（V音）とBerry（B音）。日本語の「バ」に引きずられないよう注意。', compare:['vine/bine','vest/best','vow/bow'], sound:'very... berry' },
+    { id:'vb4', group:'V/B', label:'vote/boat', ipa:'/vəʊt/ vs /bəʊt/', tip:'Vote（V音）とBoat（B音）。V音は歯を唇に当てて息を出す。', compare:['vile/bile','veil/bail','vast/bast'], sound:'vote... boat' },
+    { id:'vb5', group:'V/B', label:'have/hab', ipa:'/hæv/ vs /hæb/', tip:'語末のV音。HaveはV音で終わる。唇を閉じずに発音する。', compare:['live/lib','curve/curb','leave/lebe'], sound:'have... hab' },
+  ];
+
+  window.STRESS_ITEMS = [
+    { id:'st1', group:'Noun/Verb', label:'PREsent / preSENT', ipa:'名詞: /ˈpreznt/ / 動詞: /prɪˈzent/', tip:'名詞は第1音節強勢。動詞は第2音節強勢。', compare:['REcord/reCORD','PERmit/perMIT','PROtest/proTEST'], sound:'present' },
+    { id:'st2', group:'Noun/Verb', label:'REcord / reCORD', ipa:'名詞: /ˈrekɔːd/ / 動詞: /rɪˈkɔːd/', tip:'REcord（記録・名詞）とreCORD（録音する・動詞）で強勢が変わる。', compare:['PREsent/preSENT','PROgress/proGRESS','INcrease/inCREASE'], sound:'record' },
+    { id:'st3', group:'Noun/Verb', label:'PROgress / proGRESS', ipa:'名詞: /ˈprəʊɡres/ / 動詞: /prəˈɡres/', tip:'名詞形は前、動詞形は後ろに強勢。ビジネスでよく使う単語。', compare:['PROtest/proTEST','PERfect/perFECT','SUBject/subJECT'], sound:'progress' },
+    { id:'st4', group:'Noun/Verb', label:'PERmit / perMIT', ipa:'名詞: /ˈpɜːmɪt/ / 動詞: /pəˈmɪt/', tip:'PERmit（許可証）とperMIT（許可する）。書類関係でよく使う。', compare:['PROtest/proTEST','REbel/reBEL','OBject/obJECT'], sound:'permit' },
+    { id:'st5', group:'2-syllable', label:'deCIsion', ipa:'/dɪˈsɪʒn/', tip:'2音節語。DE-CI-SION → deCI。第2音節に強勢。会議でよく使う。', compare:['proposal','negotiation','presentation'], sound:'decision' },
+    { id:'st6', group:'2-syllable', label:'proPOsal', ipa:'/prəˈpəʊzl/', tip:'2音節語。PRO-PO-SAL → proPO。第2音節強勢。ビジネスの重要語。', compare:['approval','contract','agenda'], sound:'proposal' },
+    { id:'st7', group:'3-syllable', label:'negOTiate', ipa:'/nɪˈɡəʊʃieɪt/', tip:'3音節語。ne-GO-ti-ate → neGO。第2音節強勢。交渉場面で必須。', compare:['collaborate','communicate','facilitate'], sound:'negotiate' },
+    { id:'st8', group:'3-syllable', label:'colLABorate', ipa:'/kəˈlæbəreɪt/', tip:'col-LAB-o-rate → colLAB。第2音節強勢。チームワークの場面で使う。', compare:['negotiate','communicate','implement'], sound:'collaborate' },
+    { id:'st9', group:'4-syllable', label:'comMUnicate', ipa:'/kəˈmjuːnɪkeɪt/', tip:'com-MU-ni-cate → comMU。第2音節強勢。ビジネスの基本語。', compare:['collaborate','negotiate','appreciate'], sound:'communicate' },
+    { id:'st10', group:'4-syllable', label:'apPREciate', ipa:'/əˈpriːʃieɪt/', tip:'ap-PRE-ci-ate → apPRE。第2音節強勢。感謝を表す丁寧な表現。', compare:['communicate','collaborate','negotiate'], sound:'appreciate' },
+    { id:'st11', group:'Business', label:'preSENtation', ipa:'/ˌprezənˈteɪʃn/', tip:'pre-sen-TA-tion → presenTA。第3音節強勢。ビジネスで頻出。', compare:['negotiation','implementation','consideration'], sound:'presentation' },
+    { id:'st12', group:'Business', label:'implemanTAtion', ipa:'/ˌɪmplɪmenˈteɪʃn/', tip:'im-ple-men-TA-tion → implemenTA。第4音節強勢。プロジェクト管理で必須。', compare:['presentation','negotiation','collaboration'], sound:'implementation' },
+    { id:'st13', group:'Business', label:'negoTIAtion', ipa:'/nɪˌɡəʊʃɪˈeɪʃn/', tip:'ne-go-TI-a-tion → negoTIA。名詞形。negotiateの派生語。', compare:['presentation','implementation','consideration'], sound:'negotiation' },
+    { id:'st14', group:'Business', label:'collaboRAtion', ipa:'/kəˌlæbəˈreɪʃn/', tip:'col-lab-o-RA-tion → collaboRA。チームワークを表す重要語の名詞形。', compare:['negotiation','presentation','consideration'], sound:'collaboration' },
+    { id:'st15', group:'Business', label:'acCOUNtable', ipa:'/əˈkaʊntəbl/', tip:'ac-COUNT-a-ble → acCOUNT。責任を持つという意味。責任の場面で使う。', compare:['sustainable','transparent','competitive'], sound:'accountable' },
+    { id:'st16', group:'Business', label:'susTAInable', ipa:'/səˈsteɪnəbl/', tip:'sus-TAIN-a-ble → susTAIN。持続可能な。現代ビジネスで頻出。', compare:['accountable','transparent','competitive'], sound:'sustainable' },
+    { id:'st17', group:'Business', label:'transPArent', ipa:'/trænsˈpærənt/', tip:'trans-PAR-ent → transPAR。透明な・率直な。企業文化の話で使う。', compare:['accountable','sustainable','competitive'], sound:'transparent' },
+    { id:'st18', group:'Business', label:'compETitive', ipa:'/kəmˈpetɪtɪv/', tip:'com-PET-i-tive → comPET。競争力のある。市場分析でよく使う。', compare:['accountable','sustainable','transparent'], sound:'competitive' },
+    { id:'st19', group:'Business', label:'straTEgic', ipa:'/strəˈtiːdʒɪk/', tip:'stra-TE-gic → straTE。戦略的な。ビジネス会話で頻出の形容詞。', compare:['competitive','efficient','innovative'], sound:'strategic' },
+    { id:'st20', group:'Business', label:'efFIcient', ipa:'/ɪˈfɪʃnt/', tip:'ef-FI-cient → efFI。効率的な。業務改善の話で必須の語。', compare:['strategic','innovative','transparent'], sound:'efficient' },
+  ];
+  </script>
+
+  <script>
+    let currentTab = 'sounds';
+    let currentItem = null;
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+      return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-sounds').classList.toggle('active', tab === 'sounds');
+      document.getElementById('tab-stress').classList.toggle('active', tab === 'stress');
+      renderMap();
+    }
+
+    function renderMap() {
+      const state = EnglishState.getState();
+      const done = state.pronunciation.completed || [];
+      const items = currentTab === 'sounds' ? SOUND_ITEMS : STRESS_ITEMS;
+      const total = SOUND_ITEMS.length + STRESS_ITEMS.length;
+      const totalDone = done.length;
+
+      document.getElementById('map-progress').textContent = `${totalDone}/${total}`;
+
+      const grid = document.getElementById('sound-grid');
+      grid.innerHTML = '';
+
+      items.forEach(item => {
+        const isDone = done.includes(item.id);
+        const tile = document.createElement('div');
+        tile.className = `vowel-tile${isDone ? ' done' : ''}`;
+        tile.innerHTML = `
+          <div class="vowel-char" style="font-size:0.7rem;text-align:center;padding:2px;">${escHtml(item.label)}</div>
+          <div class="vowel-roman">${escHtml(item.group)}</div>
+          ${isDone ? '<span class="vowel-check">✓</span>' : ''}
+        `;
+        tile.onclick = () => openLesson(item);
+        grid.appendChild(tile);
+      });
+    }
+
+    function openLesson(item) {
+      currentItem = item;
+      document.getElementById('lesson-title').textContent = item.label + ' の練習';
+      document.getElementById('lesson-word').textContent = item.label;
+      document.getElementById('lesson-ipa').textContent = item.ipa;
+      document.getElementById('lesson-tip').textContent = '💡 ' + item.tip;
+
+      const compareTitle = document.getElementById('compare-title');
+      const compareArea = document.getElementById('compare-area');
+      compareTitle.textContent = item.compare ? '比較ペア' : '例';
+      compareArea.innerHTML = '';
+
+      if (item.compare) {
+        item.compare.forEach(pair => {
+          const btn = document.createElement('button');
+          btn.className = 'compare-btn';
+          btn.textContent = pair;
+          btn.onclick = () => EnglishSpeech.speak(pair.replace('/', '... '));
+          compareArea.appendChild(btn);
+        });
+      }
+
+      const wArea = document.getElementById('example-words');
+      wArea.innerHTML = '';
+      if (item.compare) {
+        item.compare.forEach(pair => {
+          const [a, b] = pair.split('/');
+          const el = document.createElement('div');
+          el.className = 'pair-example';
+          el.innerHTML = `
+            <div style="flex:1;">
+              <span style="font-weight:700;">${escHtml(a || '')}</span>
+              ${b ? ` / <span style="font-weight:700;">${escHtml(b)}</span>` : ''}
+            </div>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="EnglishSpeech.speak('${escAttr(pair.replace('/', '... '))}')">🔊</button>
+          `;
+          wArea.appendChild(el);
+        });
+      }
+
+      EnglishNav.showScreen('screen-lesson');
+      setTimeout(() => EnglishSpeech.speak(item.sound), 400);
+    }
+
+    function playSound() {
+      if (currentItem) EnglishSpeech.speak(currentItem.sound);
+    }
+
+    function markDone() {
+      if (!currentItem) return;
+      EnglishState.markPronunciationDone(currentItem.id);
+      EnglishState.updateStreak();
+      EnglishNav.showToast(`✓「${currentItem.label}」を習得しました！`);
+      EnglishNav.showScreen('screen-map');
+      renderMap();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderMap);
+  </script>
+</body>
+</html>

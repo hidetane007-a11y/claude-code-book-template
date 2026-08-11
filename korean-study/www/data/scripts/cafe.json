@@ -1,0 +1,307 @@
+{
+  "id": "cafe",
+  "name": "カフェ",
+  "beats": [
+    {
+      "id": "start",
+      "reply_kr": "어서 오세요! 뭐 드릴까요?",
+      "reply_jp": "いらっしゃいませ！ご注文は何になさいますか？",
+      "romanization": "Eoseo oseyo! Mwo deuril kkayo?",
+      "vocabulary": [
+        { "kr": "어서 오세요", "jp": "いらっしゃいませ" },
+        { "kr": "뭐", "jp": "何" },
+        { "kr": "드릴까요", "jp": "差し上げましょうか（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["메뉴","menu","メニュー","뭐 있","뭐있"], "next": "show_menu" },
+        { "keywords": ["아메리카노","아메","americano","coffee","コーヒー","블랙"], "next": "order_americano" },
+        { "keywords": ["라떼","latte","ラテ","카페라떼"], "next": "order_latte" },
+        { "keywords": ["녹차","green","グリーン","말차","matcha"], "next": "order_greentea" },
+        { "keywords": ["케이크","cake","ケーキ","디저트","dessert"], "next": "ask_drink_with_cake" },
+        { "default": true, "next": "ask_again" }
+      ]
+    },
+    {
+      "id": "show_menu",
+      "reply_kr": "저희 메뉴는 아메리카노, 카페라떼, 녹차라떼, 케이크가 있어요. 뭐로 드릴까요?",
+      "reply_jp": "こちらのメニューはアメリカーノ、カフェラテ、抹茶ラテ、ケーキがございます。何になさいますか？",
+      "romanization": "Jeohui menyuneun...",
+      "vocabulary": [
+        { "kr": "저희", "jp": "私ども（謙譲）" },
+        { "kr": "메뉴", "jp": "メニュー" },
+        { "kr": "뭐로", "jp": "何で・何に" }
+      ],
+      "transitions": [
+        { "keywords": ["아메리카노","아메","americano","coffee","コーヒー"], "next": "order_americano" },
+        { "keywords": ["라떼","latte","ラテ","카페라떼"], "next": "order_latte" },
+        { "keywords": ["녹차","green","グリーン","말차","matcha"], "next": "order_greentea" },
+        { "keywords": ["케이크","cake","ケーキ"], "next": "ask_drink_with_cake" },
+        { "default": true, "next": "order_americano" }
+      ]
+    },
+    {
+      "id": "ask_again",
+      "reply_kr": "죄송합니다, 다시 한번 말씀해 주시겠어요?",
+      "reply_jp": "申し訳ありません、もう一度おっしゃっていただけますか？",
+      "romanization": "Joesonghamnida, dasi hanbeon malsseum hae jusigesseoyo?",
+      "vocabulary": [
+        { "kr": "죄송합니다", "jp": "申し訳ありません" },
+        { "kr": "다시", "jp": "もう一度・再び" },
+        { "kr": "말씀해 주시겠어요", "jp": "おっしゃっていただけますか（敬語）" }
+      ],
+      "transitions": [
+        { "keywords": ["아메리카노","아메","americano","coffee","コーヒー"], "next": "order_americano" },
+        { "keywords": ["라떼","latte","ラテ"], "next": "order_latte" },
+        { "keywords": ["녹차","green"], "next": "order_greentea" },
+        { "default": true, "next": "order_americano" }
+      ]
+    },
+    {
+      "id": "order_americano",
+      "reply_kr": "아메리카노 드릴게요. 아이스로 드릴까요, 따뜻하게 드릴까요?",
+      "reply_jp": "アメリカーノですね。アイスにしますか、温かくしますか？",
+      "romanization": "Amerikano deurilgeyo. Aiseuro deuril kkayo, ttatteutage deuril kkayo?",
+      "vocabulary": [
+        { "kr": "드릴게요", "jp": "お出しします（丁寧）" },
+        { "kr": "아이스로", "jp": "アイスで" },
+        { "kr": "따뜻하게", "jp": "温かく" }
+      ],
+      "transitions": [
+        { "keywords": ["아이스","ice","アイス","cold","차갑","冷たい"], "next": "size_question" },
+        { "keywords": ["따뜻","hot","ホット","warm","핫"], "next": "size_question_hot" },
+        { "default": true, "next": "size_question" }
+      ]
+    },
+    {
+      "id": "order_latte",
+      "reply_kr": "카페라떼 드릴게요. 아이스로 드릴까요, 따뜻하게 드릴까요?",
+      "reply_jp": "カフェラテですね。アイスにしますか、温かくしますか？",
+      "romanization": "Kape ratte deurilgeyo. Aiseuro deuril kkayo, ttatteutage deuril kkayo?",
+      "vocabulary": [
+        { "kr": "카페라떼", "jp": "カフェラテ" },
+        { "kr": "아이스로", "jp": "アイスで" },
+        { "kr": "따뜻하게", "jp": "温かく" }
+      ],
+      "transitions": [
+        { "keywords": ["아이스","ice","アイス","cold","차갑"], "next": "size_question" },
+        { "keywords": ["따뜻","hot","ホット","warm","핫"], "next": "size_question_hot" },
+        { "default": true, "next": "size_question" }
+      ]
+    },
+    {
+      "id": "order_greentea",
+      "reply_kr": "녹차라떼 드릴게요. 아이스로 드릴까요, 따뜻하게 드릴까요?",
+      "reply_jp": "抹茶ラテですね。アイスにしますか、温かくしますか？",
+      "romanization": "Nokcha ratte deurilgeyo.",
+      "vocabulary": [
+        { "kr": "녹차", "jp": "緑茶・抹茶" },
+        { "kr": "녹차라떼", "jp": "抹茶ラテ" }
+      ],
+      "transitions": [
+        { "keywords": ["아이스","ice","アイス","cold"], "next": "size_question" },
+        { "keywords": ["따뜻","hot","ホット","warm"], "next": "size_question_hot" },
+        { "default": true, "next": "size_question" }
+      ]
+    },
+    {
+      "id": "ask_drink_with_cake",
+      "reply_kr": "케이크 드릴게요! 음료도 같이 드릴까요?",
+      "reply_jp": "ケーキですね！お飲み物も一緒にいかがですか？",
+      "romanization": "Keikeu deurilgeyo! Eumnyodo gachi deuril kkayo?",
+      "vocabulary": [
+        { "kr": "케이크", "jp": "ケーキ" },
+        { "kr": "음료", "jp": "飲み物" },
+        { "kr": "같이", "jp": "一緒に" }
+      ],
+      "transitions": [
+        { "keywords": ["아메리카노","아메","coffee","コーヒー"], "next": "order_americano" },
+        { "keywords": ["라떼","latte","ラテ"], "next": "order_latte" },
+        { "keywords": ["녹차","green","抹茶"], "next": "order_greentea" },
+        { "keywords": ["아니","no","없","괜찮"], "next": "ask_more" },
+        { "default": true, "next": "order_americano" }
+      ]
+    },
+    {
+      "id": "size_question",
+      "reply_kr": "아이스로 드릴게요! 사이즈는요? 스몰, 미디엄, 라지 있어요.",
+      "reply_jp": "アイスですね！サイズはいかがですか？スモール、ミディアム、ラージがあります。",
+      "romanization": "Aiseuro deurilgeyo! Saijeuneunyo? Seumol, midieom, raji isseoyo.",
+      "vocabulary": [
+        { "kr": "사이즈", "jp": "サイズ" },
+        { "kr": "스몰", "jp": "スモール" },
+        { "kr": "미디엄", "jp": "ミディアム" },
+        { "kr": "라지", "jp": "ラージ" }
+      ],
+      "transitions": [
+        { "keywords": ["스몰","small","s","작은","small","소","S"], "next": "ask_more" },
+        { "keywords": ["라지","large","l","큰","big","L"], "next": "ask_more_large" },
+        { "keywords": ["미디엄","medium","m","M","중간"], "next": "ask_more" },
+        { "default": true, "next": "ask_more" }
+      ]
+    },
+    {
+      "id": "size_question_hot",
+      "reply_kr": "따뜻하게 드릴게요! 사이즈는요? 스몰, 미디엄, 라지 있어요.",
+      "reply_jp": "温かくですね！サイズはいかがですか？",
+      "romanization": "Ttatteutage deurilgeyo! Saijeuneunyo?",
+      "vocabulary": [
+        { "kr": "따뜻하게", "jp": "温かく" },
+        { "kr": "사이즈", "jp": "サイズ" }
+      ],
+      "transitions": [
+        { "keywords": ["스몰","small","s","작은","소"], "next": "ask_more" },
+        { "keywords": ["라지","large","l","큰","big"], "next": "ask_more_large" },
+        { "keywords": ["미디엄","medium","m","중간"], "next": "ask_more" },
+        { "default": true, "next": "ask_more" }
+      ]
+    },
+    {
+      "id": "ask_more",
+      "reply_kr": "알겠습니다! 더 필요하신 것 있으세요?",
+      "reply_jp": "かしこまりました！他に何かご必要なものはありますか？",
+      "romanization": "Algesseumnida! Deo piryohashim geot isseuseyo?",
+      "vocabulary": [
+        { "kr": "알겠습니다", "jp": "かしこまりました" },
+        { "kr": "더", "jp": "さらに・もっと" },
+        { "kr": "필요하다", "jp": "必要だ" }
+      ],
+      "transitions": [
+        { "keywords": ["케이크","cake","ケーキ","디저트"], "next": "add_cake" },
+        { "keywords": ["아니","no","없","괜찮","いいえ","大丈夫"], "next": "total" },
+        { "keywords": ["네","yes","はい","응"], "next": "ask_what_else" },
+        { "default": true, "next": "total" }
+      ]
+    },
+    {
+      "id": "ask_more_large",
+      "reply_kr": "라지 사이즈로 드릴게요! 더 필요하신 것 있으세요?",
+      "reply_jp": "ラージサイズですね！他にご必要なものはありますか？",
+      "romanization": "Raji saijeuро deurilgeyo!",
+      "vocabulary": [
+        { "kr": "라지", "jp": "ラージ" },
+        { "kr": "사이즈", "jp": "サイズ" }
+      ],
+      "transitions": [
+        { "keywords": ["케이크","cake","ケーキ"], "next": "add_cake" },
+        { "keywords": ["아니","no","없","괜찮"], "next": "total" },
+        { "default": true, "next": "total" }
+      ]
+    },
+    {
+      "id": "ask_what_else",
+      "reply_kr": "뭐가 더 필요하세요?",
+      "reply_jp": "何が他に必要ですか？",
+      "romanization": "Mwoga deo piryohaseyo?",
+      "vocabulary": [
+        { "kr": "뭐가", "jp": "何が" },
+        { "kr": "필요하세요", "jp": "必要ですか（丁寧）" }
+      ],
+      "transitions": [
+        { "keywords": ["케이크","cake","ケーキ"], "next": "add_cake" },
+        { "keywords": ["아니","없","괜찮","nothing"], "next": "total" },
+        { "default": true, "next": "total" }
+      ]
+    },
+    {
+      "id": "add_cake",
+      "reply_kr": "케이크도 드릴게요. 어떤 케이크로 드릴까요? 초코 케이크, 치즈 케이크가 있어요.",
+      "reply_jp": "ケーキもお出しします。どのケーキになさいますか？チョコケーキ、チーズケーキがあります。",
+      "romanization": "Keikeu도 deurilgeyo.",
+      "vocabulary": [
+        { "kr": "어떤", "jp": "どんな・どの" },
+        { "kr": "초코", "jp": "チョコ" },
+        { "kr": "치즈", "jp": "チーズ" }
+      ],
+      "transitions": [
+        { "keywords": ["초코","choco","チョコ","chocolate","초콜릿"], "next": "total" },
+        { "keywords": ["치즈","cheese","チーズ"], "next": "total" },
+        { "default": true, "next": "total" }
+      ]
+    },
+    {
+      "id": "total",
+      "reply_kr": "총 오천오백 원입니다. 카드로 결제하시겠어요, 현금으로 하시겠어요?",
+      "reply_jp": "合計5,500ウォンです。カードでお支払いになりますか、現金ですか？",
+      "romanization": "Chong ocheon obaek wonipnida. Kaduро gyeoljehasi geseoyo, hyeongeum으로 hasigesseoyo?",
+      "vocabulary": [
+        { "kr": "총", "jp": "合計" },
+        { "kr": "원", "jp": "ウォン（韓国の通貨単位）" },
+        { "kr": "결제", "jp": "支払い・決済" },
+        { "kr": "현금", "jp": "現金" }
+      ],
+      "transitions": [
+        { "keywords": ["카드","card","クレジット","신용","credit"], "next": "pay_card" },
+        { "keywords": ["현금","cash","現金","지폐","동전"], "next": "pay_cash" },
+        { "default": true, "next": "pay_card" }
+      ]
+    },
+    {
+      "id": "pay_card",
+      "reply_kr": "카드 여기에 넣어 주세요. 감사합니다!",
+      "reply_jp": "カードをこちらに差し込んでください。ありがとうございます！",
+      "romanization": "Kadu yeogi-e neoeo juseyo. Gamsahamnida!",
+      "vocabulary": [
+        { "kr": "여기에", "jp": "ここに" },
+        { "kr": "넣다", "jp": "入れる" },
+        { "kr": "감사합니다", "jp": "ありがとうございます" }
+      ],
+      "transitions": [
+        { "keywords": ["영수증","receipt","레시피","레시트"], "next": "give_receipt" },
+        { "keywords": ["네","yes","はい","주세요","please"], "next": "give_receipt" },
+        { "default": true, "next": "ready" }
+      ]
+    },
+    {
+      "id": "pay_cash",
+      "reply_kr": "감사합니다. 거스름돈 사백오십 원입니다.",
+      "reply_jp": "ありがとうございます。お釣りは450ウォンです。",
+      "romanization": "Gamsahamnida. Geoseureumdon sabaeksip wonipnida.",
+      "vocabulary": [
+        { "kr": "거스름돈", "jp": "お釣り" },
+        { "kr": "오십", "jp": "五十" },
+        { "kr": "사백", "jp": "四百" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ready" }
+      ]
+    },
+    {
+      "id": "give_receipt",
+      "reply_kr": "영수증 여기 있어요. 잠시만 기다려 주세요!",
+      "reply_jp": "レシートはこちらです。少々お待ちください！",
+      "romanization": "Yeongsujeung yeogi isseoyo. Jamsimangidaryeo juseyo!",
+      "vocabulary": [
+        { "kr": "영수증", "jp": "レシート・領収証" },
+        { "kr": "잠시만", "jp": "少々" },
+        { "kr": "기다려 주세요", "jp": "お待ちください" }
+      ],
+      "transitions": [
+        { "default": true, "next": "ready" }
+      ]
+    },
+    {
+      "id": "ready",
+      "reply_kr": "준비됐어요! 맛있게 드세요! 또 오세요!",
+      "reply_jp": "お待たせしました！どうぞ召し上がれ！またお越しください！",
+      "romanization": "Junbidwaesseoyo! Masitge deuseyo! Ddo oseyo!",
+      "vocabulary": [
+        { "kr": "준비됐어요", "jp": "準備できました" },
+        { "kr": "맛있게 드세요", "jp": "おいしく召し上がれ" },
+        { "kr": "또 오세요", "jp": "またお越しください" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_kr": "감사합니다! 좋은 하루 되세요!",
+      "reply_jp": "ありがとうございます！良い一日を！",
+      "romanization": "Gamsahamnida! Joheun haru doeseyo!",
+      "vocabulary": [
+        { "kr": "좋은 하루 되세요", "jp": "良い一日を（お過ごしください）" }
+      ],
+      "transitions": []
+    }
+  ]
+}

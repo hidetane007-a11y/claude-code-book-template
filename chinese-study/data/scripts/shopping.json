@@ -1,0 +1,146 @@
+{
+  "id": "shopping",
+  "name": "ショッピング",
+  "beats": [
+    {
+      "id": "start",
+      "reply_zh": "您好！欢迎光临。请问您要找什么？",
+      "reply_jp": "こんにちは！いらっしゃいませ。何をお探しですか？",
+      "pinyin": "Nín hǎo! Huānyíng guānglín. Qǐngwèn nín yào zhǎo shénme?",
+      "vocabulary": [
+        { "zh": "找", "jp": "探す", "pinyin": "zhǎo" },
+        { "zh": "什么", "jp": "何", "pinyin": "shénme" }
+      ],
+      "transitions": [
+        { "keywords": ["衣服","服","clothes","shirt","衬衫","T恤"], "next": "show_clothes" },
+        { "keywords": ["鞋","靴","shoes","sneaker"], "next": "show_shoes" },
+        { "keywords": ["包","バッグ","bag","handbag"], "next": "show_bag" },
+        { "keywords": ["看看","ちょっと見る","just looking","随便看看"], "next": "browse" },
+        { "default": true, "next": "browse" }
+      ]
+    },
+    {
+      "id": "browse",
+      "reply_zh": "好的，您随便看。有需要请叫我。",
+      "reply_jp": "はい、ごゆっくりどうぞ。何かあればお呼びください。",
+      "pinyin": "Hǎo de, nín suíbiàn kàn. Yǒu xūyào qǐng jiào wǒ.",
+      "vocabulary": [
+        { "zh": "随便", "jp": "気ままに・自由に", "pinyin": "suíbiàn" },
+        { "zh": "叫", "jp": "呼ぶ", "pinyin": "jiào" }
+      ],
+      "transitions": [
+        { "keywords": ["这个","これ","this","那个","あれ"], "next": "item_inquiry" },
+        { "default": true, "next": "item_inquiry" }
+      ]
+    },
+    {
+      "id": "show_clothes",
+      "reply_zh": "我们的新款衬衫在这边。您喜欢什么颜色？",
+      "reply_jp": "新作シャツはこちらです。何色がお好みですか？",
+      "pinyin": "Wǒmen de xīn kuǎn chènshān zài zhè biān. Nín xǐhuān shénme yánsè?",
+      "vocabulary": [
+        { "zh": "新款", "jp": "新作・新型", "pinyin": "xīn kuǎn" },
+        { "zh": "颜色", "jp": "色", "pinyin": "yánsè" }
+      ],
+      "transitions": [
+        { "keywords": ["白","白い","white"], "next": "item_inquiry" },
+        { "keywords": ["黑","黒い","black"], "next": "item_inquiry" },
+        { "keywords": ["红","赤い","red"], "next": "item_inquiry" },
+        { "default": true, "next": "item_inquiry" }
+      ]
+    },
+    {
+      "id": "show_shoes",
+      "reply_zh": "鞋区在那边。您穿几码？",
+      "reply_jp": "靴売り場はあちらです。サイズは何センチですか？",
+      "pinyin": "Xié qū zài nà biān. Nín chuān jǐ mǎ?",
+      "vocabulary": [
+        { "zh": "码", "jp": "サイズ（靴）", "pinyin": "mǎ" },
+        { "zh": "穿", "jp": "履く・着る", "pinyin": "chuān" }
+      ],
+      "transitions": [{ "default": true, "next": "item_inquiry" }]
+    },
+    {
+      "id": "show_bag",
+      "reply_zh": "包包在这里。这款很受欢迎。",
+      "reply_jp": "バッグはこちらです。このモデルはとても人気です。",
+      "pinyin": "Bāobāo zài zhèlǐ. Zhè kuǎn hěn shòu huānyíng.",
+      "vocabulary": [
+        { "zh": "包包", "jp": "バッグ", "pinyin": "bāobāo" }
+      ],
+      "transitions": [{ "default": true, "next": "item_inquiry" }]
+    },
+    {
+      "id": "item_inquiry",
+      "reply_zh": "这件怎么样？可以试穿。",
+      "reply_jp": "こちらはいかがですか？試着できますよ。",
+      "pinyin": "Zhè jiàn zěnmeyàng? Kěyǐ shì chuān.",
+      "vocabulary": [
+        { "zh": "怎么样", "jp": "いかがですか", "pinyin": "zěnmeyàng" },
+        { "zh": "试穿", "jp": "試着する", "pinyin": "shì chuān" }
+      ],
+      "transitions": [
+        { "keywords": ["试","試着","try","着てみる"], "next": "fitting" },
+        { "keywords": ["多少钱","いくら","price","价格"], "next": "price" },
+        { "default": true, "next": "price" }
+      ]
+    },
+    {
+      "id": "fitting",
+      "reply_zh": "试衣间在那边。需要大一号或小一号吗？",
+      "reply_jp": "試着室はあちらです。サイズを変えますか？",
+      "pinyin": "Shì yī jiān zài nà biān. Xūyào dà yī hào huò xiǎo yī hào ma?",
+      "vocabulary": [
+        { "zh": "试衣间", "jp": "試着室", "pinyin": "shì yī jiān" },
+        { "zh": "大一号", "jp": "1サイズ大きい", "pinyin": "dà yī hào" }
+      ],
+      "transitions": [{ "default": true, "next": "price" }]
+    },
+    {
+      "id": "price",
+      "reply_zh": "这件两百九十八元。现在打八折。",
+      "reply_jp": "こちらは298元です。今20%オフです。",
+      "pinyin": "Zhè jiàn liǎng bǎi jiǔshí bā yuán. Xiànzài dǎ bā zhé.",
+      "vocabulary": [
+        { "zh": "打折", "jp": "割引", "pinyin": "dǎ zhé" },
+        { "zh": "八折", "jp": "2割引（8掛け）", "pinyin": "bā zhé" }
+      ],
+      "transitions": [
+        { "keywords": ["便宜","安くして","discount","讲价","能便宜吗"], "next": "bargain" },
+        { "keywords": ["买","購入","buy","要了","这个"], "next": "checkout" },
+        { "default": true, "next": "checkout" }
+      ]
+    },
+    {
+      "id": "bargain",
+      "reply_zh": "已经是最低价了。这样吧，再优惠二十元。",
+      "reply_jp": "これが最安値です。では、さらに20元お値引きします。",
+      "pinyin": "Yǐjīng shì zuì dī jià le. Zhèyàng ba, zài yōuhuì èrshí yuán.",
+      "vocabulary": [
+        { "zh": "最低价", "jp": "最安値", "pinyin": "zuì dī jià" },
+        { "zh": "优惠", "jp": "値引き・特典", "pinyin": "yōuhuì" }
+      ],
+      "transitions": [{ "default": true, "next": "checkout" }]
+    },
+    {
+      "id": "checkout",
+      "reply_zh": "好的，一共两百七十八元。现金还是刷卡？",
+      "reply_jp": "ありがとうございます。合計278元です。現金ですかカードですか？",
+      "pinyin": "Hǎo de, yīgòng liǎng bǎi qīshí bā yuán. Xiànjīn háishi shuā kǎ?",
+      "vocabulary": [
+        { "zh": "现金", "jp": "現金", "pinyin": "xiànjīn" }
+      ],
+      "transitions": [{ "default": true, "next": "end" }]
+    },
+    {
+      "id": "end",
+      "reply_zh": "谢谢购买！欢迎下次再来！",
+      "reply_jp": "ありがとうございました！またのお越しをお待ちしています！",
+      "pinyin": "Xièxie gòumǎi! Huānyíng xià cì zài lái!",
+      "vocabulary": [
+        { "zh": "购买", "jp": "購入", "pinyin": "gòumǎi" }
+      ],
+      "transitions": []
+    }
+  ]
+}

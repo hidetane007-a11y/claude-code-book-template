@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#3B82F6">
+  <title>単語帳 | 韓国語学習</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./css/app.css">
+  <style>
+    .source-tag {
+      display: inline-block;
+      padding: 1px 7px;
+      background: #EFF6FF;
+      color: var(--primary);
+      border-radius: 99px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+    }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .word-count-badge {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .sort-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .sort-btn {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .sort-btn.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #EFF6FF;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="page-header">
+      <a href="./" class="back-btn">←</a>
+      <h1>📖 単語帳</h1>
+      <div class="header-right">
+        <span class="word-count-badge" id="word-count-badge">0語</span>
+        <button class="btn btn-ghost btn-sm" id="clear-btn" onclick="clearAll()" style="display:none;">全削除</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="sort-row">
+        <button class="sort-btn active" id="sort-new" onclick="setSort('new')">新しい順</button>
+        <button class="sort-btn" id="sort-old" onclick="setSort('old')">古い順</button>
+        <button class="sort-btn" id="sort-abc" onclick="setSort('abc')">가나다順</button>
+      </div>
+
+      <div id="word-list"></div>
+    </div>
+  </div>
+
+  <!-- ボトムナビ -->
+  <nav class="bottom-nav">
+    <a href="./"><span class="nav-icon">🏠</span>ホーム</a>
+    <a href="./wordbook.html" class="active"><span class="nav-icon">📖</span>単語帳</a>
+    <a href="./"><span class="nav-icon">📊</span>記録</a>
+  </nav>
+
+  <!-- スクリプト読み込み順：state → speech → nav → ページコード -->
+  <script src="./js/state.js"></script>
+  <script src="./js/speech.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    let sortMode = 'new';
+
+    function setSort(mode) {
+      sortMode = mode;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('sort-' + mode).classList.add('active');
+      render();
+    }
+
+    function render() {
+      let words = KoreanState.getWords();
+
+      if (!words.length) {
+        document.getElementById('word-list').innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>まだ単語が登録されていません。<br>会話練習でAIが提示した単語を<br>タップして追加しましょう。</p>
+          </div>
+        `;
+        document.getElementById('word-count-badge').textContent = '0語';
+        document.getElementById('clear-btn').style.display = 'none';
+        return;
+      }
+
+      if (sortMode === 'new') {
+        words = [...words].reverse();
+      } else if (sortMode === 'old') {
+        // デフォルト順（追加順）
+      } else if (sortMode === 'abc') {
+        words = [...words].sort((a, b) => a.kr.localeCompare(b.kr, 'ko'));
+      }
+
+      document.getElementById('word-count-badge').textContent = `${words.length}語`;
+      document.getElementById('clear-btn').style.display = 'block';
+
+      const list = document.getElementById('word-list');
+      list.innerHTML = '';
+
+      words.forEach(w => {
+        const el = document.createElement('div');
+        el.className = 'word-item';
+        const date = w.addedAt ? new Date(w.addedAt).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) : '';
+        el.innerHTML = `
+          <div style="flex:1;">
+            <div class="word-kr">${escHtml(w.kr)}</div>
+            <div class="word-jp">${escHtml(w.jp)}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+              ${w.source ? `<span class="source-tag">${escHtml(w.source)}</span>` : ''}
+              ${date ? `<span class="word-source">${date}</span>` : ''}
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="KoreanSpeech.speak('${escAttr(w.kr)}')" title="発音を聞く">🔊</button>
+          <button class="del-btn" onclick="deleteWord('${escAttr(w.kr)}')" title="削除">🗑</button>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function deleteWord(kr) {
+      KoreanState.removeWord(kr);
+      KoreanNav.showToast('削除しました');
+      render();
+    }
+
+    function clearAll() {
+      if (!confirm('単語帳をすべて削除しますか？')) return;
+      const s = KoreanState.getState();
+      s.wordbook = [];
+      KoreanState.saveState(s);
+      render();
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+      return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>

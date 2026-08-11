@@ -1,0 +1,117 @@
+{
+  "id": "presentation",
+  "name": "Presentation",
+  "beats": [
+    {
+      "id": "start",
+      "reply_en": "Good afternoon, everyone. Thank you for joining today's presentation. I'll be walking you through our new product launch strategy. Let's start with a brief overview. Ready?",
+      "reply_jp": "こんにちは皆さん。本日のプレゼンにご参加いただきありがとうございます。新製品ローンチ戦略についてご説明します。概要から始めましょう。準備はよろしいですか？",
+      "vocabulary": [
+        { "en": "walk you through", "jp": "順を追って説明する" },
+        { "en": "product launch", "jp": "製品発売・ローンチ" },
+        { "en": "overview", "jp": "概要" }
+      ],
+      "transitions": [
+        { "keywords": ["ready","yes","go","proceed","start","begin","please"], "next": "intro" },
+        { "keywords": ["question","what","how","why","could you","can you"], "next": "pre_question" },
+        { "default": true, "next": "intro" }
+      ]
+    },
+    {
+      "id": "pre_question",
+      "reply_en": "Great question. I'll actually cover that in detail during the presentation. Could you hold that thought? I'll take questions at the end.",
+      "reply_jp": "良い質問です。プレゼン中に詳しくお伝えします。その疑問は持っておいていただけますか？質疑応答は最後に行います。",
+      "vocabulary": [
+        { "en": "hold that thought", "jp": "その考えをとっておいてください" },
+        { "en": "take questions", "jp": "質問を受ける" },
+        { "en": "in detail", "jp": "詳しく" }
+      ],
+      "transitions": [
+        { "default": true, "next": "intro" }
+      ]
+    },
+    {
+      "id": "intro",
+      "reply_en": "First, let me give you some background. Our market research shows a 30% gap in the premium segment. Our new product directly addresses this opportunity. Any thoughts so far?",
+      "reply_jp": "まず背景をお伝えします。市場調査によると、プレミアムセグメントに30%のギャップがあります。新製品はこの機会に直接対応します。ここまでいかがでしょうか？",
+      "vocabulary": [
+        { "en": "market research", "jp": "市場調査" },
+        { "en": "gap", "jp": "隙間・差" },
+        { "en": "premium segment", "jp": "プレミアムセグメント" },
+        { "en": "addresses", "jp": "対応する・解決する" }
+      ],
+      "transitions": [
+        { "keywords": ["interesting","good","clear","understand","follow","continue","next"], "next": "main_points" },
+        { "keywords": ["question","clarify","what","mean","explain","how","why"], "next": "clarify" },
+        { "default": true, "next": "main_points" }
+      ]
+    },
+    {
+      "id": "clarify",
+      "reply_en": "Let me clarify. By 'gap', I mean there's a lack of high-quality, affordable products in that price range. Does that make sense now?",
+      "reply_jp": "明確にしましょう。「ギャップ」とは、その価格帯に高品質で手頃な製品が不足しているということです。ご理解いただけましたか？",
+      "vocabulary": [
+        { "en": "clarify", "jp": "明確にする・説明する" },
+        { "en": "lack of", "jp": "〜の不足" },
+        { "en": "affordable", "jp": "手頃な価格の" },
+        { "en": "Does that make sense?", "jp": "ご理解いただけましたか？" }
+      ],
+      "transitions": [
+        { "default": true, "next": "main_points" }
+      ]
+    },
+    {
+      "id": "main_points",
+      "reply_en": "Moving on to the key features. There are three main selling points: first, advanced AI integration; second, 40% lower cost than competitors; third, same-day delivery. What questions do you have?",
+      "reply_jp": "主要な特徴に移ります。3つの主な売りがあります。第一にAI統合の高度化、第二に競合比40%のコスト削減、第三に当日配送です。ご質問はありますか？",
+      "vocabulary": [
+        { "en": "selling points", "jp": "セールスポイント・売り" },
+        { "en": "integration", "jp": "統合" },
+        { "en": "competitor", "jp": "競合他社" },
+        { "en": "same-day delivery", "jp": "当日配送" }
+      ],
+      "transitions": [
+        { "keywords": ["question","how","why","what","price","cost","when","launch","timeline"], "next": "qa" },
+        { "keywords": ["continue","next","go on","proceed","more"], "next": "conclusion" },
+        { "default": true, "next": "qa" }
+      ]
+    },
+    {
+      "id": "qa",
+      "reply_en": "Excellent question. We're planning to launch in Q1 next year with a phased rollout. I'll send you the detailed timeline after this meeting. Any other questions?",
+      "reply_jp": "素晴らしい質問です。来年第1四半期に段階的なロールアウトで発売予定です。詳細なタイムラインは会議後にお送りします。他にご質問はありますか？",
+      "vocabulary": [
+        { "en": "phased rollout", "jp": "段階的な展開" },
+        { "en": "timeline", "jp": "スケジュール・工程表" },
+        { "en": "Q1", "jp": "第1四半期" }
+      ],
+      "transitions": [
+        { "default": true, "next": "conclusion" }
+      ]
+    },
+    {
+      "id": "conclusion",
+      "reply_en": "To summarize: new product, 30% market opportunity, three key advantages. Thank you for your time and attention. I look forward to your feedback. Any final questions?",
+      "reply_jp": "まとめると、新製品で30%の市場機会、3つの主要な優位点があります。ご清聴ありがとうございました。フィードバックをお待ちしています。最後に何かご質問はありますか？",
+      "vocabulary": [
+        { "en": "to summarize", "jp": "まとめると" },
+        { "en": "advantage", "jp": "優位点・利点" },
+        { "en": "I look forward to", "jp": "〜を楽しみにしています" },
+        { "en": "feedback", "jp": "フィードバック・意見" }
+      ],
+      "transitions": [
+        { "default": true, "next": "end" }
+      ]
+    },
+    {
+      "id": "end",
+      "reply_en": "Thank you all! The slides will be shared via email. Let's connect offline if you have more questions. Great session!",
+      "reply_jp": "皆さんありがとうございました！スライドはメールでお送りします。追加の質問があれば個別にご連絡ください。素晴らしいセッションでした！",
+      "vocabulary": [
+        { "en": "connect offline", "jp": "個別に連絡する" },
+        { "en": "slides", "jp": "スライド・資料" }
+      ],
+      "transitions": []
+    }
+  ]
+}

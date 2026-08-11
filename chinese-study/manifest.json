@@ -1,0 +1,17 @@
+{
+  "name": "中国語学習 オフライン練習",
+  "short_name": "中国語",
+  "description": "ネットワーク不要で中国語を練習できるアプリ。会話・声調・ピンイン・量詞をオフラインで学べます。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1F5F9",
+  "theme_color": "#EF4444",
+  "lang": "ja",
+  "categories": ["education"],
+  "icons": [
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

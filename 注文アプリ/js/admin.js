@@ -1,0 +1,212 @@
+let currentFilter = 'all';
+let lastOrderCount = -1;
+let cachedOrders   = [];
+
+// ── 通知音 ────────────────────────────────────────────
+function playOrderSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [[0, 880], [0.18, 1108], [0.36, 1318]].forEach(([delay, freq]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + delay);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + delay + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.55);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.55);
+    });
+  } catch (e) {}
+}
+
+function flashNewOrder() {
+  const bar = document.getElementById('stats-bar');
+  bar.classList.add('new-order-flash');
+  setTimeout(() => bar.classList.remove('new-order-flash'), 1500);
+}
+
+// ── 描画 ─────────────────────────────────────────────
+function renderStats() {
+  const counts = { pending: 0, preparing: 0, ready: 0, delivered: 0 };
+  let reservationCount = 0;
+  cachedOrders.forEach(o => {
+    counts[o.status] = (counts[o.status] || 0) + 1;
+    if (o.isReservation) reservationCount++;
+  });
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-card"><strong>${cachedOrders.length}</strong>総注文数</div>
+    <div class="stat-card"><strong>${reservationCount}</strong>予約</div>
+    <div class="stat-card"><strong>${counts.pending}</strong>受付済</div>
+    <div class="stat-card"><strong>${counts.preparing}</strong>調理中</div>
+    <div class="stat-card"><strong>${counts.ready}</strong>準備完了</div>
+  `;
+}
+
+function renderFilters() {
+  const defs = [
+    { key: 'all',         label: '全件' },
+    { key: 'reservation', label: '📅 予約' },
+    { key: 'pending',     label: '受付済' },
+    { key: 'preparing',   label: '調理中' },
+    { key: 'ready',       label: '準備完了' },
+    { key: 'delivered',   label: '完了' },
+  ];
+  document.getElementById('filters').innerHTML = defs.map(f => `
+    <button class="filter-btn ${f.key === currentFilter ? 'active' : ''}" onclick="setFilter('${f.key}')">${f.label}</button>
+  `).join('');
+}
+
+function setFilter(key) {
+  currentFilter = key;
+  renderFilters();
+  renderTable();
+}
+
+function renderTable() {
+  const all = cachedOrders;
+  const orders = currentFilter === 'all' ? all
+    : currentFilter === 'reservation' ? all.filter(o => o.isReservation)
+    : all.filter(o => o.status === currentFilter);
+  const tbody = document.getElementById('order-tbody');
+
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">注文がありません</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = orders.map(order => {
+    const s = STATUS_LABELS[order.status];
+    const dt = new Date(order.createdAt);
+    const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    const itemsSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
+    const nextClick = s.next ? `onclick="advanceStatus('${order.id}', '${s.next}')"` : '';
+    const typeTag = order.type === 'instore'
+      ? '<span class="type-tag instore">店内</span>'
+      : order.type === 'takeout'
+        ? '<span class="type-tag takeout">受取</span>'
+        : '<span class="type-tag delivery">配達</span>';
+    const reserveTag = order.isReservation ? ' <span class="type-tag reservation">📅予約</span>' : '';
+
+    let scheduledStr = '';
+    if (order.isReservation && order.scheduledDate) {
+      const rd = new Date(order.scheduledDate + 'T00:00:00');
+      scheduledStr = `<br><small class="reservation-datetime">${rd.getMonth()+1}/${rd.getDate()} ${order.scheduledTime}</small>`;
+    }
+
+    return `
+      <tr${order.isReservation ? ' class="reservation-row"' : ''}>
+        <td>${order.id}<br><small style="color:var(--text-muted)">${dateStr}</small></td>
+        <td>${order.customer.name}<br><small style="color:var(--text-muted)">${order.customer.phone}</small></td>
+        <td>${typeTag}${reserveTag}${scheduledStr}</td>
+        <td><div>${itemsSummary}</div></td>
+        <td style="text-align:right;font-weight:700">¥${order.total.toLocaleString()}</td>
+        <td>
+          <button class="status-badge ${order.status}" style="background:${s.color}" ${nextClick} title="${s.next ? '次のステータスへ' : ''}">
+            ${s.text}${s.next ? ' →' : ''}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── 更新ロジック ───────────────────────────────────────
+async function refreshOrders(withSound) {
+  cachedOrders = await getOrders();
+  if (withSound && lastOrderCount >= 0 && cachedOrders.length > lastOrderCount) {
+    playOrderSound();
+    flashNewOrder();
+  }
+  lastOrderCount = cachedOrders.length;
+  renderStats();
+  renderTable();
+}
+
+async function advanceStatus(id, nextStatus) {
+  await updateOrderStatus(id, nextStatus);
+  await refreshOrders(false);
+}
+
+// ── デモデータ ─────────────────────────────────────────
+async function addDemoOrders() {
+  const names    = ['たなか たろう', 'すずき はなこ', 'さとう じろう', 'やまだ みさき'];
+  const phones   = ['090-1111-2222', '080-3333-4444', '070-5555-6666', '090-7777-8888'];
+  const statuses = ['pending', 'preparing', 'ready', 'delivered'];
+
+  for (let i = 0; i < names.length; i++) {
+    const items = [MENU[i % MENU.length], MENU[(i + 2) % MENU.length]];
+    const orderItems = items.map(m => ({ id: m.id, name: m.name, price: m.price, qty: 1 + (i % 2) }));
+    const order = await addOrder({
+      type: 'instore',
+      customer: { name: names[i], phone: phones[i] },
+      isReservation: false,
+      scheduledDate: '',
+      scheduledTime: '',
+      items: orderItems,
+      total: orderItems.reduce((s, c) => s + c.price * c.qty, 0),
+    });
+    if (order.status !== statuses[i]) await updateOrderStatus(order.id, statuses[i]);
+  }
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dayAfter = new Date();
+  dayAfter.setDate(dayAfter.getDate() + 2);
+
+  await addOrder({
+    type: 'takeout',
+    customer: { name: 'ささき よしこ', phone: '080-0001-0001' },
+    isReservation: true,
+    scheduledDate: tomorrow.toISOString().slice(0, 10),
+    scheduledTime: '18:00',
+    items: [{ id: MENU[0].id, name: MENU[0].name, price: MENU[0].price, qty: 2 },
+            { id: MENU[5].id, name: MENU[5].name, price: MENU[5].price, qty: 1 }],
+    total: MENU[0].price * 2 + MENU[5].price,
+  });
+  await addOrder({
+    type: 'takeout',
+    customer: { name: 'なかむら けんじ', phone: '090-0002-0002' },
+    isReservation: true,
+    scheduledDate: dayAfter.toISOString().slice(0, 10),
+    scheduledTime: '12:30',
+    items: [{ id: MENU[10].id, name: MENU[10].name, price: MENU[10].price, qty: 3 }],
+    total: MENU[10].price * 3,
+  });
+
+  await refreshOrders(false);
+}
+
+// ── 初期化 ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  renderFilters();
+  await refreshOrders(false);
+
+  document.getElementById('demo-btn').addEventListener('click', addDemoOrders);
+  document.getElementById('clear-btn').addEventListener('click', async () => {
+    if (!confirm('全注文データを削除しますか？')) return;
+    if (_sb) {
+      await _sb.from('orders').delete().neq('id', '');
+    } else {
+      localStorage.removeItem('orders');
+    }
+    lastOrderCount = 0;
+    await refreshOrders(false);
+  });
+
+  if (_sb) {
+    // Supabase リアルタイム購読
+    _sb.channel('orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' },
+        () => refreshOrders(true))
+      .subscribe();
+  } else {
+    // localStorage フォールバック（同一ブラウザ他タブ）
+    window.addEventListener('storage', e => {
+      if (e.key === 'orders') refreshOrders(true);
+    });
+    setInterval(() => refreshOrders(true), 3000);
+  }
+});

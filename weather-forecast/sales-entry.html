@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>売上実績入力</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+    }
+    .container { max-width: 390px; margin: 0 auto; }
+
+    header {
+      background: #2c5f2e;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; line-height: 1; }
+    .page-title { font-weight: bold; font-size: 16px; }
+
+    main { padding: 16px; }
+
+    .section-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+    }
+
+    .date-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .date-row input[type="date"] {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+    .date-row input[type="date"]:focus {
+      outline: none;
+      border-color: #2c5f2e;
+    }
+    .existing-badge {
+      font-size: 12px;
+      background: #e8f5e9;
+      color: #2c5f2e;
+      border-radius: 6px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    .weather-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .fetch-status { font-size: 12px; color: #aaa; }
+    .fetch-btn {
+      font-size: 12px;
+      color: #2c5f2e;
+      background: none;
+      border: 1px solid #2c5f2e;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .weather-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .weather-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 4px;
+      border: 2px solid #eee;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      font-size: 12px;
+      color: #666;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .weather-btn .w-icon { display: flex; align-items: center; justify-content: center; height: 30px; }
+    .weather-btn.selected {
+      border-color: #2c5f2e;
+      background: #e8f5e9;
+      color: #2c5f2e;
+      font-weight: bold;
+    }
+
+    .pred-card {
+      background: #e8f5e9;
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .pred-label { font-size: 11px; color: #888; margin-bottom: 8px; }
+    .pred-rows { display: flex; gap: 16px; }
+    .pred-item { flex: 1; }
+    .pred-item-label { font-size: 12px; color: #666; }
+    .pred-item-value { font-size: 18px; font-weight: bold; color: #2c5f2e; }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+    .input-row:last-child { margin-bottom: 0; }
+    .input-label { font-size: 14px; color: #555; }
+    .input-with-unit {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .input-with-unit input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      text-align: right;
+    }
+    .input-with-unit input:focus {
+      outline: none;
+      border-color: #2c5f2e;
+    }
+    .input-unit { font-size: 14px; color: #888; min-width: 20px; }
+
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: #2c5f2e;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .save-btn:active { background: #1a3d1c; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-btn">←</a>
+      <span class="page-title">売上実績入力</span>
+    </header>
+    <main>
+
+      <div class="section-label">日付</div>
+      <div class="card">
+        <div class="date-row">
+          <input type="date" id="date-input">
+          <span id="existing-badge" class="existing-badge" style="display:none">編集中</span>
+        </div>
+      </div>
+
+      <div class="section-label">ランチタイムの天気</div>
+      <div class="card">
+        <div class="weather-header">
+          <span id="fetch-status" class="fetch-status">日付を選択すると自動取得します</span>
+          <button class="fetch-btn" onclick="doFetchWeather()">天気を取得</button>
+        </div>
+        <div class="weather-btns">
+          <button class="weather-btn" data-type="sunny"  onclick="selectWeather('sunny')">
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg></span>晴れ
+          </button>
+          <button class="weather-btn" data-type="cloudy" onclick="selectWeather('cloudy')">
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>曇り
+          </button>
+          <button class="weather-btn" data-type="rainy"  onclick="selectWeather('rainy')">
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg></span>雨
+          </button>
+          <button class="weather-btn" data-type="stormy" onclick="selectWeather('stormy')">
+            <span class="w-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973" stroke="#6b7280"/><path d="m13 12-3 5h4l-3 5" stroke="#f59e0b"/></svg></span>嵐
+          </button>
+        </div>
+      </div>
+
+      <div id="pred-card" class="pred-card" style="display:none">
+        <div class="pred-label">本日の予測（参考）</div>
+        <div class="pred-rows">
+          <div class="pred-item">
+            <div class="pred-item-label">予測客数</div>
+            <div class="pred-item-value" id="pred-customers">—</div>
+          </div>
+          <div class="pred-item">
+            <div class="pred-item-label">予測売上</div>
+            <div class="pred-item-value" id="pred-sales">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">実績</div>
+      <div class="card">
+        <div class="input-row">
+          <div class="input-label">実際の客数</div>
+          <div class="input-with-unit">
+            <input type="number" id="actual-customers" min="0" placeholder="0" inputmode="numeric">
+            <span class="input-unit">人</span>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-label">実際の売上</div>
+          <div class="input-with-unit">
+            <input type="number" id="actual-sales" min="0" placeholder="0" inputmode="numeric">
+            <span class="input-unit">円</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="handleSave()">保存する</button>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+  <script>
+    let selectedWeather = null;
+
+    function selectWeather(type) {
+      selectedWeather = type;
+      document.querySelectorAll('.weather-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.type === type);
+      });
+      refreshPredCard();
+    }
+
+    function setFetchStatus(msg) {
+      document.getElementById('fetch-status').innerHTML = msg;
+    }
+
+    async function doFetchWeather() {
+      const dateStr = document.getElementById('date-input').value;
+      if (!dateStr) { setFetchStatus('日付を先に選択してください'); return; }
+
+      setFetchStatus('取得中...');
+      try {
+        const result = await fetchWeatherForDate(dateStr);
+        if (result) {
+          selectWeather(result.weatherType);
+          setFetchStatus(WEATHER_ICONS[result.weatherType] + ' 自動取得しました');
+        } else {
+          setFetchStatus('データなし（手動で選択してください）');
+        }
+      } catch {
+        setFetchStatus('取得失敗。手動で選択してください');
+      }
+    }
+
+    function refreshPredCard() {
+      const dateStr = document.getElementById('date-input').value;
+      const card = document.getElementById('pred-card');
+      if (dateStr !== getJSTDateStr(0) || !selectedWeather) {
+        card.style.display = 'none';
+        return;
+      }
+      try {
+        const forecast = calcForecast(selectedWeather, loadCoefficients());
+        document.getElementById('pred-customers').textContent = forecast.customers + '人';
+        document.getElementById('pred-sales').textContent = '¥' + forecast.sales.toLocaleString();
+        card.style.display = '';
+      } catch {
+        card.style.display = 'none';
+      }
+    }
+
+    function onDateChange() {
+      const dateStr = document.getElementById('date-input').value;
+      if (!dateStr) return;
+
+      selectedWeather = null;
+      document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('pred-card').style.display = 'none';
+
+      const existing = loadHistory().find(r => r.date === dateStr);
+      const badge = document.getElementById('existing-badge');
+      if (existing) {
+        badge.style.display = '';
+        document.getElementById('actual-customers').value = existing.actualCustomers;
+        document.getElementById('actual-sales').value = existing.actualSales;
+        if (existing.weatherType) selectWeather(existing.weatherType);
+      } else {
+        badge.style.display = 'none';
+        document.getElementById('actual-customers').value = '';
+        document.getElementById('actual-sales').value = '';
+      }
+
+      // 既存レコードに天気がある場合は自動取得不要
+      if (!existing || !existing.weatherType) doFetchWeather();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function handleSave() {
+      const dateStr = document.getElementById('date-input').value;
+      if (!dateStr)        { showToast('日付を入力してください'); return; }
+      if (!selectedWeather){ showToast('天気を選択してください'); return; }
+
+      const custVal  = document.getElementById('actual-customers').value;
+      const salesVal = document.getElementById('actual-sales').value;
+      if (custVal === '' || salesVal === '') {
+        showToast('客数と売上を入力してください');
+        return;
+      }
+
+      const record = {
+        date:            dateStr,
+        weatherType:     selectedWeather,
+        actualCustomers: Math.max(0, parseInt(custVal)  || 0),
+        actualSales:     Math.max(0, parseInt(salesVal) || 0),
+      };
+
+      if (dateStr === getJSTDateStr(0)) {
+        try {
+          const forecast = calcForecast(selectedWeather, loadCoefficients());
+          record.predictedCustomers = forecast.customers;
+          record.predictedSales     = forecast.sales;
+        } catch {}
+      }
+
+      upsertRecord(record);
+
+      document.getElementById('existing-badge').style.display = '';
+      showToast('保存しました ✓');
+    }
+
+    const dateInput = document.getElementById('date-input');
+    dateInput.max   = getJSTDateStr(0);
+    dateInput.value = getJSTDateStr(0);
+    dateInput.addEventListener('change', onDateChange);
+    onDateChange();
+  </script>
+</body>
+</html>

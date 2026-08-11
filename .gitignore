@@ -1,0 +1,30 @@
+.env
+.env.*
+!.env.example
+
+# MCP サーバー設定（Notion / Obsidian のアクセストークンを含むため追跡しない）
+.mcp.json
+!.mcp.json.example
+
+# 各種サービスの認証情報ファイル
+**/google-credentials.json
+**/credentials.json
+**/client_secret*.json
+**/service-account*.json
+*.pem
+*.key
+id_rsa*
+
+node_modules/
+.venv/
+.claude/
+.codex/
+# コンテナ再構築時に書き戻すための Claude Code 設定の退避先（認証情報を含む）
+.devcontainer/.claude-state/
+*.xlsx
+
+# クライアント固有の提案資料（このリポジトリは公開のため管理外にする）
+みき歯科/
+
+# Codex CLI 用の別 devcontainer 一式（Windows 側へ移設したらこの行は削除してよい）
+codex-inst/

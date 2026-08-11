@@ -1,0 +1,27 @@
+{
+  "name": "英語学習 ビジネス英語",
+  "short_name": "英語学習",
+  "description": "ビジネス英語をオフラインで練習できるアプリ。会話・文法・発音をいつでも学べます。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1F5F9",
+  "theme_color": "#1D4ED8",
+  "lang": "ja",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "../korean-study/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../korean-study/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
